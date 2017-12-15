@@ -42,3 +42,9 @@ void NameCollector::operator ()(FunctionDefinition const& _funDef)
 		m_names.insert(ret.name);
 	ASTWalker::operator ()(_funDef);
 }
+
+void Assignments::operator()(Assignment const& _assignment)
+{
+	for (auto const& var: _assignment.variableNames)
+		m_names.insert(var.name);
+}
