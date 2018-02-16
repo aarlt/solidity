@@ -48,6 +48,7 @@ private:
 
 	iter parseDocTagLine(iter _pos, iter _end, bool _appending);
 	iter parseDocTagParam(iter _pos, iter _end);
+	iter parseDocTagTest(iter _pos, iter _end);
 	iter appendDocTagParam(iter _pos, iter _end);
 	void parseDocString(std::string const& _string);
 	iter appendDocTag(iter _pos, iter _end);

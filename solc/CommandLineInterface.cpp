@@ -101,6 +101,7 @@ static string const g_strMachine = "machine";
 static string const g_strMetadata = "metadata";
 static string const g_strMetadataLiteral = "metadata-literal";
 static string const g_strNatspecDev = "devdoc";
+static string const g_strTestMode = "test";
 static string const g_strNatspecUser = "userdoc";
 static string const g_strOpcodes = "opcodes";
 static string const g_strOptimize = "optimize";
@@ -142,6 +143,7 @@ static string const g_argLink = g_strLink;
 static string const g_argMachine = g_strMachine;
 static string const g_argMetadata = g_strMetadata;
 static string const g_argMetadataLiteral = g_strMetadataLiteral;
+static string const g_argTestMode = g_strTestMode;
 static string const g_argNatspecDev = g_strNatspecDev;
 static string const g_argNatspecUser = g_strNatspecUser;
 static string const g_argOpcodes = g_strOpcodes;
@@ -219,6 +221,7 @@ static bool needsHumanTargetedStdout(po::variables_map const& _args)
 		g_argMetadata,
 		g_argNatspecUser,
 		g_argNatspecDev,
+		g_argTestMode,
 		g_argOpcodes,
 		g_argSignatureHashes
 	})
@@ -356,6 +359,24 @@ void CommandLineInterface::handleNatspec(bool _natspecDev, string const& _contra
 			cout << output << endl;
 		}
 
+	}
+}
+
+void CommandLineInterface::handleTestMode(string const& _contract)
+{
+	std::string argName;
+	std::string suffix(".doctests");
+	std::string title("contract tests");
+
+	std::string output = dev::jsonPrettyPrint(
+		m_compiler->natspecTests(_contract)
+	);
+	if (m_args.count(g_argOutputDir))
+		createFile(m_compiler->filesystemFriendlyName(_contract) + suffix, output);
+	else
+	{
+		cout << title << endl;
+		cout << output << endl;
 	}
 }
 
@@ -613,7 +634,8 @@ Allowed options)",
 		(g_argNatspecUser.c_str(), "Natspec user documentation of all contracts.")
 		(g_argNatspecDev.c_str(), "Natspec developer documentation of all contracts.")
 		(g_argMetadata.c_str(), "Combined Metadata JSON whose Swarm hash is stored on-chain.")
-		(g_argFormal.c_str(), "Translated source suitable for formal analysis.");
+		(g_argFormal.c_str(), "Translated source suitable for formal analysis.")
+		(g_argTestMode.c_str(), "Enable test-mode.");
 	desc.add(outputComponents);
 
 	po::options_description allOptions = desc;
@@ -1183,6 +1205,9 @@ void CommandLineInterface::outputCompilationResults()
 
 		if (m_args.count(g_argGas))
 			handleGasEstimation(contract);
+
+		if (m_args.count(g_argTestMode))
+			handleTestMode(contract);
 
 		handleBytecode(contract);
 		handleSignatureHashes(contract);

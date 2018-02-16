@@ -142,6 +142,40 @@ DocStringParser::iter DocStringParser::parseDocTagParam(iter _pos, iter _end)
 	return skipLineOrEOS(nlPos, _end);
 }
 
+DocStringParser::iter DocStringParser::parseDocTagTest(iter _pos, iter _end)
+{
+	// find param name start
+	auto nameStartPos = skipWhitespace(_pos, _end);
+	std::cout << std::string(_pos, _end) << std::endl;
+	if (nameStartPos == _end)
+	{
+		appendError("No param name given");
+		return _end;
+	}
+	auto nameEndPos = firstSpaceOrTab(nameStartPos, _end);
+	if (nameEndPos == _end)
+	{
+		appendError("End of param name not found: " + string(nameStartPos, _end));
+		return _end;
+	}
+	auto paramName = string(nameStartPos, nameEndPos);
+
+	auto descStartPos = skipWhitespace(nameEndPos, _end);
+	if (descStartPos == _end)
+	{
+		appendError("No description given for param " + paramName);
+		return _end;
+	}
+
+	auto nlPos = find(descStartPos, _end, '\n');
+	auto paramDesc = string(descStartPos, nlPos);
+	newTag("test");
+	m_lastTag->paramName = paramName;
+	m_lastTag->content = paramDesc;
+
+	return skipLineOrEOS(nlPos, _end);
+}
+
 DocStringParser::iter DocStringParser::parseDocTag(iter _pos, iter _end, string const& _tag)
 {
 	// LTODO: need to check for @(start of a tag) between here and the end of line
@@ -153,6 +187,9 @@ DocStringParser::iter DocStringParser::parseDocTag(iter _pos, iter _end, string 
 		else
 		{
 			newTag(_tag);
+			if (_tag == "test") {
+				return parseDocTagLine(_pos, _end, true);
+			}
 			return parseDocTagLine(_pos, _end, false);
 		}
 	}

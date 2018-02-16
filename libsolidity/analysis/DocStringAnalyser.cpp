@@ -40,7 +40,7 @@ bool DocStringAnalyser::analyseDocStrings(SourceUnit const& _sourceUnit)
 
 bool DocStringAnalyser::visit(ContractDefinition const& _contract)
 {
-	static const set<string> validTags = set<string>{"author", "title", "dev", "notice"};
+	static const set<string> validTags = set<string>{"author", "title", "dev", "notice", "test"};
 	parseDocStrings(_contract, _contract.annotation(), validTags, "contracts");
 
 	return true;

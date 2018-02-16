@@ -67,6 +67,7 @@ private:
 	void handleMetadata(std::string const& _contract);
 	void handleABI(std::string const& _contract);
 	void handleNatspec(bool _natspecDev, std::string const& _contract);
+	void handleTestMode(std::string const& _contract);
 	void handleGasEstimation(std::string const& _contract);
 	void handleFormal();
 

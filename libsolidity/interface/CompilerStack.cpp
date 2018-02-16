@@ -461,6 +461,25 @@ Json::Value const& CompilerStack::natspecDev(Contract const& _contract) const
 	return *_contract.devDocumentation;
 }
 
+Json::Value const& CompilerStack::natspecTests(string const& _contractName) const
+{
+	return natspecTests(contract(_contractName));
+}
+
+Json::Value const& CompilerStack::natspecTests(Contract const& _contract) const
+{
+	if (m_stackState < AnalysisSuccessful)
+		BOOST_THROW_EXCEPTION(CompilerError() << errinfo_comment("Parsing was not successful."));
+
+	solAssert(_contract.contract, "");
+
+	// caches the result
+	if (!_contract.testDocumentation)
+		_contract.testDocumentation.reset(new Json::Value(Natspec::testDocumentation(*_contract.contract)));
+
+	return *_contract.testDocumentation;
+}
+
 Json::Value CompilerStack::methodIdentifiers(string const& _contractName) const
 {
 	Json::Value methodIdentifiers(Json::objectValue);

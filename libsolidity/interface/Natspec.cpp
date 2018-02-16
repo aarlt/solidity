@@ -54,6 +54,18 @@ Json::Value Natspec::userDocumentation(ContractDefinition const& _contractDef)
 	return doc;
 }
 
+Json::Value Natspec::testDocumentation(ContractDefinition const& _contractDef)
+{
+	Json::Value doc;
+	Json::Value methods(Json::objectValue);
+
+	auto test = extractDoc(_contractDef.annotation().docTags, "test");
+	if (!test.empty())
+		doc["test"] = test;
+
+	return doc;
+}
+
 Json::Value Natspec::devDocumentation(ContractDefinition const& _contractDef)
 {
 	Json::Value doc;

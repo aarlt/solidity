@@ -222,6 +222,10 @@ public:
 	/// Prerequisite: Successful call to parse or compile.
 	Json::Value const& natspecDev(std::string const& _contractName) const;
 
+	/// @returns a JSON representing the contract's tests.
+	/// Prerequisite: Successful call to parse or compile.
+	Json::Value const& natspecTests(std::string const& _contractName) const;
+
 	/// @returns a JSON representing a map of method identifiers (hashes) to function names.
 	Json::Value methodIdentifiers(std::string const& _contractName) const;
 
@@ -254,6 +258,7 @@ private:
 		mutable std::unique_ptr<Json::Value const> abi;
 		mutable std::unique_ptr<Json::Value const> userDocumentation;
 		mutable std::unique_ptr<Json::Value const> devDocumentation;
+		mutable std::unique_ptr<Json::Value const> testDocumentation;
 		mutable std::unique_ptr<std::string const> sourceMapping;
 		mutable std::unique_ptr<std::string const> runtimeSourceMapping;
 	};
@@ -291,6 +296,7 @@ private:
 	Json::Value const& contractABI(Contract const&) const;
 	Json::Value const& natspecUser(Contract const&) const;
 	Json::Value const& natspecDev(Contract const&) const;
+	Json::Value const& natspecTests(Contract const&) const;
 
 	/// @returns the offset of the entry point of the given function into the list of assembly items
 	/// or zero if it is not found or does not exist.

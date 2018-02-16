@@ -476,6 +476,8 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 			contractData["userdoc"] = m_compilerStack.natspecUser(contractName);
 		if (isArtifactRequested(outputSelection, file, name, "devdoc"))
 			contractData["devdoc"] = m_compilerStack.natspecDev(contractName);
+		if (isArtifactRequested(outputSelection, file, name, "test"))
+			contractData["test"] = m_compilerStack.natspecTests(contractName);
 
 		// EVM
 		Json::Value evmData(Json::objectValue);
