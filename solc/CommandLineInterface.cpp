@@ -101,7 +101,6 @@ static string const g_strMachine = "machine";
 static string const g_strMetadata = "metadata";
 static string const g_strMetadataLiteral = "metadata-literal";
 static string const g_strNatspecDev = "devdoc";
-static string const g_strTestMode = "test";
 static string const g_strNatspecUser = "userdoc";
 static string const g_strOpcodes = "opcodes";
 static string const g_strOptimize = "optimize";
@@ -117,6 +116,13 @@ static string const g_strStandardJSON = "standard-json";
 static string const g_strStrictAssembly = "strict-assembly";
 static string const g_strPrettyJson = "pretty-json";
 static string const g_strVersion = "version";
+static string const g_strTest = "test";
+static string const g_strExtractTests = "extract-tests";
+static string const g_strTestReport = "report";
+static string const g_strTestReportJson = "report-json";
+static string const g_strIpcPath = "ipcpath";
+static string const g_strListTests = "list-tests";
+static string const g_strListTestsJson = "list-tests-json";
 
 static string const g_argAbi = g_strAbi;
 static string const g_argAddStandard = g_strAddStandard;
@@ -143,7 +149,6 @@ static string const g_argLink = g_strLink;
 static string const g_argMachine = g_strMachine;
 static string const g_argMetadata = g_strMetadata;
 static string const g_argMetadataLiteral = g_strMetadataLiteral;
-static string const g_argTestMode = g_strTestMode;
 static string const g_argNatspecDev = g_strNatspecDev;
 static string const g_argNatspecUser = g_strNatspecUser;
 static string const g_argOpcodes = g_strOpcodes;
@@ -155,6 +160,13 @@ static string const g_argStandardJSON = g_strStandardJSON;
 static string const g_argStrictAssembly = g_strStrictAssembly;
 static string const g_argVersion = g_strVersion;
 static string const g_stdinFileName = g_stdinFileNameStr;
+static string const g_argTest = g_strTest;
+static string const g_argIpcPath = g_strIpcPath;
+static string const g_argExtractTests = g_strExtractTests;
+static string const g_argListTests = g_strListTests;
+static string const g_argListTestsJson = g_strListTestsJson;
+static string const g_argTestReport = g_strTestReport;
+static string const g_argTestReportJson = g_strTestReportJson;
 
 /// Possible arguments to for --combined-json
 static set<string> const g_combinedJsonArgs
@@ -221,12 +233,12 @@ static bool needsHumanTargetedStdout(po::variables_map const& _args)
 		g_argMetadata,
 		g_argNatspecUser,
 		g_argNatspecDev,
-		g_argTestMode,
+		g_argTest,
 		g_argOpcodes,
 		g_argSignatureHashes
 	})
-		if (_args.count(arg))
-			return true;
+	if (_args.count(arg))
+		return true;
 	return false;
 }
 
@@ -618,6 +630,28 @@ Allowed options)",
 			po::value<string>()->value_name("path(s)"),
 			"Allow a given path for imports. A list of paths can be supplied by separating them with a comma."
 		);
+
+	po::options_description testComponents("Testing");
+	testComponents.add_options()
+		(
+			g_argTest.c_str(),
+			po::value<string>()->value_name("test(s)"),
+			"Run all defined test(s). If no test(s) where specified, run all test(s) defined in source files. "
+				"If --test pointing to file(s), run all the test(s) that where defined there. A list of test(s) "
+				"can be supplied by separating them with a comma."
+		)
+		(g_argExtractTests.c_str(), "Extract all tests defined in source files and export them into a single source.")
+		(g_argListTests.c_str(), "List test(s) of all source files.")
+		(g_argListTestsJson.c_str(), "List test(s) of all source files in JSON format.")
+		(g_argTestReport.c_str(), "Generate test-report.")
+		(g_argTestReportJson.c_str(), "Generate test-report in JSON format.")
+		(
+			g_argIpcPath.c_str(),
+			po::value<string>()->value_name("path"),
+			"Set .ipc socket path."
+		);
+	desc.add(testComponents);
+
 	po::options_description outputComponents("Output Components");
 	outputComponents.add_options()
 		(g_argAst.c_str(), "AST of all source files.")
@@ -634,8 +668,7 @@ Allowed options)",
 		(g_argNatspecUser.c_str(), "Natspec user documentation of all contracts.")
 		(g_argNatspecDev.c_str(), "Natspec developer documentation of all contracts.")
 		(g_argMetadata.c_str(), "Combined Metadata JSON whose Swarm hash is stored on-chain.")
-		(g_argFormal.c_str(), "Translated source suitable for formal analysis.")
-		(g_argTestMode.c_str(), "Enable test-mode.");
+		(g_argFormal.c_str(), "Translated source suitable for formal analysis.");
 	desc.add(outputComponents);
 
 	po::options_description allOptions = desc;
@@ -1206,7 +1239,7 @@ void CommandLineInterface::outputCompilationResults()
 		if (m_args.count(g_argGas))
 			handleGasEstimation(contract);
 
-		if (m_args.count(g_argTestMode))
+		if (m_args.count(g_argTest))
 			handleTestMode(contract);
 
 		handleBytecode(contract);
