@@ -50,29 +50,46 @@ void removeTestSuite(std::string const& _name)
 }
 }
 
+void test_case1() { /* ... */ }
+
 test_suite* init_unit_test_suite( int /*argc*/, char* /*argv*/[] )
 {
 	master_test_suite_t& master = framework::master_test_suite();
 	master.p_name.value = "SolidityTests";
+	static std::string suites[] = {
+		"ABIDecoderTest",
+		"ABIEncoderTest",
+		"SolidityAuctionRegistrar",
+		"SolidityFixedFeeRegistrar",
+		"SolidityWallet",
+		"LLLERC20",
+		"LLLENS",
+		"LLLEndToEndTest",
+		"GasMeterTests",
+		"SolidityEndToEndTest",
+		"SolidityOptimizer"
+	};
 	if (dev::test::Options::get().disableIPC)
 	{
-		for (auto suite: {
-			"ABIDecoderTest",
-			"ABIEncoderTest",
-			"SolidityAuctionRegistrar",
-			"SolidityFixedFeeRegistrar",
-			"SolidityWallet",
-			"LLLERC20",
-			"LLLENS",
-			"LLLEndToEndTest",
-			"GasMeterTests",
-			"SolidityEndToEndTest",
-			"SolidityOptimizer"
-		})
+		for (auto& suite: suites)
 			removeTestSuite(suite);
 	}
+
 	if (dev::test::Options::get().disableSMT)
 		removeTestSuite("SMTChecker");
+
+	if (!dev::test::Options::get().disableIPC && !dev::test::Options::get().ipcPath.empty())
+	{
+		if (!dev::test::Options::get().test.empty() || !dev::test::Options::get().script.empty())
+		{
+			master.p_name.value = "SolidityTestScripts";
+			test_suite* ts1 = BOOST_TEST_SUITE( "soltestScript" );
+			ts1->add( BOOST_TEST_CASE( &test_case1 ) );
+			ts1->add( BOOST_TEST_CASE( &test_case1 ) );
+			ts1->add( BOOST_TEST_CASE( &test_case1 ) );
+			framework::master_test_suite().add( ts1 );
+		}
+	}
 
 	return 0;
 }

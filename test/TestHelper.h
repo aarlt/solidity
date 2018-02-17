@@ -32,6 +32,8 @@ namespace test
 struct Options: boost::noncopyable
 {
 	std::string ipcPath;
+	std::string script;
+	std::string test;
 	bool showMessages = false;
 	bool optimize = false;
 	bool disableIPC = false;
