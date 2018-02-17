@@ -1,0 +1,95 @@
+/*
+	This file is part of solidity.
+
+	solidity is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	solidity is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file TestCaseGenerator.h
+ * @author Alexander Arlt <alexander.arlt@arlt-labs.com
+ * @date 2018
+ */
+
+#include "TestCaseGenerator.h"
+
+#include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
+#include <iostream>
+
+namespace dev
+{
+
+namespace soltest
+{
+
+TestCaseGenerator::TestCaseGenerator(boost::unit_test::test_suite &_testSuite, std::set<std::string> const &_contracts)
+	: m_testSuite(_testSuite), m_constracts(_contracts)
+{
+	for (auto &contract : m_constracts)
+	{
+		std::vector<std::string> components;
+		boost::split(components, contract, boost::is_any_of(":"));
+		if (components.size() == 2)
+		{
+			boost::filesystem::path path(components[0]);
+			std::string soltest(
+				path.parent_path().string() + boost::filesystem::path::separator + components[1] + ".soltest"
+			);
+			if (boost::filesystem::exists(soltest))
+			{
+				std::ifstream file(soltest);
+				std::stringstream content;
+				content << file.rdbuf();
+				addContractTests(soltest, content.str());
+			}
+		}
+	}
+	setup();
+}
+
+void TestCaseGenerator::setup()
+{
+	for (auto &contract : m_contractTests)
+	{
+		for (auto &testcase : contract.second->testcases())
+		{
+			auto compileContracts = std::bind(&TestCaseGenerator::test, this);
+			m_testSuite.add(
+				boost::unit_test::make_test_case(
+					boost::function<void()>(compileContracts),
+					boost::filesystem::basename(contract.first) + " " + testcase,
+					// todo: remove that crazy hacky memory leak
+					(*new std::string(contract.second->file())).c_str(),
+					contract.second->line(testcase))
+			);
+		}
+	}
+
+}
+
+void TestCaseGenerator::addContractTests(std::string const &contract, const std::string &tests)
+{
+	m_contractTests[contract] =
+		std::shared_ptr<dev::soltest::SoltestTests>(new dev::soltest::SoltestTests(tests, contract));
+}
+
+void TestCaseGenerator::test()
+{
+	BOOST_CHECK(false);
+}
+
+} // namespace soltest
+
+} // namespace dev

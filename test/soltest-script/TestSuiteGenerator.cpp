@@ -21,6 +21,8 @@
 
 #include "TestSuiteGenerator.h"
 
+#include "TestCaseGenerator.h"
+
 #include <libsolidity/interface/StandardCompiler.h>
 
 #include <boost/filesystem.hpp>
@@ -42,8 +44,8 @@ TestSuiteGenerator::TestSuiteGenerator(boost::unit_test::master_test_suite_t &_m
 	: m_running(true), m_masterTestSuite(_masterTestSuite)
 {
 	m_masterTestSuite.p_name.value = "Contracts";
-	m_contractsTestSuites = BOOST_TEST_SUITE("contracts");
-	m_masterTestSuite.add(m_contractsTestSuites);
+	m_contractsTestSuite = BOOST_TEST_SUITE("contracts");
+	m_masterTestSuite.add(m_contractsTestSuite);
 }
 
 bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
@@ -64,42 +66,24 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 		{
 			if (boost::filesystem::extension(argument) == ".sol")
 			{
-				m_contracts.insert(argument);
-				if (boost::filesystem::exists(argument + "test"))
-				{
-					m_tests.insert(argument + "test");
-				}
+				m_contractFiles.insert(argument);
 			}
 			else if (boost::filesystem::extension(argument) == ".soltest")
 			{
 				std::string contractFile(argument.substr(0, argument.length() - 4));
-				m_tests.insert(argument);
 				if (boost::filesystem::exists(contractFile))
 				{
-					m_contracts.insert(contractFile);
+					m_contractFiles.insert(contractFile);
 				}
 			}
 		}
 	}
 
-	if (preloadContracts(m_contracts))
+	if (preloadContracts(m_contractFiles))
 	{
 		for (auto &contract : m_compilerStack.contractNames())
 		{
-			std::vector<std::string> components;
-			boost::split(components, contract, boost::is_any_of(":"));
-			if (components.size() == 2)
-			{
-				boost::filesystem::path path(components[0]);
-				std::string soltest(
-					path.parent_path().string() + boost::filesystem::path::separator + components[1] + ".soltest"
-				);
-				if (boost::filesystem::exists(soltest))
-				{
-					std::cout << soltest << std::endl;
-					m_tests.insert(soltest);
-				}
-			}
+			m_contracts.insert(contract);
 		}
 	}
 
@@ -109,38 +93,35 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 		BOOST_TEST_MESSAGE("    '" + option.first + "' = '" + option.second + "'");
 	}
 	BOOST_TEST_MESSAGE("- contracts");
-	for (auto &contract : m_contracts)
+	for (auto &contract : m_contractFiles)
 	{
 		BOOST_TEST_MESSAGE("    '" + contract + "'");
 	}
-	BOOST_TEST_MESSAGE("- tests");
-	for (auto &test : m_tests)
-	{
-		BOOST_TEST_MESSAGE("    '" + test + "'");
-	}
 
-	static auto loadContracts = std::bind(&TestSuiteGenerator::loadContracts, this, m_contracts);
-	m_contractsTestSuites->add(
+	auto loadContracts = std::bind(&TestSuiteGenerator::loadContracts, this, m_contractFiles);
+	m_contractsTestSuite->add(
 		boost::unit_test::make_test_case(boost::function<void()>(loadContracts), "load contracts", __FILE__, __LINE__)
 	);
 
-	static auto parseContracts = std::bind(&TestSuiteGenerator::parseContracts, this);
-	m_contractsTestSuites->add(
+	auto parseContracts = std::bind(&TestSuiteGenerator::parseContracts, this);
+	m_contractsTestSuite->add(
 		boost::unit_test::make_test_case(boost::function<void()>(parseContracts),
 										 "parsing contracts", __FILE__, __LINE__)
 	);
 
-	static auto analyzeContracts = std::bind(&TestSuiteGenerator::analyzeContracts, this);
-	m_contractsTestSuites->add(
+	auto analyzeContracts = std::bind(&TestSuiteGenerator::analyzeContracts, this);
+	m_contractsTestSuite->add(
 		boost::unit_test::make_test_case(boost::function<void()>(analyzeContracts),
 										 "analyzing contracts", __FILE__, __LINE__)
 	);
 
-	static auto compileContracts = std::bind(&TestSuiteGenerator::compileContracts, this);
-	m_contractsTestSuites->add(
+	auto compileContracts = std::bind(&TestSuiteGenerator::compileContracts, this);
+	m_contractsTestSuite->add(
 		boost::unit_test::make_test_case(boost::function<void()>(compileContracts),
 										 "compile contracts", __FILE__, __LINE__)
 	);
+
+	static TestCaseGenerator testCaseGenerator(*m_contractsTestSuite, m_contracts);
 
 	return true;
 }
