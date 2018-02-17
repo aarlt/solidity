@@ -39,6 +39,16 @@ Options::Options()
 			ipcPath = suite.argv[i + 1];
 			i++;
 		}
+		else if (string(suite.argv[i]) == "--script" && i + 1 < suite.argc)
+		{
+			script = suite.argv[i + 1];
+			i++;
+		}
+		else if (string(suite.argv[i]) == "--test" && i + 1 < suite.argc)
+		{
+			test = suite.argv[i + 1];
+			i++;
+		}
 		else if (string(suite.argv[i]) == "--optimize")
 			optimize = true;
 		else if (string(suite.argv[i]) == "--show-messages")
