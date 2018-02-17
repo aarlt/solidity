@@ -5,3 +5,9 @@ contract NatspecTest {
 
     }
 }
+
+contract SecondNatspecTest {
+    function SecondNatspecTest(){
+
+    }
+}

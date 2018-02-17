@@ -37,24 +37,24 @@
 
 #include <test/TestHelper.h>
 
+#include <test/soltest-script/TestSuiteGenerator.h>
+
 using namespace boost::unit_test;
 
 namespace
 {
-void removeTestSuite(std::string const& _name)
+void removeTestSuite(std::string const &_name)
 {
-	master_test_suite_t& master = framework::master_test_suite();
+	master_test_suite_t &master = framework::master_test_suite();
 	auto id = master.get(_name);
 	assert(id != INV_TEST_UNIT_ID);
 	master.remove(id);
 }
 }
 
-void test_case1() { /* ... */ }
-
-test_suite* init_unit_test_suite( int /*argc*/, char* /*argv*/[] )
+test_suite *init_unit_test_suite(int argc, char *argv[])
 {
-	master_test_suite_t& master = framework::master_test_suite();
+	master_test_suite_t &master = framework::master_test_suite();
 	master.p_name.value = "SolidityTests";
 	static std::string suites[] = {
 		"ABIDecoderTest",
@@ -71,7 +71,7 @@ test_suite* init_unit_test_suite( int /*argc*/, char* /*argv*/[] )
 	};
 	if (dev::test::Options::get().disableIPC)
 	{
-		for (auto& suite: suites)
+		for (auto &suite: suites)
 			removeTestSuite(suite);
 	}
 
@@ -80,15 +80,9 @@ test_suite* init_unit_test_suite( int /*argc*/, char* /*argv*/[] )
 
 	if (!dev::test::Options::get().disableIPC && !dev::test::Options::get().ipcPath.empty())
 	{
-		if (!dev::test::Options::get().test.empty() || !dev::test::Options::get().script.empty())
-		{
-			master.p_name.value = "SolidityTestScripts";
-			test_suite* ts1 = BOOST_TEST_SUITE( "soltest-script" );
-			ts1->add( BOOST_TEST_CASE( &test_case1 ) );
-			ts1->add( BOOST_TEST_CASE( &test_case1 ) );
-			ts1->add( BOOST_TEST_CASE( &test_case1 ) );
-			framework::master_test_suite().add( ts1 );
-		}
+		static dev::soltest::TestSuiteGenerator testSuiteGenerator(master);
+		if (!testSuiteGenerator.parseCommandLineArguments(argc, argv))
+			BOOST_TEST_MESSAGE("Error while parsing command line arguments.");
 	}
 
 	return 0;
