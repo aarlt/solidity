@@ -83,7 +83,7 @@ test_suite* init_unit_test_suite( int /*argc*/, char* /*argv*/[] )
 		if (!dev::test::Options::get().test.empty() || !dev::test::Options::get().script.empty())
 		{
 			master.p_name.value = "SolidityTestScripts";
-			test_suite* ts1 = BOOST_TEST_SUITE( "soltestScript" );
+			test_suite* ts1 = BOOST_TEST_SUITE( "soltest-script" );
 			ts1->add( BOOST_TEST_CASE( &test_case1 ) );
 			ts1->add( BOOST_TEST_CASE( &test_case1 ) );
 			ts1->add( BOOST_TEST_CASE( &test_case1 ) );
