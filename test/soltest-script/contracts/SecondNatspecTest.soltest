@@ -1,7 +1,18 @@
 {setup}
+A /*_soltest_line:9999*/
+B
+C
 
 {teardown}
+D
+E
+F
 
-{test 01}
+{second test 01}
+G
+H
+I
 
-{test 02}
+{second test 02}
+J
+K

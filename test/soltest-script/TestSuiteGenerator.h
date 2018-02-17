@@ -23,9 +23,9 @@
 #define SOLIDITY_TESTSUITEGENERATOR_HPP
 
 #include <boost/test/framework.hpp>
+#include <boost/test/test_tools.hpp>
 
 #include <map>
-#include <boost/test/test_tools.hpp>
 
 #include <libdevcore/JSON.h>
 #include <libsolidity/interface/CompilerStack.h>
@@ -43,7 +43,7 @@ public:
 	bool parseCommandLineArguments(int argc, char *argv[]);
 
 	boost::unit_test::test_suite *test_suite() {
-		return this->m_contractsTestSuites;
+		return this->m_contractsTestSuite;
 	}
 
 private:
@@ -58,11 +58,11 @@ private:
 	bool m_running;
 
 	boost::unit_test::master_test_suite_t &m_masterTestSuite;
-	boost::unit_test::test_suite *m_contractsTestSuites;
+	boost::unit_test::test_suite *m_contractsTestSuite;
 
 	std::map<std::string, std::string> m_options;
+	std::set<std::string> m_contractFiles;
 	std::set<std::string> m_contracts;
-	std::set<std::string> m_tests;
 
 	std::function<const solidity::Scanner &(const std::string &)> m_scannerFromSourceName;
 	dev::solidity::CompilerStack m_compilerStack;
