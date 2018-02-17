@@ -27,6 +27,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <iostream>
+#include <memory>
 
 namespace dev
 {
@@ -61,17 +62,22 @@ TestCaseGenerator::TestCaseGenerator(boost::unit_test::test_suite &_testSuite, s
 
 void TestCaseGenerator::setup()
 {
+	static std::vector<std::shared_ptr<std::string>> strings;
 	for (auto &contract : m_contractTests)
 	{
 		for (auto &testcase : contract.second->testcases())
 		{
 			auto compileContracts = std::bind(&TestCaseGenerator::test, this);
+			// tests are executed asynchronously, we need a valid reference to the dynamically created string,
+			// where the c-string pointer need to be valid for a while.
+			std::shared_ptr<std::string> filename(new std::string(contract.second->file()));
+			strings.emplace_back(filename);
+
 			m_testSuite.add(
 				boost::unit_test::make_test_case(
 					boost::function<void()>(compileContracts),
 					boost::filesystem::basename(contract.first) + " " + testcase,
-					// todo: remove that crazy hacky memory leak
-					(*new std::string(contract.second->file())).c_str(),
+					filename->c_str(),
 					contract.second->line(testcase))
 			);
 		}
