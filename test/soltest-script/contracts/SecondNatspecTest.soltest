@@ -2,11 +2,13 @@
     uint storedData;
 
 {teardown}
+    storedData = 0;
 
 {second test 01}
-    uint storedData;
+    storedData += 1;
 
 {second test 02}
+    storedData += 3;
 
 {second test 03}
 

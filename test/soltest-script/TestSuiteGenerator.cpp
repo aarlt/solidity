@@ -43,8 +43,8 @@ namespace soltest
 TestSuiteGenerator::TestSuiteGenerator(boost::unit_test::master_test_suite_t &_masterTestSuite)
 	: m_running(true), m_masterTestSuite(_masterTestSuite)
 {
-	m_masterTestSuite.p_name.value = "Contracts";
-	m_contractsTestSuite = BOOST_TEST_SUITE("contracts");
+	m_masterTestSuite.p_name.value = "End To End Tests";
+	m_contractsTestSuite = BOOST_TEST_SUITE("EndToEnd");
 	m_masterTestSuite.add(m_contractsTestSuite);
 }
 
@@ -100,11 +100,11 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 
 	m_compilerStack.reset();
 
-	static TestCaseGenerator testCaseGenerator(*m_contractsTestSuite, m_contracts);
+	static TestCaseGenerator testCaseGenerator(*m_contractsTestSuite, m_compilerStack, m_contracts);
 
 	for (auto &soltest : testCaseGenerator.soltests())
 	{
-		std::string contractName(boost::filesystem::basename(soltest->file()));
+		std::string contractName("EndToEnd" + boost::filesystem::basename(soltest->file()));
 		std::string contractSource(soltest->generateSolidity());
 		std::cout << soltest->generateSolidity() << std::endl << std::endl;
 		std::cout << m_compilerStack.addSource(contractName, contractSource) << std::endl << std::endl;
@@ -133,7 +133,7 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 										 "compile contracts", __FILE__, __LINE__)
 	);
 
-	testCaseGenerator.registerTestcases();
+	testCaseGenerator.registerTestCases();
 
 	return true;
 }
