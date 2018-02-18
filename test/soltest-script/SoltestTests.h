@@ -41,18 +41,26 @@ public:
 
 	std::vector<std::string> testcases();
 
-	std::string file() {
+	std::string file()
+	{
 		return this->m_file;
 	}
 
-	uint32_t line(std::string& name) {
+	uint32_t line(std::string &name)
+	{
 		return m_lines[name];
 	}
+
+	std::string generateSolidity();
+
+	std::string content(uint32_t indention, std::string const &section);
+
+	std::string normalizeName(std::string const& name);
 
 private:
 	std::string m_content;
 	std::string m_file;
-	std::unordered_map<std::string, std::string> m_tests;
+	std::map<std::string, std::stringstream> m_tests;
 	std::map<std::string, uint32_t> m_lines;
 };
 

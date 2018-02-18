@@ -1,18 +1,15 @@
 {setup}
-A /*_soltest_line:9999*/
-B
-C
+    uint storedData;
 
 {teardown}
-D
-E
-F
 
 {second test 01}
-G
-H
-I
+    uint storedData;
 
 {second test 02}
-J
-K
+
+{second test 03}
+
+{second test 04}
+
+{second test 05}

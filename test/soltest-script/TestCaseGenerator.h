@@ -40,8 +40,10 @@ public:
 							   std::set<std::string> const &_contracts = std::set<std::string>());
 
 	void addContractTests(std::string const &_contract, std::string const &_tests);
-	void setup();
-	void test();
+	void registerTestcases();
+	void test(std::string const& contract, std::string const& testcase, const char *filename, uint32_t line);
+
+	std::vector<dev::soltest::SoltestTests::Ptr> soltests();
 
 private:
 	boost::unit_test::test_suite &m_testSuite;

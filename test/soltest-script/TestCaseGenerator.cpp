@@ -57,32 +57,36 @@ TestCaseGenerator::TestCaseGenerator(boost::unit_test::test_suite &_testSuite, s
 			}
 		}
 	}
-	setup();
 }
 
-void TestCaseGenerator::setup()
+void TestCaseGenerator::registerTestcases()
 {
 	static std::vector<std::shared_ptr<std::string>> strings;
 	for (auto &contract : m_contractTests)
 	{
 		for (auto &testcase : contract.second->testcases())
 		{
-			auto compileContracts = std::bind(&TestCaseGenerator::test, this);
 			// tests are executed asynchronously, we need a valid reference to the dynamically created string,
 			// where the c-string pointer need to be valid for a while.
 			std::shared_ptr<std::string> filename(new std::string(contract.second->file()));
 			strings.emplace_back(filename);
 
+			auto testRunner = std::bind(&TestCaseGenerator::test,
+										this,
+										contract.first,
+										testcase,
+										filename->c_str(),
+										contract.second->line(testcase));
+
 			m_testSuite.add(
 				boost::unit_test::make_test_case(
-					boost::function<void()>(compileContracts),
+					boost::function<void()>(testRunner),
 					boost::filesystem::basename(contract.first) + " " + testcase,
 					filename->c_str(),
 					contract.second->line(testcase))
 			);
 		}
 	}
-
 }
 
 void TestCaseGenerator::addContractTests(std::string const &contract, const std::string &tests)
@@ -91,9 +95,27 @@ void TestCaseGenerator::addContractTests(std::string const &contract, const std:
 		std::shared_ptr<dev::soltest::SoltestTests>(new dev::soltest::SoltestTests(tests, contract));
 }
 
-void TestCaseGenerator::test()
+void TestCaseGenerator::test(std::string const &contract,
+							 std::string const &testcase,
+							 const char *filename,
+							 uint32_t line)
 {
-	BOOST_CHECK(false);
+	(void) contract;
+	(void) testcase;
+	(void) filename;
+	(void) line;
+	// std::cout << boost::filesystem::basename(contract) << " @ " << testcase << " [" << filename << ":" << line << "]" << std::endl;
+	BOOST_CHECK(true);
+}
+
+std::vector<dev::soltest::SoltestTests::Ptr> TestCaseGenerator::soltests()
+{
+	std::vector<SoltestTests::Ptr> result;
+	for (auto &soltest : m_contractTests)
+	{
+		result.emplace_back(soltest.second);
+	}
+	return result;
 }
 
 } // namespace soltest

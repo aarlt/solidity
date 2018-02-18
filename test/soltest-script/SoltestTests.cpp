@@ -24,7 +24,10 @@
 #include <sstream>
 #include <iostream>
 
+#include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace dev
 {
@@ -35,7 +38,6 @@ namespace soltest
 SoltestTests::SoltestTests(std::string const &source, std::string const &file) : m_content(source), m_file(file)
 {
 	std::stringstream input(m_content);
-	std::stringstream content;
 	std::string section;
 	uint32_t count(1);
 	for (std::string line; getline(input, line);)
@@ -47,27 +49,24 @@ SoltestTests::SoltestTests(std::string const &source, std::string const &file) :
 			section = trimmed;
 			if (section.length() > 2)
 			{
-				std::string section_nice(section.substr(1, section.length() - 2));
-				m_tests[section_nice] = content.str();
-				m_lines[section_nice] = count;
+				section = (section.substr(1, section.length() - 2));
+				m_lines[section] = count;
 			}
-			content.str("");
 		}
 		else
 		{
-			content << line;
+			m_tests[section] << line;
 			if (line.find("/*_soltest_line:") == std::string::npos)
 			{
-				content << " /*" << "_soltest_line:" << count << "*/";
+				m_tests[section] << " /*" << "_soltest_line:" << count << "*/";
 			}
-			content << std::endl;
+			m_tests[section] << std::endl;
 		}
 		++count;
 	}
 	if (section.length() > 2)
 	{
 		std::string section_nice(section.substr(1, section.length() - 2));
-		m_tests[section_nice] = content.str();
 	}
 }
 
@@ -81,6 +80,56 @@ std::vector<std::string> SoltestTests::testcases()
 			result.emplace_back(test.first);
 		}
 	}
+	return result;
+}
+
+std::string SoltestTests::generateSolidity()
+{
+	std::stringstream result;
+	std::string contractName("_Soltest_" + boost::filesystem::basename(m_file));
+	result << "// " << m_file << std::endl;
+	result << "pragma solidity ^0.4.0;" << std::endl;
+	result << "contract " << contractName << " {" << std::endl;
+	result << "    function " << contractName << "() public {" << std::endl;
+	result << content(8, "setup");
+	result << "    }" << std::endl;
+	result << "    function teardown() public {" << std::endl;
+	result << content(8, "teardown");
+	result << "    }" << std::endl;
+	for (auto &testcase : testcases())
+	{
+		result << "    function " << normalizeName(testcase) << "() public {" << std::endl;
+		result << content(8, testcase);
+		result << "    }" << std::endl;
+	}
+	result << "}" << std::endl;
+	return result.str();
+}
+
+std::string SoltestTests::content(uint32_t indention, std::string const &section)
+{
+	std::stringstream result;
+	std::stringstream input(m_tests[section].str());
+	for (std::string line; getline(input, line);)
+	{
+		boost::trim(line);
+		if (!line.empty())
+		{
+			for (uint32_t i = 0; i < indention; ++i)
+			{
+				result << " ";
+			}
+			result << line << std::endl;
+		}
+	}
+	return result.str();
+}
+
+std::string SoltestTests::normalizeName(std::string const &name)
+{
+	std::string result(name);
+	std::replace_if(result.begin(), result.end(), ::ispunct, '_');
+	std::replace_if(result.begin(), result.end(), ::isspace, '_');
 	return result;
 }
 

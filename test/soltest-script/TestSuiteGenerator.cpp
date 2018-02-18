@@ -98,6 +98,18 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 		BOOST_TEST_MESSAGE("    '" + contract + "'");
 	}
 
+	m_compilerStack.reset();
+
+	static TestCaseGenerator testCaseGenerator(*m_contractsTestSuite, m_contracts);
+
+	for (auto &soltest : testCaseGenerator.soltests())
+	{
+		std::string contractName(boost::filesystem::basename(soltest->file()));
+		std::string contractSource(soltest->generateSolidity());
+		std::cout << soltest->generateSolidity() << std::endl << std::endl;
+		std::cout << m_compilerStack.addSource(contractName, contractSource) << std::endl << std::endl;
+	}
+
 	auto loadContracts = std::bind(&TestSuiteGenerator::loadContracts, this, m_contractFiles);
 	m_contractsTestSuite->add(
 		boost::unit_test::make_test_case(boost::function<void()>(loadContracts), "load contracts", __FILE__, __LINE__)
@@ -121,7 +133,7 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 										 "compile contracts", __FILE__, __LINE__)
 	);
 
-	static TestCaseGenerator testCaseGenerator(*m_contractsTestSuite, m_contracts);
+	testCaseGenerator.registerTestcases();
 
 	return true;
 }
@@ -144,7 +156,6 @@ bool TestSuiteGenerator::preloadContracts(std::set<std::string> const &contracts
 
 void TestSuiteGenerator::loadContracts(std::set<std::string> const &contracts)
 {
-	m_compilerStack.reset();
 	m_scannerFromSourceName =
 		[&](std::string const &_sourceName) -> solidity::Scanner const &
 		{
