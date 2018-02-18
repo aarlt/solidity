@@ -21,11 +21,48 @@
 
 #include "SoltestExecutor.h"
 
+#include "SoltestASTChecker.h"
+
+#include <sstream>
+#include <libsolidity/ast/ASTPrinter.h>
+
 namespace dev
 {
 
 namespace soltest
 {
+
+SoltestExecutor::SoltestExecutor(dev::solidity::SourceUnit const &sourceUnit,
+								 std::string const &contract,
+								 std::string const &filename,
+								 uint32_t line)
+	: m_sourceUnit(sourceUnit), m_contract(contract), m_filename(filename), m_line(line)
+{
+	(void) m_sourceUnit;
+	(void) m_contract;
+	(void) m_filename;
+	(void) m_line;
+}
+
+bool SoltestExecutor::execute(std::string const &testcase, std::string &errors)
+{
+	dev::solidity::FunctionDefinition const *functionToExecute =
+		dev::soltest::FindFunction(m_sourceUnit, testcase);
+	if (functionToExecute != nullptr)
+	{
+		dev::solidity::ASTPrinter printer(*functionToExecute);
+		printer.print(std::cout);
+		functionToExecute->accept(*this);
+		if (!m_errors.empty())
+		{
+			std::stringstream errorStream;
+			errorStream << m_errors << ": " << m_contract << " " << testcase << " " << m_filename << ":" << m_line;
+			errors = errorStream.str();
+		}
+		return m_errors.empty();
+	}
+	return false;
+}
 
 } // namespace soltest
 

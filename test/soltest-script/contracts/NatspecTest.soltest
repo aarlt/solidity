@@ -1,5 +1,11 @@
-{test 01}
+{setup}
     soltest.setChainParams(42);
+    soltest.mineBlocks(42);
+    soltest.modifyTimestamp(42);
+    soltest.addBlock(42);
+    soltest.rewindToBlock(42);
+
+{test 01}
     NatspecTest c = new NatspecTest();
     assert(c.add(2, 3) == 5);
     uint a;

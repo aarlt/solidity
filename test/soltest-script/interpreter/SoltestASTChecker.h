@@ -44,7 +44,7 @@ class SoltestASTChecker : private dev::solidity::ASTConstVisitor
 {
 public:
 	explicit SoltestASTChecker(dev::solidity::SourceUnit const &sourceUnit, std::string const &testcaseName)
-		: m_testcaseName(testcaseName), m_interresting(false), m_valid(true)
+		: m_testcaseName(testcaseName), m_interresting(false), m_valid(true), m_functionDefinition(nullptr)
 	{
 		sourceUnit.accept(*this);
 	}
@@ -57,6 +57,11 @@ public:
 	std::string const &errors() const
 	{
 		return m_errors;
+	}
+
+	dev::solidity::FunctionDefinition const *functionDefinition() const
+	{
+		return m_functionDefinition;
 	}
 
 private:
@@ -84,9 +89,13 @@ private:
 	bool m_interresting;
 	bool m_valid;
 	std::string m_errors;
+
+	dev::solidity::FunctionDefinition const *m_functionDefinition;
 };
 
 bool IsCorrectAST(dev::solidity::SourceUnit const &sourceUnit, std::string const &testcaseName, std::string &errors);
+dev::solidity::FunctionDefinition const *FindFunction(dev::solidity::SourceUnit const &sourceUnit,
+													  std::string const &testcaseName);
 
 } // namespace soltest
 
