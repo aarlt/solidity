@@ -59,6 +59,8 @@ public:
 
 	static std::string NormalizeName(std::string const &name);
 
+	static std::string SoltestContract();
+
 private:
 	std::string m_content;
 	std::set<std::string> m_imports;

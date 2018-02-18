@@ -57,9 +57,9 @@ SoltestTests::SoltestTests(std::string const &source, std::set<std::string> cons
 		else
 		{
 			m_tests[section] << line;
-			if (line.find("/*_soltest_line:") == std::string::npos)
+			if (line.find("//_soltest_line:") == std::string::npos)
 			{
-				m_tests[section] << " /*" << "_soltest_line:" << count << "*/";
+				m_tests[section] << " //" << "_soltest_line:" << count;
 			}
 			m_tests[section] << std::endl;
 		}
@@ -94,7 +94,9 @@ std::string SoltestTests::generateSolidity()
 	{
 		result << "import \"" << import << "\";" << std::endl;
 	}
+	result << "import \"Soltest.sol\";" << std::endl;
 	result << "contract " << contractName << " {" << std::endl;
+	result << "    Soltest soltest;" << std::endl;
 	for (auto &testcase : testcases())
 	{
 		result << "    function " << NormalizeName(testcase) << "() public {" << std::endl;
@@ -132,6 +134,19 @@ std::string SoltestTests::NormalizeName(std::string const &name)
 	std::replace_if(result.begin(), result.end(), ::ispunct, '_');
 	std::replace_if(result.begin(), result.end(), ::isspace, '_');
 	return result;
+}
+std::string SoltestTests::SoltestContract()
+{
+	char const *sourceCode = R"(
+		contract Soltest {
+			function setChainParams(uint a) returns(uint d) { return a; }
+			function mineBlocks(uint a) returns(uint d) { return a; }
+			function modifyTimestamp(uint a) returns(uint d) { return a; }
+			function addBlock(uint a) returns(uint d) { return a; }
+			function rewindToBlock(uint a) returns(uint d) { return a; }
+		}
+	)";
+	return sourceCode;
 }
 
 } // namespace soltest
