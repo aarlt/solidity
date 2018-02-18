@@ -30,6 +30,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/variant.hpp>
 
 #include <iostream>
 #include <memory>
@@ -155,6 +156,8 @@ void TestCaseGenerator::executeSoltest(std::string const &contract,
 	location << "'" << contractName << "' test case '" << testcase << "' " << filename << ":" << line;
 	BOOST_TEST_MESSAGE("Executing " + location.str());
 
+	boost::variant<double, char, std::string> v;
+
 	dev::solidity::SourceUnit const *sourceUnit = nullptr;
 	try
 	{
@@ -166,9 +169,12 @@ void TestCaseGenerator::executeSoltest(std::string const &contract,
 	}
 	BOOST_REQUIRE(sourceUnit != nullptr);
 
-	dev::soltest::SoltestExecutor executor(*sourceUnit, contract, filename, line);
-	std::string errors;
-	BOOST_REQUIRE_MESSAGE(executor.execute(testcase, errors), errors);
+	if (sourceUnit)
+	{
+		std::string errors;
+		dev::soltest::SoltestExecutor executor(*sourceUnit, contract, filename, line);
+		BOOST_REQUIRE_MESSAGE(executor.execute(testcase, errors), errors);
+	}
 }
 
 std::vector<dev::soltest::SoltestTests::Ptr> TestCaseGenerator::soltests()
