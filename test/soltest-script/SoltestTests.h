@@ -22,6 +22,8 @@
 #ifndef SOLIDITY_SOLTESTTESTS_H
 #define SOLIDITY_SOLTESTTESTS_H
 
+#include <libsolidity/interface/CompilerStack.h>
+
 #include <memory>
 #include <map>
 #include <unordered_map>
@@ -55,7 +57,7 @@ public:
 
 	std::string content(uint32_t indention, std::string const &section);
 
-	std::string normalizeName(std::string const& name);
+	std::string normalizeName(std::string const &name);
 
 private:
 	std::string m_content;

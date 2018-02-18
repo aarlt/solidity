@@ -22,6 +22,8 @@
 #ifndef SOLIDITY_TESTCASEGENERATOR_H
 #define SOLIDITY_TESTCASEGENERATOR_H
 
+#include <libsolidity/interface/CompilerStack.h>
+
 #include <boost/test/framework.hpp>
 #include <boost/test/test_tools.hpp>
 
@@ -37,16 +39,18 @@ class TestCaseGenerator
 {
 public:
 	explicit TestCaseGenerator(boost::unit_test::test_suite &_testSuite,
+							   dev::solidity::CompilerStack &compilerStack,
 							   std::set<std::string> const &_contracts = std::set<std::string>());
 
 	void addContractTests(std::string const &_contract, std::string const &_tests);
-	void registerTestcases();
-	void test(std::string const& contract, std::string const& testcase, const char *filename, uint32_t line);
+	void registerTestCases();
+	void test(std::string const &contract, std::string const &testcase, const char *filename, uint32_t line);
 
 	std::vector<dev::soltest::SoltestTests::Ptr> soltests();
 
 private:
 	boost::unit_test::test_suite &m_testSuite;
+	dev::solidity::CompilerStack &m_compilerStack;
 	std::set<std::string> const &m_constracts;
 	std::map<std::string, dev::soltest::SoltestTests::Ptr> m_contractTests;
 };

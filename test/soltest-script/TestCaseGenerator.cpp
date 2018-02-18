@@ -35,8 +35,10 @@ namespace dev
 namespace soltest
 {
 
-TestCaseGenerator::TestCaseGenerator(boost::unit_test::test_suite &_testSuite, std::set<std::string> const &_contracts)
-	: m_testSuite(_testSuite), m_constracts(_contracts)
+TestCaseGenerator::TestCaseGenerator(boost::unit_test::test_suite &_testSuite,
+									 dev::solidity::CompilerStack &compilerStack,
+									 std::set<std::string> const &_contracts)
+	: m_testSuite(_testSuite), m_compilerStack(compilerStack), m_constracts(_contracts)
 {
 	for (auto &contract : m_constracts)
 	{
@@ -59,7 +61,7 @@ TestCaseGenerator::TestCaseGenerator(boost::unit_test::test_suite &_testSuite, s
 	}
 }
 
-void TestCaseGenerator::registerTestcases()
+void TestCaseGenerator::registerTestCases()
 {
 	static std::vector<std::shared_ptr<std::string>> strings;
 	for (auto &contract : m_contractTests)
@@ -104,7 +106,22 @@ void TestCaseGenerator::test(std::string const &contract,
 	(void) testcase;
 	(void) filename;
 	(void) line;
-	// std::cout << boost::filesystem::basename(contract) << " @ " << testcase << " [" << filename << ":" << line << "]" << std::endl;
+	dev::solidity::SourceUnit const *sourceUnit = nullptr;
+	try
+	{
+		sourceUnit = &m_compilerStack.ast("EndToEnd" + boost::filesystem::basename(contract));
+	}
+	catch (...)
+	{
+		sourceUnit = nullptr;
+	}
+	BOOST_REQUIRE(sourceUnit != nullptr);
+	if (sourceUnit == nullptr)
+	{
+		std::cout << boost::filesystem::basename(contract) << " @ " << testcase << " [" << filename << ":" << line
+				  << "]"
+				  << std::endl;
+	}
 	BOOST_CHECK(true);
 }
 

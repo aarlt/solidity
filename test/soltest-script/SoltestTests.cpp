@@ -35,7 +35,8 @@ namespace dev
 namespace soltest
 {
 
-SoltestTests::SoltestTests(std::string const &source, std::string const &file) : m_content(source), m_file(file)
+SoltestTests::SoltestTests(std::string const &source,
+						   std::string const &file) : m_content(source), m_file(file)
 {
 	std::stringstream input(m_content);
 	std::string section;
@@ -86,20 +87,16 @@ std::vector<std::string> SoltestTests::testcases()
 std::string SoltestTests::generateSolidity()
 {
 	std::stringstream result;
-	std::string contractName("_Soltest_" + boost::filesystem::basename(m_file));
+	std::string contractName("EndToEnd" + boost::filesystem::basename(m_file));
 	result << "// " << m_file << std::endl;
 	result << "pragma solidity ^0.4.0;" << std::endl;
 	result << "contract " << contractName << " {" << std::endl;
-	result << "    function " << contractName << "() public {" << std::endl;
-	result << content(8, "setup");
-	result << "    }" << std::endl;
-	result << "    function teardown() public {" << std::endl;
-	result << content(8, "teardown");
-	result << "    }" << std::endl;
 	for (auto &testcase : testcases())
 	{
 		result << "    function " << normalizeName(testcase) << "() public {" << std::endl;
-		result << content(8, testcase);
+		result << content(8, "setup") << std::endl;
+		result << content(8, testcase) << std::endl;
+		result << content(8, "teardown");
 		result << "    }" << std::endl;
 	}
 	result << "}" << std::endl;
