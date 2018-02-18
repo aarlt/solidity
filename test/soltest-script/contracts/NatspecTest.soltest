@@ -7,8 +7,4 @@
     assert(a == 3 && b == 2);
 
 {test 02}
-        uint i = 0;
-
-        while (i++ < 1) {
-            uint same1 = 0;
-        }
+    uint i = 0;

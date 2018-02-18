@@ -44,7 +44,8 @@ public:
 
 	void addContractTests(std::string const &_contract, std::string const &_tests);
 	void registerTestCases();
-	void checkAST(std::string const &contract, std::string const &testcase, const char *filename, uint32_t line);
+	void checkSoltestAST(std::string const &contract, std::string const &testcase, const char *filename, uint32_t line);
+	void executeSoltest(std::string const &contract, std::string const &testcase, const char *filename, uint32_t line);
 
 	std::vector<dev::soltest::SoltestTests::Ptr> soltests();
 
