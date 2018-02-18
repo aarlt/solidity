@@ -135,9 +135,11 @@ std::string SoltestTests::NormalizeName(std::string const &name)
 	std::replace_if(result.begin(), result.end(), ::isspace, '_');
 	return result;
 }
+
 std::string SoltestTests::SoltestContract()
 {
 	char const *sourceCode = R"(
+		pragma solidity ^0.4.0;
 		contract Soltest {
 			function setChainParams(uint a) returns(uint d) { return a; }
 			function mineBlocks(uint a) returns(uint d) { return a; }
