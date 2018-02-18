@@ -1,20 +1,14 @@
-{setup}
-// TES TddEST
-
-{teardown}
-
 {test 01}
+    NatspecTest c = new NatspecTest();
+    assert(c.add(2, 3) == 5);
+    uint a;
+    uint b;
+    (a, b) = c.multi(1, 2);
+    assert(a == 3 && b == 2);
 
 {test 02}
+        uint i = 0;
 
-{test 03}
-
-{test 04}
-
-{test 05}
-
-{test 06}
-
-{test 07}
-
-{test 08}
+        while (i++ < 1) {
+            uint same1 = 0;
+        }

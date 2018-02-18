@@ -15,7 +15,7 @@
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
 /** @file SoltestTests.cpp
- * @author Alexander Arlt <alexander.arlt@arlt-labs.com
+ * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 
@@ -35,8 +35,8 @@ namespace dev
 namespace soltest
 {
 
-SoltestTests::SoltestTests(std::string const &source,
-						   std::string const &file) : m_content(source), m_file(file)
+SoltestTests::SoltestTests(std::string const &source, std::set<std::string> const &imports,
+						   std::string const &file) : m_content(source), m_imports(imports), m_file(file)
 {
 	std::stringstream input(m_content);
 	std::string section;
@@ -90,10 +90,14 @@ std::string SoltestTests::generateSolidity()
 	std::string contractName("EndToEnd" + boost::filesystem::basename(m_file));
 	result << "// " << m_file << std::endl;
 	result << "pragma solidity ^0.4.0;" << std::endl;
+	for (auto &import : m_imports)
+	{
+		result << "import \"" << import << "\";" << std::endl;
+	}
 	result << "contract " << contractName << " {" << std::endl;
 	for (auto &testcase : testcases())
 	{
-		result << "    function " << normalizeName(testcase) << "() public {" << std::endl;
+		result << "    function " << NormalizeName(testcase) << "() public {" << std::endl;
 		result << content(8, "setup") << std::endl;
 		result << content(8, testcase) << std::endl;
 		result << content(8, "teardown");
@@ -122,7 +126,7 @@ std::string SoltestTests::content(uint32_t indention, std::string const &section
 	return result.str();
 }
 
-std::string SoltestTests::normalizeName(std::string const &name)
+std::string SoltestTests::NormalizeName(std::string const &name)
 {
 	std::string result(name);
 	std::replace_if(result.begin(), result.end(), ::ispunct, '_');
