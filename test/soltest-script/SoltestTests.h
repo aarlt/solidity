@@ -15,7 +15,7 @@
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
 /** @file SoltestTests.h
- * @author Alexander Arlt <alexander.arlt@arlt-labs.com
+ * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 
@@ -39,7 +39,7 @@ class SoltestTests
 {
 public:
 	typedef typename std::shared_ptr<SoltestTests> Ptr;
-	explicit SoltestTests(std::string const &source, std::string const &file);
+	explicit SoltestTests(std::string const &source, std::set<std::string> const &imports, std::string const &file);
 
 	std::vector<std::string> testcases();
 
@@ -57,10 +57,11 @@ public:
 
 	std::string content(uint32_t indention, std::string const &section);
 
-	std::string normalizeName(std::string const &name);
+	static std::string NormalizeName(std::string const &name);
 
 private:
 	std::string m_content;
+	std::set<std::string> m_imports;
 	std::string m_file;
 	std::map<std::string, std::stringstream> m_tests;
 	std::map<std::string, uint32_t> m_lines;

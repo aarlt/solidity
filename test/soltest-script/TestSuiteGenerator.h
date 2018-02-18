@@ -15,7 +15,7 @@
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
 /** @file TestSuiteGenerator.h
- * @author Alexander Arlt <alexander.arlt@arlt-labs.com
+ * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 

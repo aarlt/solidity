@@ -15,7 +15,7 @@
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
 /** @file TestSuiteGenerator.cpp
- * @author Alexander Arlt <alexander.arlt@arlt-labs.com
+ * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 
@@ -97,6 +97,7 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 	{
 		BOOST_TEST_MESSAGE("    '" + contract + "'");
 	}
+
 
 	m_compilerStack.reset();
 

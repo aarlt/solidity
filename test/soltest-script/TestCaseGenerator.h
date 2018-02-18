@@ -15,7 +15,7 @@
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
 /** @file TestCaseGenerator.h
- * @author Alexander Arlt <alexander.arlt@arlt-labs.com
+ * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 
@@ -44,7 +44,7 @@ public:
 
 	void addContractTests(std::string const &_contract, std::string const &_tests);
 	void registerTestCases();
-	void test(std::string const &contract, std::string const &testcase, const char *filename, uint32_t line);
+	void checkAST(std::string const &contract, std::string const &testcase, const char *filename, uint32_t line);
 
 	std::vector<dev::soltest::SoltestTests::Ptr> soltests();
 
@@ -52,6 +52,7 @@ private:
 	boost::unit_test::test_suite &m_testSuite;
 	dev::solidity::CompilerStack &m_compilerStack;
 	std::set<std::string> const &m_constracts;
+	std::set<std::string> m_imports;
 	std::map<std::string, dev::soltest::SoltestTests::Ptr> m_contractTests;
 };
 

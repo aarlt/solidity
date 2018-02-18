@@ -15,11 +15,15 @@
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
 /** @file TestCaseGenerator.h
- * @author Alexander Arlt <alexander.arlt@arlt-labs.com
+ * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 
 #include "TestCaseGenerator.h"
+
+#include "interpreter/SoltestASTChecker.h"
+
+#include <libsolidity/ast/ASTPrinter.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
@@ -50,6 +54,7 @@ TestCaseGenerator::TestCaseGenerator(boost::unit_test::test_suite &_testSuite,
 			std::string soltest(
 				path.parent_path().string() + boost::filesystem::path::separator + components[1] + ".soltest"
 			);
+			m_imports.insert(components[0]);
 			if (boost::filesystem::exists(soltest))
 			{
 				std::ifstream file(soltest);
@@ -73,7 +78,7 @@ void TestCaseGenerator::registerTestCases()
 			std::shared_ptr<std::string> filename(new std::string(contract.second->file()));
 			strings.emplace_back(filename);
 
-			auto testRunner = std::bind(&TestCaseGenerator::test,
+			auto testRunner = std::bind(&TestCaseGenerator::checkAST,
 										this,
 										contract.first,
 										testcase,
@@ -83,7 +88,7 @@ void TestCaseGenerator::registerTestCases()
 			m_testSuite.add(
 				boost::unit_test::make_test_case(
 					boost::function<void()>(testRunner),
-					boost::filesystem::basename(contract.first) + " " + testcase,
+					"AST check " + boost::filesystem::basename(contract.first) + " " + testcase,
 					filename->c_str(),
 					contract.second->line(testcase))
 			);
@@ -94,18 +99,20 @@ void TestCaseGenerator::registerTestCases()
 void TestCaseGenerator::addContractTests(std::string const &contract, const std::string &tests)
 {
 	m_contractTests[contract] =
-		std::shared_ptr<dev::soltest::SoltestTests>(new dev::soltest::SoltestTests(tests, contract));
+		std::shared_ptr<dev::soltest::SoltestTests>(new dev::soltest::SoltestTests(tests, m_imports, contract));
 }
 
-void TestCaseGenerator::test(std::string const &contract,
-							 std::string const &testcase,
-							 const char *filename,
-							 uint32_t line)
+void TestCaseGenerator::checkAST(std::string const &contract,
+								 std::string const &testcase,
+								 const char *filename,
+								 uint32_t line)
 {
 	(void) contract;
 	(void) testcase;
 	(void) filename;
 	(void) line;
+	std::string contractName(boost::filesystem::basename(contract));
+	std::cout << contractName << " @ " << testcase << " [" << filename << ":" << line << "]" << std::endl;
 	dev::solidity::SourceUnit const *sourceUnit = nullptr;
 	try
 	{
@@ -116,11 +123,14 @@ void TestCaseGenerator::test(std::string const &contract,
 		sourceUnit = nullptr;
 	}
 	BOOST_REQUIRE(sourceUnit != nullptr);
-	if (sourceUnit == nullptr)
+
+	if (sourceUnit != nullptr)
 	{
-		std::cout << boost::filesystem::basename(contract) << " @ " << testcase << " [" << filename << ":" << line
-				  << "]"
-				  << std::endl;
+		std::string errors;
+		BOOST_REQUIRE_MESSAGE(dev::soltest::IsCorrectAST(*sourceUnit, testcase, errors), errors);
+
+		dev::solidity::ASTPrinter printer(*sourceUnit);
+		printer.print(std::cout);
 	}
 	BOOST_CHECK(true);
 }
