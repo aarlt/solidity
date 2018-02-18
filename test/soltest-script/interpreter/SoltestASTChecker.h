@@ -59,7 +59,7 @@ public:
 		return m_errors;
 	}
 
-protected:
+private:
 	bool visit(dev::solidity::FunctionDefinition const &_node) override;
 
 	bool visit(dev::solidity::IfStatement const &_node) override;
@@ -79,7 +79,7 @@ protected:
 	bool visit(dev::solidity::Throw const &_node) override;
 
 	bool visit(dev::solidity::Conditional const &_node) override;
-private:
+
 	std::string m_testcaseName;
 	bool m_interresting;
 	bool m_valid;

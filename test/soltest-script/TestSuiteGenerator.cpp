@@ -102,6 +102,8 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 
 	static TestCaseGenerator testCaseGenerator(*m_contractsTestSuite, m_compilerStack, m_contracts);
 
+	m_compilerStack.addSource("Soltest.sol", SoltestTests::SoltestContract());
+
 	for (auto &soltest : testCaseGenerator.soltests())
 	{
 		std::string contractName("EndToEnd" + boost::filesystem::basename(soltest->file()));
