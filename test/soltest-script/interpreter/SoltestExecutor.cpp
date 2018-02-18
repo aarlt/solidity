@@ -177,11 +177,8 @@ SoltestExecutor::StateType SoltestExecutor::lexical_cast(StateType const &_type,
 		return boost::lexical_cast<uint64_t>(_string);
 	else if (_type.type() == typeid(u256))
 		return boost::lexical_cast<u256>(_string);
-		/*
-		 * todo: add h160 support
-		else if (_type.type() == typeid(h160))
-			return static_cast<h160>(boost::lexical_cast<u256>(_string));
-		 */
+	else if (_type.type() == typeid(h160))
+		return h160(_string);
 	else if (_type.type() == typeid(std::string))
 		return _string;
 
