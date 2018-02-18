@@ -43,9 +43,20 @@ bool IsCorrectAST(dev::solidity::SourceUnit const &sourceUnit,
 	return checker.isValid();
 }
 
+dev::solidity::FunctionDefinition const *FindFunction(dev::solidity::SourceUnit const &sourceUnit,
+													  std::string const &testcaseName)
+{
+	dev::soltest::SoltestASTChecker checker(sourceUnit, testcaseName);
+	return checker.functionDefinition();
+}
+
 bool SoltestASTChecker::visit(dev::solidity::FunctionDefinition const &_node)
 {
 	m_interresting = _node.name() == dev::soltest::SoltestTests::NormalizeName(m_testcaseName);
+	if (m_interresting)
+	{
+		m_functionDefinition = &_node;
+	}
 	return visitNode(_node);
 }
 

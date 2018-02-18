@@ -21,7 +21,8 @@
 
 #include "TestCaseGenerator.h"
 
-#include "interpreter/SoltestASTChecker.h"
+#include <test/soltest-script/interpreter/SoltestASTChecker.h>
+#include <test/soltest-script/interpreter/SoltestExecutor.h>
 
 #include <libsolidity/ast/ASTPrinter.h>
 
@@ -88,7 +89,7 @@ void TestCaseGenerator::registerTestCases()
 			m_testSuite.add(
 				boost::unit_test::make_test_case(
 					boost::function<void()>(checkSoltestAST),
-					"AST check " + boost::filesystem::basename(contract.first) + " " + testcase,
+					"check " + boost::filesystem::basename(contract.first) + " " + testcase,
 					filename->c_str(),
 					contract.second->line(testcase))
 			);
@@ -103,7 +104,7 @@ void TestCaseGenerator::registerTestCases()
 			m_testSuite.add(
 				boost::unit_test::make_test_case(
 					boost::function<void()>(executeSoltest),
-					"executing " + boost::filesystem::basename(contract.first) + " " + testcase,
+					"execute " + boost::filesystem::basename(contract.first) + " " + testcase,
 					filename->c_str(),
 					contract.second->line(testcase))
 			);
@@ -139,8 +140,6 @@ void TestCaseGenerator::checkSoltestAST(std::string const &contract,
 	if (sourceUnit != nullptr)
 	{
 		std::string errors;
-//		dev::solidity::ASTPrinter printer(*sourceUnit);
-//		printer.print(std::cout);
 		BOOST_REQUIRE_MESSAGE(dev::soltest::IsCorrectAST(*sourceUnit, testcase, errors),
 							  errors + " Check " + location.str());
 	}
@@ -155,6 +154,21 @@ void TestCaseGenerator::executeSoltest(std::string const &contract,
 	std::stringstream location;
 	location << "'" << contractName << "' test case '" << testcase << "' " << filename << ":" << line;
 	BOOST_TEST_MESSAGE("Executing " + location.str());
+
+	dev::solidity::SourceUnit const *sourceUnit = nullptr;
+	try
+	{
+		sourceUnit = &m_compilerStack.ast("EndToEnd" + boost::filesystem::basename(contract));
+	}
+	catch (...)
+	{
+		sourceUnit = nullptr;
+	}
+	BOOST_REQUIRE(sourceUnit != nullptr);
+
+	dev::soltest::SoltestExecutor executor(*sourceUnit, contract, filename, line);
+	std::string errors;
+	BOOST_REQUIRE_MESSAGE(executor.execute(testcase, errors), errors);
 }
 
 std::vector<dev::soltest::SoltestTests::Ptr> TestCaseGenerator::soltests()

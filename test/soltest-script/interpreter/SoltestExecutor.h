@@ -22,15 +22,35 @@
 #ifndef SOLIDITY_SOLTESTEXECUTOR_H
 #define SOLIDITY_SOLTESTEXECUTOR_H
 
+#include <libsolidity/ast/AST.h>
+#include <libsolidity/ast/ASTVisitor.h>
+
+#include <string>
+#include <cstdint>
+
 namespace dev
 {
 
 namespace soltest
 {
 
-class SoltestExecutor
+class SoltestExecutor : private dev::solidity::ASTConstVisitor
 {
+public:
+	SoltestExecutor(dev::solidity::SourceUnit const &sourceUnit,
+					std::string const &contract,
+					std::string const &filename,
+					uint32_t line);
 
+	bool execute(std::string const &testcase, std::string &errors);
+
+private:
+	dev::solidity::SourceUnit const &m_sourceUnit;
+	std::string m_contract;
+	std::string m_filename;
+	uint32_t m_line;
+
+	std::string m_errors;
 };
 
 } // namespace soltest
