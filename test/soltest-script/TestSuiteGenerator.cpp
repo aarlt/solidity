@@ -98,7 +98,6 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 		BOOST_TEST_MESSAGE("    '" + contract + "'");
 	}
 
-
 	m_compilerStack.reset();
 
 	static TestCaseGenerator testCaseGenerator(*m_contractsTestSuite, m_compilerStack, m_contracts);
@@ -107,8 +106,8 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 	{
 		std::string contractName("EndToEnd" + boost::filesystem::basename(soltest->file()));
 		std::string contractSource(soltest->generateSolidity());
-		std::cout << soltest->generateSolidity() << std::endl << std::endl;
-		std::cout << m_compilerStack.addSource(contractName, contractSource) << std::endl << std::endl;
+//		std::cout << soltest->generateSolidity() << std::endl << std::endl;
+		m_compilerStack.addSource(contractName, contractSource);
 	}
 
 	auto loadContracts = std::bind(&TestSuiteGenerator::loadContracts, this, m_contractFiles);

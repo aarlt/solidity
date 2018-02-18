@@ -78,17 +78,32 @@ void TestCaseGenerator::registerTestCases()
 			std::shared_ptr<std::string> filename(new std::string(contract.second->file()));
 			strings.emplace_back(filename);
 
-			auto testRunner = std::bind(&TestCaseGenerator::checkAST,
-										this,
-										contract.first,
-										testcase,
-										filename->c_str(),
-										contract.second->line(testcase));
+			auto checkSoltestAST = std::bind(&TestCaseGenerator::checkSoltestAST,
+											 this,
+											 contract.first,
+											 testcase,
+											 filename->c_str(),
+											 contract.second->line(testcase));
 
 			m_testSuite.add(
 				boost::unit_test::make_test_case(
-					boost::function<void()>(testRunner),
+					boost::function<void()>(checkSoltestAST),
 					"AST check " + boost::filesystem::basename(contract.first) + " " + testcase,
+					filename->c_str(),
+					contract.second->line(testcase))
+			);
+
+			auto executeSoltest = std::bind(&TestCaseGenerator::executeSoltest,
+											this,
+											contract.first,
+											testcase,
+											filename->c_str(),
+											contract.second->line(testcase));
+
+			m_testSuite.add(
+				boost::unit_test::make_test_case(
+					boost::function<void()>(executeSoltest),
+					"executing " + boost::filesystem::basename(contract.first) + " " + testcase,
 					filename->c_str(),
 					contract.second->line(testcase))
 			);
@@ -102,17 +117,14 @@ void TestCaseGenerator::addContractTests(std::string const &contract, const std:
 		std::shared_ptr<dev::soltest::SoltestTests>(new dev::soltest::SoltestTests(tests, m_imports, contract));
 }
 
-void TestCaseGenerator::checkAST(std::string const &contract,
-								 std::string const &testcase,
-								 const char *filename,
-								 uint32_t line)
+void TestCaseGenerator::checkSoltestAST(std::string const &contract,
+										std::string const &testcase,
+										const char *filename,
+										uint32_t line)
 {
-	(void) contract;
-	(void) testcase;
-	(void) filename;
-	(void) line;
 	std::string contractName(boost::filesystem::basename(contract));
-	std::cout << contractName << " @ " << testcase << " [" << filename << ":" << line << "]" << std::endl;
+	std::stringstream location;
+	location << "'" << contractName << "' tests, test case '" << testcase << "' " << filename << ":" << line;
 	dev::solidity::SourceUnit const *sourceUnit = nullptr;
 	try
 	{
@@ -127,12 +139,22 @@ void TestCaseGenerator::checkAST(std::string const &contract,
 	if (sourceUnit != nullptr)
 	{
 		std::string errors;
-		BOOST_REQUIRE_MESSAGE(dev::soltest::IsCorrectAST(*sourceUnit, testcase, errors), errors);
-
-		dev::solidity::ASTPrinter printer(*sourceUnit);
-		printer.print(std::cout);
+//		dev::solidity::ASTPrinter printer(*sourceUnit);
+//		printer.print(std::cout);
+		BOOST_REQUIRE_MESSAGE(dev::soltest::IsCorrectAST(*sourceUnit, testcase, errors),
+							  errors + " Check " + location.str());
 	}
-	BOOST_CHECK(true);
+}
+
+void TestCaseGenerator::executeSoltest(std::string const &contract,
+									   std::string const &testcase,
+									   const char *filename,
+									   uint32_t line)
+{
+	std::string contractName(boost::filesystem::basename(contract));
+	std::stringstream location;
+	location << "'" << contractName << "' test case '" << testcase << "' " << filename << ":" << line;
+	BOOST_TEST_MESSAGE("Executing " + location.str());
 }
 
 std::vector<dev::soltest::SoltestTests::Ptr> TestCaseGenerator::soltests()

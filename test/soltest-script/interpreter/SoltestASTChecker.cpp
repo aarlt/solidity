@@ -35,6 +35,11 @@ bool IsCorrectAST(dev::solidity::SourceUnit const &sourceUnit,
 {
 	dev::soltest::SoltestASTChecker checker(sourceUnit, testcaseName);
 	errors = checker.errors();
+	size_t pos = errors.rfind("\n");
+	if (pos != std::string::npos)
+	{
+		errors.replace(pos, pos + 1, "");
+	}
 	return checker.isValid();
 }
 
