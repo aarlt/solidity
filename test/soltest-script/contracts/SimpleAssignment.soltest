@@ -1,4 +1,7 @@
 {test 01}
+/*
+    soltest.setChainParams(42);
+    SimpleAssignment c = new SimpleAssignment(42);
     uint32 a;
     uint16 b = 1;
     address d = 0x4123;
@@ -7,3 +10,12 @@
     uint256 sum = big1 * (big2 + 1);
     // string constant test = "HELLO";
     // string constant test2 = test + " WORLD";
+*/
+    uint32 a;
+    address b;
+    uint16 c1 = 1;
+    uint16 c2 = 2;
+    uint16 c3 = 3;
+    c1 = c1 + c3 * c2 + c1;
+    address d = 0x419239128bb123;
+

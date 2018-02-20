@@ -44,7 +44,7 @@ class SoltestASTChecker : private dev::solidity::ASTConstVisitor
 {
 public:
 	explicit SoltestASTChecker(dev::solidity::SourceUnit const &sourceUnit, std::string const &testcaseName)
-		: m_testcaseName(testcaseName), m_interresting(false), m_valid(true), m_functionDefinition(nullptr)
+		: m_testcaseName(testcaseName), m_interresting(false), m_valid(true), m_blocks(0), m_functionDefinition(nullptr)
 	{
 		sourceUnit.accept(*this);
 	}
@@ -65,6 +65,10 @@ public:
 	}
 
 private:
+	bool visit(dev::solidity::Block const &_node) override;
+
+	void endVisit(dev::solidity::Block const &_node) override;
+
 	bool visit(dev::solidity::FunctionDefinition const &_node) override;
 
 	bool visit(dev::solidity::IfStatement const &_node) override;
@@ -89,6 +93,7 @@ private:
 	bool m_interresting;
 	bool m_valid;
 	std::string m_errors;
+	int m_blocks;
 
 	dev::solidity::FunctionDefinition const *m_functionDefinition;
 };

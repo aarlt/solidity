@@ -150,6 +150,26 @@ bool SoltestASTChecker::visit(dev::solidity::WhileStatement const &_node)
 	return visitNode(_node);
 }
 
+bool SoltestASTChecker::visit(dev::solidity::Block const &_node)
+{
+	++m_blocks;
+	if (m_blocks > 1)
+	{
+		if (m_interresting)
+		{
+			m_valid = false;
+		}
+		m_errors += "Error: 'Block' statements not allowed in soltest.\n";
+	}
+	return visitNode(_node);
+}
+
+void SoltestASTChecker::endVisit(dev::solidity::Block const &_node)
+{
+	--m_blocks;
+	return ASTConstVisitor::endVisit(_node);
+}
+
 } // namespace soltest
 
 } // namespace dev

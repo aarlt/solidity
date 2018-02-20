@@ -30,6 +30,8 @@
 
 #include <boost/variant.hpp>
 
+#include <test/soltest-script/interpreter/SoltestTypes.h>
+
 namespace dev
 {
 
@@ -47,39 +49,31 @@ public:
 	bool execute(std::string const &testcase, std::string &errors);
 
 private:
-	bool visit(dev::solidity::VariableDeclarationStatement const &_variableDeclarationStatement) override;
+	void print(dev::solidity::ASTNode const &node);
 
 	void endVisit(dev::solidity::VariableDeclarationStatement const &_variableDeclarationStatement) override;
 
-	bool visit(dev::solidity::VariableDeclaration const &_variableDeclaration) override;
-
 	void endVisit(dev::solidity::VariableDeclaration const &_variableDeclaration) override;
 
-	bool visit(dev::solidity::Literal const &_literal) override;
+	void endVisit(dev::solidity::Literal const &_literal) override;
 
-	bool visit(dev::solidity::Assignment const &_assignment) override;
+	void endVisit(dev::solidity::Assignment const &_assignment) override;
 
-	bool visit(dev::solidity::TupleExpression const &_tuple) override;
+	void endVisit(dev::solidity::BinaryOperation const &_binaryOperation) override;
 
-	bool visit(dev::solidity::UnaryOperation const &_unaryOperation) override;
+	void endVisit(dev::solidity::Identifier const &_identifier) override;
 
-	bool visit(dev::solidity::BinaryOperation const &_binaryOperation) override;
+	void endVisit(dev::solidity::TupleExpression const &_tuple) override;
 
-	bool visit(dev::solidity::FunctionCall const &_functionCall) override;
+	void endVisit(dev::solidity::UnaryOperation const &_unaryOperation) override;
 
-	bool visit(dev::solidity::NewExpression const &_newExpression) override;
+	void endVisit(dev::solidity::FunctionCall const &_functionCall) override;
 
-	bool visit(dev::solidity::MemberAccess const &_memberAccess) override;
+	void endVisit(dev::solidity::NewExpression const &_newExpression) override;
 
-	bool visit(dev::solidity::IndexAccess const &_indexAccess) override;
+	void endVisit(dev::solidity::MemberAccess const &_memberAccess) override;
 
-	typedef boost::variant<bool,
-						   int8_t, int16_t, int32_t, int64_t, s256, // todo: int128_t
-						   uint8_t, uint16_t, uint32_t, uint64_t, u256, // todo: uint128_t
-						   h160, std::string> StateType;
-	typedef std::pair<std::string, StateType> TypedData;
-
-	StateType lexical_cast(StateType const&_type, std::string const& _string);
+	void endVisit(dev::solidity::IndexAccess const &_indexAccess) override;
 
 	dev::solidity::SourceUnit const &m_sourceUnit;
 	std::string m_contract;
@@ -88,11 +82,9 @@ private:
 
 	std::string m_errors;
 
-
-	std::map<std::string, StateType> m_state;
-	std::map<std::string, std::string> m_contracts;
-
-	std::vector<TypedData> m_stack;
+	std::map<std::string, Type> m_state;
+	dev::soltest::Stack<Type> m_parse_stack;
+	dev::soltest::Stack<Type> m_stack;
 };
 
 } // namespace soltest
