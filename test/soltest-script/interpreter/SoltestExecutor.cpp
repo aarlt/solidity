@@ -20,17 +20,9 @@
  */
 
 #include "SoltestExecutor.h"
-
 #include "SoltestASTChecker.h"
 
-#include <sstream>
 #include <libsolidity/ast/ASTPrinter.h>
-#include <libsolidity/ast/AST.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-
-#define TYPEID(T) \
-    std::string(typeid(T).name())
 
 namespace dev
 {
@@ -76,37 +68,21 @@ void SoltestExecutor::print(dev::solidity::ASTNode const &node)
 
 void SoltestExecutor::endVisit(dev::solidity::VariableDeclarationStatement const &_variableDeclarationStatement)
 {
-	Type value;
-	if (boost::get<std::string>(m_stack.back()) == TYPEID(dev::solidity::VariableDeclaration))
+	print(_variableDeclarationStatement);
+	AST_Type declaration = m_stack.pop();
+	AST_Type value = m_stack.pop();
+
+	std::string name;
+	std::string type;
+	if (declaration.type() == typeid(dev::soltest::VariableDeclaration))
 	{
-		m_stack.pop();
-		std::string name(boost::get<std::string>(m_stack.pop()));
-		m_state[name] = m_stack.pop();
+		name = boost::get<VariableDeclaration>(declaration).name;
+		type = boost::get<VariableDeclaration>(declaration).type;
+		m_state.set(name, "");
 	}
-	else if (boost::get<std::string>(m_stack.back()) == TYPEID(dev::solidity::Literal))
+
+	if (value.type() == typeid(dev::soltest::Literal))
 	{
-		m_stack.pop();
-		std::string literal_type(boost::get<std::string>(m_stack.pop()));
-		std::string literal_value(boost::get<std::string>(m_stack.pop()));
-		if (literal_type == "int_const")
-		{
-			if (boost::get<std::string>(m_stack.pop()) == TYPEID(dev::solidity::VariableDeclaration))
-			{
-				std::string name(boost::get<std::string>(m_stack.pop()));
-				m_state[name] = LexicalCast(m_stack.pop(), boost::get<std::string>(literal_value));
-			}
-		}
-		else
-		{
-			std::string message("literal type '" + literal_type + "' not implemented.");
-			BOOST_ASSERT_MSG(false, message.c_str());
-		}
-	}
-	else
-	{
-		std::string message("[ VariableDeclarationStatement -> (VariableDeclaration | Literal) ] GOT "
-								+ boost::get<std::string>(m_stack.back()));
-		BOOST_ASSERT_MSG(false, message.c_str());
 	}
 
 	ASTConstVisitor::endVisit(_variableDeclarationStatement);
@@ -114,119 +90,30 @@ void SoltestExecutor::endVisit(dev::solidity::VariableDeclarationStatement const
 
 void SoltestExecutor::endVisit(dev::solidity::VariableDeclaration const &_variableDeclaration)
 {
-	std::string name(_variableDeclaration.name());
-	std::string type(_variableDeclaration.annotation().type->toString());
-	m_stack.push(dev::soltest::CreateType(type));
-	m_stack.push(name);
-	m_stack.push(TYPEID(dev::solidity::VariableDeclaration));
+	solidity::TypePointer type = _variableDeclaration.annotation().type;
+	m_stack << VariableDeclaration(_variableDeclaration.name(), _variableDeclaration.annotation().type->toString());
 	ASTConstVisitor::endVisit(_variableDeclaration);
 }
 
 void SoltestExecutor::endVisit(dev::solidity::Literal const &_literal)
 {
-	std::string value_and_type(_literal.annotation().type->toString());
-	std::string type(value_and_type.substr(0, value_and_type.find(' ')));
-	std::string value(value_and_type.substr(value_and_type.find(' ') + 1));
-	m_stack.push(value);
-	m_stack.push(type);
-	m_stack.push(TYPEID(dev::solidity::Literal));
+	solidity::TypePointer type = _literal.annotation().type;
+	m_stack << Literal(type->category(), _literal.value());
 	ASTConstVisitor::endVisit(_literal);
 }
 
 void SoltestExecutor::endVisit(dev::solidity::Assignment const &_assignment)
 {
-	// print(_assignment);
-	// print();
-	std::string type(_assignment.annotation().type->toString());
-	m_stack.pop();
-	Type value(m_stack.pop());
-	if (boost::get<std::string>(m_stack.back()) == TYPEID(dev::solidity::Identifier))
-	{
-		m_stack.pop();
-		std::string assign_to(boost::get<std::string>(m_stack.pop()));
-		m_state[assign_to] = value;
-	}
 	ASTConstVisitor::endVisit(_assignment);
 }
 
 void SoltestExecutor::endVisit(dev::solidity::BinaryOperation const &_binaryOperation)
 {
-	std::string operation(Token::toString(_binaryOperation.getOperator()));
-	Type right;
-	std::string right_ast_type;
-	Type left;
-	std::string left_ast_type;
-
-	print(_binaryOperation);
-	right_ast_type = boost::get<std::string>(m_stack.pop());
-	if (right_ast_type == TYPEID(dev::solidity::Identifier))
-	{
-		right = m_stack.pop();
-	}
-	else if (right_ast_type == TYPEID(dev::solidity::Literal))
-	{
-		std::string literal_type(boost::get<std::string>(m_stack.pop()));
-		std::string literal_value(boost::get<std::string>(m_stack.pop()));
-		if (literal_type == "int_const")
-		{
-			m_stack.pop();
-			right = LexicalCast(m_stack.pop(), boost::get<std::string>(literal_value));
-		}
-		else
-		{
-			std::string message("literal type '" + literal_type + "' not implemented.");
-			BOOST_ASSERT_MSG(false, message.c_str());
-		}
-	}
-	else if (right_ast_type == TYPEID(dev::solidity::BinaryOperation))
-	{
-		right = m_stack.pop();
-	}
-
-	left_ast_type = boost::get<std::string>(m_stack.pop());
-	if (left_ast_type == TYPEID(dev::solidity::Identifier))
-	{
-		left = m_stack.pop();
-	}
-	else if (left_ast_type == TYPEID(dev::solidity::Literal))
-	{
-		std::string literal_type(boost::get<std::string>(m_stack.pop()));
-		std::string literal_value(boost::get<std::string>(m_stack.pop()));
-		if (literal_type == "int_const")
-		{
-			left = LexicalCast(m_stack.pop(), boost::get<std::string>(literal_value));
-		}
-		else
-		{
-			std::string message("literal type '" + literal_type + "' not implemented.");
-			BOOST_ASSERT_MSG(false, message.c_str());
-		}
-	}
-	else if (left_ast_type == TYPEID(dev::solidity::BinaryOperation))
-	{
-		left = m_stack.pop();
-	}
-
-	if (left_ast_type == TYPEID(dev::solidity::Identifier))
-	{
-		left = m_state[boost::get<std::string>(left)];
-	}
-	if (right_ast_type == TYPEID(dev::solidity::Identifier))
-	{
-		right = m_state[boost::get<std::string>(right)];
-	}
-	m_stack.push(BinaryExpression(left, operation, right));
-	m_stack.push(TYPEID(dev::solidity::BinaryOperation));
-	print(_binaryOperation);
 	ASTConstVisitor::endVisit(_binaryOperation);
 }
 
 void SoltestExecutor::endVisit(dev::solidity::Identifier const &_identifier)
 {
-	std::string name(_identifier.name());
-	std::string type(_identifier.annotation().type->toString());
-	m_stack.push(name);
-	m_stack.push(TYPEID(dev::solidity::Identifier));
 	ASTConstVisitor::endVisit(_identifier);
 }
 

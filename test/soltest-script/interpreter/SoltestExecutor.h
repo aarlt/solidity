@@ -22,15 +22,14 @@
 #ifndef SOLIDITY_SOLTESTEXECUTOR_H
 #define SOLIDITY_SOLTESTEXECUTOR_H
 
-#include <libsolidity/ast/AST.h>
 #include <libsolidity/ast/ASTVisitor.h>
+#include <test/soltest-script/interpreter/SoltestStack.h>
+#include <test/soltest-script/interpreter/SoltestState.h>
 
 #include <string>
 #include <cstdint>
 
 #include <boost/variant.hpp>
-
-#include <test/soltest-script/interpreter/SoltestTypes.h>
 
 namespace dev
 {
@@ -81,10 +80,8 @@ private:
 	uint32_t m_line;
 
 	std::string m_errors;
-
-	std::map<std::string, Type> m_state;
-	dev::soltest::Stack<Type> m_parse_stack;
-	dev::soltest::Stack<Type> m_stack;
+	dev::soltest::Stack m_stack;
+	dev::soltest::State m_state;
 };
 
 } // namespace soltest

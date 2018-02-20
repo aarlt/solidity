@@ -1,0 +1,176 @@
+/*
+	This file is part of solidity.
+
+	solidity is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	solidity is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file SoltestStack.cpp
+ * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
+ * @date 2018
+ */
+
+#include "SoltestStack.h"
+
+namespace dev
+{
+
+namespace soltest
+{
+
+std::string TypeAsString(AST_Type const &type)
+{
+	if (type.type() == typeid(Empty))
+		return "Empty";
+	else if (type.type() == typeid(TypeId))
+		return "TypeId";
+
+	else if (type.type() == typeid(Literal))
+		return "Literal";
+	else if (type.type() == typeid(VariableDeclaration))
+		return "VariableDeclaration";
+
+	else if (type.type() == typeid(bool))
+		return "bool";
+	else if (type.type() == typeid(int8_t))
+		return "int8_t";
+	else if (type.type() == typeid(int16_t))
+		return "int16_t";
+	else if (type.type() == typeid(int32_t))
+		return "int32_t";
+	else if (type.type() == typeid(int64_t))
+		return "int64_t";
+	else if (type.type() == typeid(s256))
+		return "s256";
+	else if (type.type() == typeid(uint8_t))
+		return "uint8_t";
+	else if (type.type() == typeid(uint16_t))
+		return "uint16_t";
+	else if (type.type() == typeid(uint32_t))
+		return "uint32_t";
+	else if (type.type() == typeid(uint64_t))
+		return "uint64_t";
+	else if (type.type() == typeid(u160))
+		return "u160";
+	else if (type.type() == typeid(u256))
+		return "u256";
+	else if (type.type() == typeid(std::string))
+		return "string";
+
+	else if (type.type() == typeid(Address))
+		return "Address";
+	else if (type.type() == typeid(Contract))
+		return "Contract";
+
+	return "?";
+}
+
+std::string ValueAsString(AST_Type const &type)
+{
+	std::stringstream result;
+	if (type.type() == typeid(Empty))
+		return "(Empty)";
+	else if (type.type() == typeid(TypeId))
+		result << boost::get<TypeId>(type).asString();
+
+	else if (type.type() == typeid(Literal))
+		result << boost::get<Literal>(type).asString();
+	else if (type.type() == typeid(VariableDeclaration))
+		result << boost::get<VariableDeclaration>(type).asString();
+
+	else if (type.type() == typeid(bool))
+		result << boost::get<bool>(type);
+	else if (type.type() == typeid(int8_t))
+		result << boost::get<int8_t>(type) << std::hex << " = 0x" << boost::get<int8_t>(type);
+	else if (type.type() == typeid(int16_t))
+		result << boost::get<int16_t>(type) << std::hex << " = 0x" << boost::get<int16_t>(type);
+	else if (type.type() == typeid(int32_t))
+		result << boost::get<int32_t>(type) << std::hex << " = 0x" << boost::get<int32_t>(type);
+	else if (type.type() == typeid(int64_t))
+		result << boost::get<int64_t>(type) << std::hex << " = 0x" << boost::get<int64_t>(type);
+	else if (type.type() == typeid(s256))
+		result << boost::get<s256>(type) << std::hex << " = 0x" << boost::get<s256>(type);
+	else if (type.type() == typeid(uint8_t))
+		result << boost::get<uint8_t>(type) << std::hex << " = 0x" << boost::get<uint8_t>(type);
+	else if (type.type() == typeid(uint16_t))
+		result << boost::get<uint16_t>(type) << std::hex << " = 0x" << boost::get<uint16_t>(type);
+	else if (type.type() == typeid(uint32_t))
+		result << boost::get<uint32_t>(type) << std::hex << " = 0x" << boost::get<uint32_t>(type);
+	else if (type.type() == typeid(uint64_t))
+		result << boost::get<uint64_t>(type) << std::hex << " = 0x" << boost::get<uint64_t>(type);
+	else if (type.type() == typeid(u160))
+		result << boost::get<u160>(type) << std::hex << " = 0x" << boost::get<u160>(type);
+	else if (type.type() == typeid(u256))
+		result << boost::get<u256>(type) << std::hex << " = 0x" << boost::get<u256>(type);
+	else if (type.type() == typeid(std::string))
+		result << boost::get<std::string>(type);
+
+	else if (type.type() == typeid(Address))
+		result << boost::get<Address>(type).value() << std::hex << " = 0x" << boost::get<Address>(type).value();
+	else if (type.type() == typeid(Contract))
+		result << boost::get<Contract>(type).asString();
+
+	return result.str();
+}
+
+void Stack::push(AST_Type element)
+{
+	this->emplace_back(element);
+}
+
+AST_Type Stack::pop()
+{
+	if (!this->empty())
+	{
+		AST_Type result = this->back();
+		this->pop_back();
+		print();
+		return result;
+	}
+	else
+	{
+		return Empty();
+	}
+}
+
+Stack &Stack::operator<<(AST_Type const &_value)
+{
+	push(_value);
+	print();
+	return *this;
+}
+
+void Stack::print()
+{
+	std::cout << " --- stack ---" << std::endl;
+	if (!this->empty())
+	{
+		std::cout << "   size: " << this->size() << std::endl;
+		std::cout << "   next: " << " [ " << TypeAsString(this->back()) << " ] " << ValueAsString(this->back())
+				  << std::endl;
+		std::cout << " -------------" << std::endl;
+	}
+	for (auto iter = this->rbegin(); iter != this->rend(); ++iter)
+	{
+		std::cout << "[ " << TypeAsString(*iter) << " ] " << ValueAsString(*iter) << std::endl;
+	}
+	if (this->empty())
+	{
+		std::cout << "   { empty }" << std::endl;
+	}
+	std::cout << " -------------" << std::endl;
+}
+
+} // namespace soltest
+
+} // namespace dev
+
