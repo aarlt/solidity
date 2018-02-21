@@ -198,9 +198,17 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 			{
 				std::stringstream stream;
 				stream << currentFunction << " failed.";
-				size_t line = std::atoi(currentLineNumber.c_str());
+				size_t line = static_cast<std::size_t>(std::atoi(currentLineNumber.c_str()));
+				std::string raw(boost::get<Literal>(arguments[0]).value);
+				bool check;
+				if (raw == "false")
+					check = false;
+				else if (raw == "true")
+					check = true;
+				else
+					check = boost::lexical_cast<bool>(raw);
 				SOLTEST_REQUIRE_MESSAGE(
-					boost::lexical_cast<bool>(boost::get<Literal>(arguments[0]).value),
+					check,
 					m_filename.c_str(), line,
 					stream.str()
 				);
