@@ -226,6 +226,45 @@ StateType LexicalCast(StateType const &prototype, std::string const &_string)
 	return result;
 }
 
+StateType CreateStateType(AST_Type const &type)
+{
+	if (boost::get<StateType>(type).type() == typeid(Empty()))
+		return boost::get<Empty>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(bool))
+		return boost::get<bool>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(int8_t))
+		return boost::get<int8_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(int16_t))
+		return boost::get<int16_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(int32_t))
+		return boost::get<int32_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(int64_t))
+		return boost::get<int64_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(s256))
+		return boost::get<s256>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(uint8_t))
+		return boost::get<uint8_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(uint16_t))
+		return boost::get<uint16_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(uint32_t))
+		return boost::get<uint32_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(uint64_t))
+		return boost::get<uint64_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(u160))
+		return boost::get<u160>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(u256))
+		return boost::get<u256>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(std::string))
+		return boost::get<std::string>(boost::get<StateType>(type));
+
+	else if (boost::get<StateType>(type).type() == typeid(Address))
+		return boost::get<Address>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(Contract))
+		return boost::get<Contract>(boost::get<StateType>(type));
+
+	return Empty();
+}
+
 void State::set(std::string const &name, StateType const &type)
 {
 	(*this)[name] = type;
@@ -234,40 +273,7 @@ void State::set(std::string const &name, StateType const &type)
 
 void State::set(std::string const &name, AST_Type const &type)
 {
-	if (boost::get<StateType>(type).type() == typeid(Empty()))
-		(*this)[name] = boost::get<Empty>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(bool))
-		(*this)[name] = boost::get<bool>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(int8_t))
-		(*this)[name] = boost::get<int8_t>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(int16_t))
-		(*this)[name] = boost::get<int16_t>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(int32_t))
-		(*this)[name] = boost::get<int32_t>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(int64_t))
-		(*this)[name] = boost::get<int64_t>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(s256))
-		(*this)[name] = boost::get<s256>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(uint8_t))
-		(*this)[name] = boost::get<uint8_t>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(uint16_t))
-		(*this)[name] = boost::get<uint16_t>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(uint32_t))
-		(*this)[name] = boost::get<uint32_t>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(uint64_t))
-		(*this)[name] = boost::get<uint64_t>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(u160))
-		(*this)[name] = boost::get<u160>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(u256))
-		(*this)[name] = boost::get<u256>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(std::string))
-		(*this)[name] = boost::get<std::string>(boost::get<StateType>(type));
-
-	else if (boost::get<StateType>(type).type() == typeid(Address))
-		(*this)[name] = boost::get<Address>(boost::get<StateType>(type));
-	else if (boost::get<StateType>(type).type() == typeid(Contract))
-		(*this)[name] = boost::get<Contract>(boost::get<StateType>(type));
-
+	(*this)[name] = CreateStateType(type);
 	print();
 }
 

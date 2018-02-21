@@ -10,8 +10,9 @@
     uint256 sum = big1 * (big2 + 1);
     // string constant test = "HELLO";
     // string constant test2 = test + " WORLD";
-*/
     uint64 one = 1;
     uint64 two = 2;
     uint64 simpleSum = 0x10 * ((1 + 2) - (one + two) + 1) - 1111;
-    assert(simpleSum == 0xfffffffffffffbb9);
+*/
+    // soltest.setChainParams(1, 2);
+    assert(1 == 2);

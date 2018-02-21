@@ -23,6 +23,7 @@
 #include "SoltestASTChecker.h"
 
 #include <libsolidity/ast/ASTPrinter.h>
+#include <boost/test/unit_test.hpp>
 
 namespace dev
 {
@@ -155,6 +156,29 @@ void SoltestExecutor::endVisit(dev::solidity::UnaryOperation const &_unaryOperat
 
 void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 {
+	std::vector<AST_Type> arguments;
+	m_stack.print();
+	for (size_t i = 0; i < _functionCall.arguments().size(); ++i)
+	{
+		arguments.push_back(m_stack.pop());
+	}
+	if (m_stack.back().type() == typeid(dev::soltest::Identifier))
+	{
+		Identifier identifier = boost::get<dev::soltest::Identifier>(m_stack.pop());
+		if (boost::starts_with(identifier.type, "contract "))
+		{
+		}
+		else if (identifier.name == "assert" && arguments.size() == 1)
+		{
+			if (arguments[0].type() == typeid(dev::soltest::Literal))
+			{
+				BOOST_REQUIRE_MESSAGE(
+					boost::lexical_cast<bool>(boost::get<Literal>(arguments[0]).value), "Assertion failed."
+				);
+			}
+		}
+	}
+	m_stack.print();
 	print(_functionCall);
 	ASTConstVisitor::endVisit(_functionCall);
 }

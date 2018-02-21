@@ -56,6 +56,8 @@ public:
 
 	AST_Type pop();
 
+	AST_Type first();
+
 	Stack &operator<<(AST_Type const &_value);
 
 	void print();

@@ -141,7 +141,7 @@ std::string SoltestTests::SoltestContract()
 	char const *sourceCode = R"(
 		pragma solidity ^0.4.0;
 		contract Soltest {
-			function setChainParams(uint a) public returns(uint d) { return a; }
+			function setChainParams(uint a, uint b) public returns(uint d) { return a; }
 			function mineBlocks(uint a) public returns(uint d) { return a; }
 			function modifyTimestamp(uint a) public returns(uint d) { return a; }
 			function addBlock(uint a) public returns(uint d) { return a; }

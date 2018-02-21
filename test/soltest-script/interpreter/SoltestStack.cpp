@@ -195,6 +195,26 @@ Literal Evaluate(Literal const &left, std::string const &op, Literal const &righ
 		{
 			result = leftValue * rightValue;
 		}
+		else if (op == "<")
+		{
+			result = leftValue < rightValue;
+		}
+		else if (op == ">")
+		{
+			result = leftValue > rightValue;
+		}
+		else if (op == ">=")
+		{
+			result = leftValue >= rightValue;
+		}
+		else if (op == "<=")
+		{
+			result = leftValue <= rightValue;
+		}
+		else if (op == "==")
+		{
+			result = leftValue == rightValue;
+		}
 		std::stringstream resultStream;
 		resultStream << result;
 		value = resultStream.str();
@@ -221,6 +241,19 @@ AST_Type Stack::pop()
 		AST_Type result = this->back();
 		this->pop_back();
 		print();
+		return result;
+	}
+	else
+	{
+		return StateType(Empty());
+	}
+}
+
+AST_Type Stack::first()
+{
+	if (!this->empty())
+	{
+		AST_Type result = *begin();
 		return result;
 	}
 	else

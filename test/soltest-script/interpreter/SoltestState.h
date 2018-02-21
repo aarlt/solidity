@@ -55,6 +55,8 @@ public:
 
 StateType CreateStateType(std::string const &_typename);
 
+StateType CreateStateType(AST_Type const &_type);
+
 StateType LexicalCast(StateType const &prototype, std::string const &_string);
 
 } // namespace soltest
