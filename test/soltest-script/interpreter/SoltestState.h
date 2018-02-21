@@ -22,6 +22,7 @@
 #ifndef SOLIDITY_SOLTESTSTATE_H
 #define SOLIDITY_SOLTESTSTATE_H
 
+#include "StateType.h"
 #include <libsolidity/ast/AST.h>
 #include <test/soltest-script/interpreter/SoltestStack.h>
 
@@ -34,25 +35,17 @@ namespace dev
 namespace soltest
 {
 
-typedef boost::variant<
-	Empty,
-
-	bool,
-	int8_t, int16_t, int32_t, int64_t, s256, // todo: int128_t
-	uint8_t, uint16_t, uint32_t, uint64_t, u160, u256, // todo: uint128_t
-	std::string,
-
-	Address, Contract
-> StateType;
-
 std::string TypeAsString(StateType const &type);
 
 std::string ValueAsString(StateType const &type);
+
+std::string RawValueAsString(StateType const &type);
 
 class State : public std::map<std::string, StateType>
 {
 public:
 	void set(std::string const &name, StateType const &type);
+
 	void set(std::string const &name, AST_Type const &type);
 
 	StateType &get(std::string const &name);

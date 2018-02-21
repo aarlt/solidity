@@ -65,6 +65,44 @@ std::string TypeAsString(StateType const &type)
 	return "?";
 }
 
+std::string RawValueAsString(StateType const &type)
+{
+	std::stringstream result;
+	if (type.type() == typeid(bool))
+		result << boost::get<bool>(type);
+	else if (type.type() == typeid(int8_t))
+		result << boost::get<int8_t>(type);
+	else if (type.type() == typeid(int16_t))
+		result << boost::get<int16_t>(type);
+	else if (type.type() == typeid(int32_t))
+		result << boost::get<int32_t>(type);
+	else if (type.type() == typeid(int64_t))
+		result << boost::get<int64_t>(type);
+	else if (type.type() == typeid(s256))
+		result << boost::get<s256>(type);
+	else if (type.type() == typeid(uint8_t))
+		result << boost::get<uint8_t>(type);
+	else if (type.type() == typeid(uint16_t))
+		result << boost::get<uint16_t>(type);
+	else if (type.type() == typeid(uint32_t))
+		result << boost::get<uint32_t>(type);
+	else if (type.type() == typeid(uint64_t))
+		result << boost::get<uint64_t>(type);
+	else if (type.type() == typeid(u160))
+		result << boost::get<u160>(type);
+	else if (type.type() == typeid(u256))
+		result << boost::get<u256>(type);
+	else if (type.type() == typeid(std::string))
+		result << boost::get<std::string>(type);
+
+	else if (type.type() == typeid(Address))
+		result << boost::get<Address>(type).value();
+	else if (type.type() == typeid(Contract))
+		result << boost::get<Contract>(type).asString();
+
+	return result.str();
+}
+
 std::string ValueAsString(StateType const &type)
 {
 	std::stringstream result;
@@ -142,36 +180,44 @@ StateType LexicalCast(StateType const &prototype, std::string const &_string)
 	StateType result;
 	try
 	{
-		if (prototype.type() == typeid(bool))
-			result = boost::lexical_cast<bool>(_string);
-		else if (prototype.type() == typeid(int8_t))
-			result = boost::lexical_cast<int8_t>(_string);
-		else if (prototype.type() == typeid(int16_t))
-			result = boost::lexical_cast<int16_t>(_string);
-		else if (prototype.type() == typeid(int32_t))
-			result = boost::lexical_cast<int32_t>(_string);
-		else if (prototype.type() == typeid(int64_t))
-			result = boost::lexical_cast<int64_t>(_string);
-		else if (prototype.type() == typeid(s256))
-			result = boost::lexical_cast<s256>(_string);
-		else if (prototype.type() == typeid(uint8_t))
-			result = boost::lexical_cast<uint8_t>(_string);
-		else if (prototype.type() == typeid(uint16_t))
-			result = boost::lexical_cast<uint16_t>(_string);
-		else if (prototype.type() == typeid(uint32_t))
-			result = boost::lexical_cast<uint32_t>(_string);
-		else if (prototype.type() == typeid(uint64_t))
-			result = boost::lexical_cast<uint64_t>(_string);
-		else if (prototype.type() == typeid(u160))
-			result = boost::lexical_cast<u160>(_string);
-		else if (prototype.type() == typeid(u256))
-			result = boost::lexical_cast<u256>(_string);
-		else if (prototype.type() == typeid(Address))
-			result = Address(u160(_string));
-		else if (prototype.type() == typeid(Contract))
-			result = Contract(_string);
-		else if (prototype.type() == typeid(std::string))
-			result = _string;
+		if (_string.find('.') == std::string::npos)
+		{
+			if (prototype.type() == typeid(bool))
+				result = boost::lexical_cast<bool>(_string);
+			else if (prototype.type() == typeid(int8_t))
+				result = boost::lexical_cast<int8_t>(_string);
+			else if (prototype.type() == typeid(int16_t))
+				result = boost::lexical_cast<int16_t>(_string);
+			else if (prototype.type() == typeid(int32_t))
+				result = boost::lexical_cast<int32_t>(_string);
+			else if (prototype.type() == typeid(int64_t))
+				result = boost::lexical_cast<int64_t>(_string);
+			else if (prototype.type() == typeid(s256))
+				result = boost::lexical_cast<s256>(_string);
+			else if (prototype.type() == typeid(uint8_t))
+				result = boost::lexical_cast<uint8_t>(_string);
+			else if (prototype.type() == typeid(uint16_t))
+				result = boost::lexical_cast<uint16_t>(_string);
+			else if (prototype.type() == typeid(uint32_t))
+				result = boost::lexical_cast<uint32_t>(_string);
+			else if (prototype.type() == typeid(uint64_t))
+				result = boost::lexical_cast<uint64_t>(_string);
+			else if (prototype.type() == typeid(u160))
+				result = boost::lexical_cast<u160>(_string);
+			else if (prototype.type() == typeid(u256))
+				result = boost::lexical_cast<u256>(_string);
+			else if (prototype.type() == typeid(Address))
+				result = Address(u160(_string));
+			else if (prototype.type() == typeid(Contract))
+				result = Contract(_string);
+			else if (prototype.type() == typeid(std::string))
+				result = _string;
+		}
+		else
+		{
+			// fix-point not yet implemented
+			result = Empty();
+		}
 	}
 	catch (...)
 	{
@@ -188,39 +234,39 @@ void State::set(std::string const &name, StateType const &type)
 
 void State::set(std::string const &name, AST_Type const &type)
 {
-	if (type.type() == typeid(Empty()))
-		(*this)[name] = boost::get<Empty>(type);
-	else if (type.type() == typeid(bool))
-		(*this)[name] = boost::get<bool>(type);
-	else if (type.type() == typeid(int8_t))
-		(*this)[name] = boost::get<int8_t>(type);
-	else if (type.type() == typeid(int16_t))
-		(*this)[name] = boost::get<int16_t>(type);
-	else if (type.type() == typeid(int32_t))
-		(*this)[name] = boost::get<int32_t>(type);
-	else if (type.type() == typeid(int64_t))
-		(*this)[name] = boost::get<int64_t>(type);
-	else if (type.type() == typeid(s256))
-		(*this)[name] = boost::get<s256>(type);
-	else if (type.type() == typeid(uint8_t))
-		(*this)[name] = boost::get<uint8_t>(type);
-	else if (type.type() == typeid(uint16_t))
-		(*this)[name] = boost::get<uint16_t>(type);
-	else if (type.type() == typeid(uint32_t))
-		(*this)[name] = boost::get<uint32_t>(type);
-	else if (type.type() == typeid(uint64_t))
-		(*this)[name] = boost::get<uint64_t>(type);
-	else if (type.type() == typeid(u160))
-		(*this)[name] = boost::get<u160>(type);
-	else if (type.type() == typeid(u256))
-		(*this)[name] = boost::get<u256>(type);
-	else if (type.type() == typeid(std::string))
-		(*this)[name] = boost::get<std::string>(type);
+	if (boost::get<StateType>(type).type() == typeid(Empty()))
+		(*this)[name] = boost::get<Empty>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(bool))
+		(*this)[name] = boost::get<bool>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(int8_t))
+		(*this)[name] = boost::get<int8_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(int16_t))
+		(*this)[name] = boost::get<int16_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(int32_t))
+		(*this)[name] = boost::get<int32_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(int64_t))
+		(*this)[name] = boost::get<int64_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(s256))
+		(*this)[name] = boost::get<s256>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(uint8_t))
+		(*this)[name] = boost::get<uint8_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(uint16_t))
+		(*this)[name] = boost::get<uint16_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(uint32_t))
+		(*this)[name] = boost::get<uint32_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(uint64_t))
+		(*this)[name] = boost::get<uint64_t>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(u160))
+		(*this)[name] = boost::get<u160>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(u256))
+		(*this)[name] = boost::get<u256>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(std::string))
+		(*this)[name] = boost::get<std::string>(boost::get<StateType>(type));
 
-	else if (type.type() == typeid(Address))
-		(*this)[name] = boost::get<Address>(type);
-	else if (type.type() == typeid(Contract))
-		(*this)[name] = boost::get<Contract>(type);
+	else if (boost::get<StateType>(type).type() == typeid(Address))
+		(*this)[name] = boost::get<Address>(boost::get<StateType>(type));
+	else if (boost::get<StateType>(type).type() == typeid(Contract))
+		(*this)[name] = boost::get<Contract>(boost::get<StateType>(type));
 
 	print();
 }

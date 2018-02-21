@@ -129,9 +129,6 @@ struct Literal
 
 struct VariableDeclaration
 {
-	VariableDeclaration() : name(), type()
-	{
-	}
 	VariableDeclaration(std::string const &_name, std::string const &_type) : name(_name), type(_type)
 	{
 	}
@@ -141,12 +138,41 @@ struct VariableDeclaration
 		stream << "name = " << name << ", type = '" << type << "'";
 		return stream.str();
 	}
-	bool empty() const
+	std::string name;
+	std::string type;
+};
+
+struct Identifier
+{
+	Identifier(std::string const &_name, std::string const &_type) : name(_name), type(_type)
 	{
-		return name.empty() || type.empty();
+	}
+	Literal toLiteral()
+	{
+		return Literal(dev::solidity::Type::Category::RationalNumber, "");
+	}
+	std::string asString() const
+	{
+		std::stringstream stream;
+		stream << "name = " << name << ", type = '" << type << "'";
+		return stream.str();
 	}
 	std::string name;
 	std::string type;
+};
+
+struct BinaryOperation
+{
+	BinaryOperation(std::string const &_operator) : op(_operator)
+	{
+	}
+	std::string asString() const
+	{
+		std::stringstream stream;
+		stream << "op = '" << op << "'";
+		return stream.str();
+	}
+	std::string op;
 };
 
 } // namespace soltest

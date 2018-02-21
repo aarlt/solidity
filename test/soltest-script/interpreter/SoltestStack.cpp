@@ -21,6 +21,8 @@
 
 #include "SoltestStack.h"
 
+#include "SoltestState.h"
+
 namespace dev
 {
 
@@ -38,44 +40,52 @@ std::string TypeAsString(AST_Type const &type)
 		return "Literal";
 	else if (type.type() == typeid(VariableDeclaration))
 		return "VariableDeclaration";
+	else if (type.type() == typeid(BinaryOperation))
+		return "BinaryOperation";
+	else if (type.type() == typeid(Identifier))
+		return "Identifier";
 
-	else if (type.type() == typeid(bool))
-		return "bool";
-	else if (type.type() == typeid(int8_t))
-		return "int8_t";
-	else if (type.type() == typeid(int16_t))
-		return "int16_t";
-	else if (type.type() == typeid(int32_t))
-		return "int32_t";
-	else if (type.type() == typeid(int64_t))
-		return "int64_t";
-	else if (type.type() == typeid(s256))
-		return "s256";
-	else if (type.type() == typeid(uint8_t))
-		return "uint8_t";
-	else if (type.type() == typeid(uint16_t))
-		return "uint16_t";
-	else if (type.type() == typeid(uint32_t))
-		return "uint32_t";
-	else if (type.type() == typeid(uint64_t))
-		return "uint64_t";
-	else if (type.type() == typeid(u160))
-		return "u160";
-	else if (type.type() == typeid(u256))
-		return "u256";
-	else if (type.type() == typeid(std::string))
-		return "string";
+	else if (type.type() == typeid(StateType))
+	{
+		if (boost::get<StateType>(type).type() == typeid(bool))
+			return "bool";
+		else if (boost::get<StateType>(type).type() == typeid(int8_t))
+			return "int8_t";
+		else if (boost::get<StateType>(type).type() == typeid(int16_t))
+			return "int16_t";
+		else if (boost::get<StateType>(type).type() == typeid(int32_t))
+			return "int32_t";
+		else if (boost::get<StateType>(type).type() == typeid(int64_t))
+			return "int64_t";
+		else if (boost::get<StateType>(type).type() == typeid(s256))
+			return "s256";
+		else if (boost::get<StateType>(type).type() == typeid(uint8_t))
+			return "uint8_t";
+		else if (boost::get<StateType>(type).type() == typeid(uint16_t))
+			return "uint16_t";
+		else if (boost::get<StateType>(type).type() == typeid(uint32_t))
+			return "uint32_t";
+		else if (boost::get<StateType>(type).type() == typeid(uint64_t))
+			return "uint64_t";
+		else if (boost::get<StateType>(type).type() == typeid(u160))
+			return "u160";
+		else if (boost::get<StateType>(type).type() == typeid(u256))
+			return "u256";
+		else if (boost::get<StateType>(type).type() == typeid(std::string))
+			return "string";
 
-	else if (type.type() == typeid(Address))
-		return "Address";
-	else if (type.type() == typeid(Contract))
-		return "Contract";
+		else if (boost::get<StateType>(type).type() == typeid(Address))
+			return "Address";
+		else if (boost::get<StateType>(type).type() == typeid(Contract))
+			return "Contract";
+	}
 
 	return "?";
 }
 
 std::string ValueAsString(AST_Type const &type)
 {
+	(void) type;
 	std::stringstream result;
 	if (type.type() == typeid(Empty))
 		return "(Empty)";
@@ -86,40 +96,117 @@ std::string ValueAsString(AST_Type const &type)
 		result << boost::get<Literal>(type).asString();
 	else if (type.type() == typeid(VariableDeclaration))
 		result << boost::get<VariableDeclaration>(type).asString();
+	else if (type.type() == typeid(BinaryOperation))
+		result << boost::get<BinaryOperation>(type).asString();
+	else if (type.type() == typeid(Identifier))
+		result << boost::get<Identifier>(type).asString();
 
-	else if (type.type() == typeid(bool))
-		result << boost::get<bool>(type);
-	else if (type.type() == typeid(int8_t))
-		result << boost::get<int8_t>(type) << std::hex << " = 0x" << boost::get<int8_t>(type);
-	else if (type.type() == typeid(int16_t))
-		result << boost::get<int16_t>(type) << std::hex << " = 0x" << boost::get<int16_t>(type);
-	else if (type.type() == typeid(int32_t))
-		result << boost::get<int32_t>(type) << std::hex << " = 0x" << boost::get<int32_t>(type);
-	else if (type.type() == typeid(int64_t))
-		result << boost::get<int64_t>(type) << std::hex << " = 0x" << boost::get<int64_t>(type);
-	else if (type.type() == typeid(s256))
-		result << boost::get<s256>(type) << std::hex << " = 0x" << boost::get<s256>(type);
-	else if (type.type() == typeid(uint8_t))
-		result << boost::get<uint8_t>(type) << std::hex << " = 0x" << boost::get<uint8_t>(type);
-	else if (type.type() == typeid(uint16_t))
-		result << boost::get<uint16_t>(type) << std::hex << " = 0x" << boost::get<uint16_t>(type);
-	else if (type.type() == typeid(uint32_t))
-		result << boost::get<uint32_t>(type) << std::hex << " = 0x" << boost::get<uint32_t>(type);
-	else if (type.type() == typeid(uint64_t))
-		result << boost::get<uint64_t>(type) << std::hex << " = 0x" << boost::get<uint64_t>(type);
-	else if (type.type() == typeid(u160))
-		result << boost::get<u160>(type) << std::hex << " = 0x" << boost::get<u160>(type);
-	else if (type.type() == typeid(u256))
-		result << boost::get<u256>(type) << std::hex << " = 0x" << boost::get<u256>(type);
-	else if (type.type() == typeid(std::string))
-		result << boost::get<std::string>(type);
+	else if (type.type() == typeid(StateType))
+	{
+		if (boost::get<StateType>(type).type() == typeid(bool))
+			result << boost::get<bool>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(int8_t))
+			result << boost::get<int8_t>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<int8_t>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(int16_t))
+			result << boost::get<int16_t>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<int16_t>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(int32_t))
+			result << boost::get<int32_t>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<int32_t>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(int64_t))
+			result << boost::get<int64_t>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<int64_t>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(s256))
+			result << boost::get<s256>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<s256>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(uint8_t))
+			result << boost::get<uint8_t>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<uint8_t>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(uint16_t))
+			result << boost::get<uint16_t>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<uint16_t>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(uint32_t))
+			result << boost::get<uint32_t>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<uint32_t>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(uint64_t))
+			result << boost::get<uint64_t>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<uint64_t>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(u160))
+			result << boost::get<u160>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<u160>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(u256))
+			result << boost::get<u256>(boost::get<StateType>(type)) << std::hex << " = 0x"
+				   << boost::get<u256>(boost::get<StateType>(type));
+		else if (boost::get<StateType>(type).type() == typeid(std::string))
+			result << boost::get<std::string>(boost::get<StateType>(type));
 
-	else if (type.type() == typeid(Address))
-		result << boost::get<Address>(type).value() << std::hex << " = 0x" << boost::get<Address>(type).value();
-	else if (type.type() == typeid(Contract))
-		result << boost::get<Contract>(type).asString();
-
+		else if (boost::get<StateType>(type).type() == typeid(Address))
+			result << boost::get<Address>(boost::get<StateType>(type)).value() << std::hex << " = 0x"
+				   << boost::get<Address>(boost::get<StateType>(type)).value();
+		else if (boost::get<StateType>(type).type() == typeid(Contract))
+			result << boost::get<Contract>(boost::get<StateType>(type)).asString();
+	}
 	return result.str();
+}
+
+Literal Evaluate(Literal const &left, std::string const &op, Literal const &right)
+{
+	std::string value;
+	if (left.category == right.category)
+	{
+		using s512= boost::multiprecision::number<
+			boost::multiprecision::cpp_int_backend<
+				512, 512, boost::multiprecision::signed_magnitude, boost::multiprecision::unchecked, void
+			> >;
+		s512 leftValue;
+		s512 rightValue;
+		if (boost::starts_with(left.value, "0x"))
+		{
+			std::stringstream ss;
+			ss << std::hex << left.value;
+			ss >> leftValue;
+		}
+		else
+			leftValue = boost::lexical_cast<s512>(left.value);
+
+		if (boost::starts_with(right.value, "0x"))
+		{
+			std::stringstream ss;
+			ss << std::hex << right.value;
+			ss >> rightValue;
+		}
+		else
+			rightValue = boost::lexical_cast<s512>(right.value);
+		s512 result;
+		if (op == "+")
+		{
+			result = leftValue + rightValue;
+		}
+		else if (op == "-")
+		{
+			result = leftValue - rightValue;
+		}
+		else if (op == "/")
+		{
+			result = leftValue / rightValue;
+		}
+		else if (op == "*")
+		{
+			result = leftValue * rightValue;
+		}
+		std::stringstream resultStream;
+		resultStream << result;
+		value = resultStream.str();
+	}
+	return Literal(left.category, value);
+}
+
+Literal Evaluate(StateType const &type)
+{
+	std::stringstream result;
+	result << RawValueAsString(type);
+	return Literal(solidity::Type::Category::RationalNumber, result.str());
 }
 
 void Stack::push(AST_Type element)
@@ -138,7 +225,7 @@ AST_Type Stack::pop()
 	}
 	else
 	{
-		return Empty();
+		return StateType(Empty());
 	}
 }
 

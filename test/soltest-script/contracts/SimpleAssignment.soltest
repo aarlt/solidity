@@ -11,10 +11,7 @@
     // string constant test = "HELLO";
     // string constant test2 = test + " WORLD";
 */
-    uint32 a;
-    address b;
-    uint16 c1 = 1;
-    uint16 c2 = 2;
-    uint16 c3 = 3;
-    address c = 0x123123123123123;
-
+    uint64 one = 1;
+    uint64 two = 2;
+    uint64 simpleSum = 0x10 * ((1 + 2) - (one + two) + 1) - 1111;
+    assert(simpleSum == 0xfffffffffffffbb9);

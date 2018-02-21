@@ -14,16 +14,15 @@
 	You should have received a copy of the GNU General Public License
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
-/** @file SoltestStack.h
+/** @file StateType.h
  * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 
-#ifndef SOLIDITY_SOLTESTSTACK_H
-#define SOLIDITY_SOLTESTSTACK_H
+#ifndef SOLIDITY_STATETYPE_H
+#define SOLIDITY_STATETYPE_H
 
 #include "SoltestAST.h"
-#include "StateType.h"
 
 #include <boost/variant.hpp>
 
@@ -34,35 +33,18 @@ namespace soltest
 {
 
 typedef boost::variant<
-	TypeId,
+	Empty,
 
-	Literal, VariableDeclaration, BinaryOperation, Identifier,
+	bool, /* double, // not  yet implemented in solidity */
+	int8_t, int16_t, int32_t, int64_t, s256, // todo: int128_t
+	uint8_t, uint16_t, uint32_t, uint64_t, u160, u256, // todo: uint128_t
+	std::string,
 
-	StateType
-> AST_Type;
-
-std::string TypeAsString(AST_Type const &type);
-
-std::string ValueAsString(AST_Type const &type);
-
-Literal Evaluate(Literal const &left, std::string const &op, Literal const &right);
-
-Literal Evaluate(StateType const &type);
-
-class Stack : public std::vector<AST_Type>
-{
-public:
-	void push(AST_Type element);
-
-	AST_Type pop();
-
-	Stack &operator<<(AST_Type const &_value);
-
-	void print();
-};
+	Address, Contract
+> StateType;
 
 } // namespace soltest
 
 } // namespace dev
 
-#endif //SOLIDITY_SOLTESTSTACK_H
+#endif //SOLIDITY_STATETYPE_H

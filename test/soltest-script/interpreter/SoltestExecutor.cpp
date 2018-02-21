@@ -71,8 +71,8 @@ void SoltestExecutor::endVisit(dev::solidity::VariableDeclarationStatement const
 	if (!m_stack.empty() && m_stack.back().type() == typeid(dev::soltest::VariableDeclaration))
 	{
 		AST_Type declaration = m_stack.pop();
-		dev::soltest::VariableDeclaration variableDeclaration;
-		variableDeclaration = boost::get<dev::soltest::VariableDeclaration>(declaration);
+		dev::soltest::VariableDeclaration
+			variableDeclaration = boost::get<dev::soltest::VariableDeclaration>(declaration);
 		m_state.set(variableDeclaration.name, CreateStateType(variableDeclaration.type));
 	}
 
@@ -95,7 +95,7 @@ void SoltestExecutor::endVisit(dev::solidity::VariableDeclarationStatement const
 void SoltestExecutor::endVisit(dev::solidity::VariableDeclaration const &_variableDeclaration)
 {
 	solidity::TypePointer type = _variableDeclaration.annotation().type;
-	m_stack << VariableDeclaration(_variableDeclaration.name(), _variableDeclaration.annotation().type->toString());
+	m_stack << VariableDeclaration(_variableDeclaration.name(), type->toString());
 	ASTConstVisitor::endVisit(_variableDeclaration);
 }
 
@@ -113,11 +113,33 @@ void SoltestExecutor::endVisit(dev::solidity::Assignment const &_assignment)
 
 void SoltestExecutor::endVisit(dev::solidity::BinaryOperation const &_binaryOperation)
 {
+	AST_Type right = m_stack.pop();
+	AST_Type left = m_stack.pop();
+
+	if (left.type() == typeid(dev::soltest::Identifier))
+	{
+		left = Evaluate(m_state[boost::get<dev::soltest::Identifier>(left).name]);
+	}
+	if (right.type() == typeid(dev::soltest::Identifier))
+	{
+		right = Evaluate(m_state[boost::get<dev::soltest::Identifier>(right).name]);
+	}
+
+	if (left.type() == typeid(dev::soltest::Literal) && right.type() == typeid(dev::soltest::Literal))
+	{
+		m_stack << Evaluate(
+			boost::get<dev::soltest::Literal>(left),
+			Token::toString(_binaryOperation.getOperator()),
+			boost::get<dev::soltest::Literal>(right)
+		);
+	}
 	ASTConstVisitor::endVisit(_binaryOperation);
 }
 
 void SoltestExecutor::endVisit(dev::solidity::Identifier const &_identifier)
 {
+	solidity::TypePointer type = _identifier.annotation().type;
+	m_stack << Identifier(_identifier.name(), type->toString());
 	ASTConstVisitor::endVisit(_identifier);
 }
 
@@ -133,6 +155,7 @@ void SoltestExecutor::endVisit(dev::solidity::UnaryOperation const &_unaryOperat
 
 void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 {
+	print(_functionCall);
 	ASTConstVisitor::endVisit(_functionCall);
 }
 
