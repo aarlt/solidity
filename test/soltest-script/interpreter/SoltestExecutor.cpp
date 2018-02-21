@@ -68,23 +68,27 @@ void SoltestExecutor::print(dev::solidity::ASTNode const &node)
 
 void SoltestExecutor::endVisit(dev::solidity::VariableDeclarationStatement const &_variableDeclarationStatement)
 {
-	print(_variableDeclarationStatement);
-	AST_Type declaration = m_stack.pop();
-	AST_Type value = m_stack.pop();
-
-	std::string name;
-	std::string type;
-	if (declaration.type() == typeid(dev::soltest::VariableDeclaration))
+	if (!m_stack.empty() && m_stack.back().type() == typeid(dev::soltest::VariableDeclaration))
 	{
-		name = boost::get<VariableDeclaration>(declaration).name;
-		type = boost::get<VariableDeclaration>(declaration).type;
-		m_state.set(name, "");
+		AST_Type declaration = m_stack.pop();
+		dev::soltest::VariableDeclaration variableDeclaration;
+		variableDeclaration = boost::get<dev::soltest::VariableDeclaration>(declaration);
+		m_state.set(variableDeclaration.name, CreateStateType(variableDeclaration.type));
 	}
 
-	if (value.type() == typeid(dev::soltest::Literal))
+	if (!m_stack.empty() && m_stack.back().type() == typeid(dev::soltest::Literal))
 	{
+		AST_Type value = m_stack.pop();
+		dev::soltest::Literal literal = boost::get<dev::soltest::Literal>(value);
+		if (m_stack.back().type() == typeid(dev::soltest::VariableDeclaration))
+		{
+			AST_Type declaration = m_stack.pop();
+			dev::soltest::VariableDeclaration
+				variableDeclaration = boost::get<dev::soltest::VariableDeclaration>(declaration);
+			m_state.set(variableDeclaration.name,
+						LexicalCast(CreateStateType(variableDeclaration.type), literal.value));
+		}
 	}
-
 	ASTConstVisitor::endVisit(_variableDeclarationStatement);
 }
 

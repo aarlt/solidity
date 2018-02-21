@@ -129,6 +129,9 @@ struct Literal
 
 struct VariableDeclaration
 {
+	VariableDeclaration() : name(), type()
+	{
+	}
 	VariableDeclaration(std::string const &_name, std::string const &_type) : name(_name), type(_type)
 	{
 	}
@@ -137,6 +140,10 @@ struct VariableDeclaration
 		std::stringstream stream;
 		stream << "name = " << name << ", type = '" << type << "'";
 		return stream.str();
+	}
+	bool empty() const
+	{
+		return name.empty() || type.empty();
 	}
 	std::string name;
 	std::string type;
