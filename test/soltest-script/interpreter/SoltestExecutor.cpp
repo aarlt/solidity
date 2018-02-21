@@ -34,8 +34,9 @@ namespace soltest
 SoltestExecutor::SoltestExecutor(dev::solidity::SourceUnit const &sourceUnit,
 								 std::string const &contract,
 								 std::string const &filename,
+								 std::string const &source,
 								 uint32_t line)
-	: m_sourceUnit(sourceUnit), m_contract(contract), m_filename(filename), m_line(line)
+	: m_sourceUnit(sourceUnit), m_contract(contract), m_filename(filename), m_source(source), m_line(line)
 {
 	(void) m_sourceUnit;
 	(void) m_contract;
@@ -154,10 +155,33 @@ void SoltestExecutor::endVisit(dev::solidity::UnaryOperation const &_unaryOperat
 	ASTConstVisitor::endVisit(_unaryOperation);
 }
 
+#define SOLTEST_TEST_TOOL_IMPL(frwd_type, P, FILE, LINE, assertion_descr, TL, CT, ARGS)     \
+do {                                                                            \
+    BOOST_TEST_PASSPOINT();                                                     \
+    ::boost::test_tools::tt_detail::                                            \
+    BOOST_PP_IF( frwd_type, report_assertion, check_frwd ) (                    \
+        BOOST_JOIN( BOOST_TEST_TOOL_PASS_PRED, frwd_type )( P, ARGS ),          \
+        BOOST_TEST_LAZY_MSG( assertion_descr ),                                 \
+        FILE,                                                 \
+        static_cast<std::size_t>(LINE),                                     \
+        ::boost::test_tools::tt_detail::TL,                                     \
+        ::boost::test_tools::tt_detail::CT                                      \
+        BOOST_JOIN( BOOST_TEST_TOOL_PASS_ARGS, frwd_type )( ARGS ) );           \
+} while( ::boost::test_tools::tt_detail::dummy_cond() )                         \
+/**/
+
+#define SOLTEST_REQUIRE_MESSAGE(P, FILE, LINE, M)       SOLTEST_TEST_TOOL_IMPL( 2, (P), FILE, LINE, M, REQUIRE, CHECK_MSG, _ )
+
 void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 {
+	SourceLocation const &location(_functionCall.location());
+	std::string currentFunction(m_source.substr(location.start, location.end - location.start));
+	std::string currentLine(m_source.substr(location.start, m_source.substr(location.start).find("\n")));
+	std::string currentLineNumber(currentLine.substr(currentLine.find("//_soltest_line:") + 16));
+
+	BOOST_TEST_MESSAGE("- " + currentFunction + "...");
+
 	std::vector<AST_Type> arguments;
-	m_stack.print();
 	for (size_t i = 0; i < _functionCall.arguments().size(); ++i)
 	{
 		arguments.push_back(m_stack.pop());
@@ -172,14 +196,20 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 		{
 			if (arguments[0].type() == typeid(dev::soltest::Literal))
 			{
-				BOOST_REQUIRE_MESSAGE(
-					boost::lexical_cast<bool>(boost::get<Literal>(arguments[0]).value), "Assertion failed."
+				std::stringstream stream;
+				stream << currentFunction << " failed.";
+				size_t line = std::atoi(currentLineNumber.c_str());
+				SOLTEST_REQUIRE_MESSAGE(
+					boost::lexical_cast<bool>(boost::get<Literal>(arguments[0]).value),
+					m_filename.c_str(), line,
+					stream.str()
 				);
 			}
 		}
 	}
-	m_stack.print();
-	print(_functionCall);
+
+	BOOST_TEST_MESSAGE("- " + currentFunction + "... done");
+
 	ASTConstVisitor::endVisit(_functionCall);
 }
 

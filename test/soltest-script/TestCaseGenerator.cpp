@@ -117,6 +117,7 @@ void TestCaseGenerator::addContractTests(std::string const &contract, const std:
 {
 	m_contractTests[contract] =
 		std::shared_ptr<dev::soltest::SoltestTests>(new dev::soltest::SoltestTests(tests, m_imports, contract));
+	m_sources[contract] = m_contractTests[contract]->generateSolidity();
 }
 
 void TestCaseGenerator::checkSoltestAST(std::string const &contract,
@@ -172,7 +173,7 @@ void TestCaseGenerator::executeSoltest(std::string const &contract,
 	if (sourceUnit)
 	{
 		std::string errors;
-		dev::soltest::SoltestExecutor executor(*sourceUnit, contract, filename, line);
+		dev::soltest::SoltestExecutor executor(*sourceUnit, contract, filename, m_sources[contract], line);
 		BOOST_REQUIRE_MESSAGE(executor.execute(testcase, errors), errors);
 	}
 }

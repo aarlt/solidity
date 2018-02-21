@@ -43,6 +43,7 @@ public:
 	SoltestExecutor(dev::solidity::SourceUnit const &sourceUnit,
 					std::string const &contract,
 					std::string const &filename,
+					std::string const &source,
 					uint32_t line);
 
 	bool execute(std::string const &testcase, std::string &errors);
@@ -77,6 +78,7 @@ private:
 	dev::solidity::SourceUnit const &m_sourceUnit;
 	std::string m_contract;
 	std::string m_filename;
+	std::string m_source;
 	uint32_t m_line;
 
 	std::string m_errors;

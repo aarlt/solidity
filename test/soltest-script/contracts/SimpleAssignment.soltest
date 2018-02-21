@@ -1,18 +1,6 @@
 {test 01}
-/*
-    soltest.setChainParams(42);
-    SimpleAssignment c = new SimpleAssignment(42);
-    uint32 a;
-    uint16 b = 1;
-    address d = 0x4123;
-    uint256 big1 = 1;
-    uint256 big2 = 2;
-    uint256 sum = big1 * (big2 + 1);
-    // string constant test = "HELLO";
-    // string constant test2 = test + " WORLD";
-    uint64 one = 1;
-    uint64 two = 2;
-    uint64 simpleSum = 0x10 * ((1 + 2) - (one + two) + 1) - 1111;
-*/
-    // soltest.setChainParams(1, 2);
-    assert(1 == 2);
+    uint32 one = 1;
+    uint32 two = 2;
+    uint32 three = two + one;
+    assert(1 + three == 1 + one + three - 1);
+

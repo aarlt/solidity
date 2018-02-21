@@ -108,7 +108,6 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 	{
 		std::string contractName("EndToEnd" + boost::filesystem::basename(soltest->file()));
 		std::string contractSource(soltest->generateSolidity());
-//		std::cout << soltest->generateSolidity() << std::endl << std::endl;
 		m_compilerStack.addSource(contractName, contractSource);
 	}
 

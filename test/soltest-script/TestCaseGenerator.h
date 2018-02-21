@@ -54,6 +54,7 @@ private:
 	dev::solidity::CompilerStack &m_compilerStack;
 	std::set<std::string> const &m_constracts;
 	std::set<std::string> m_imports;
+	std::map<std::string, std::string> m_sources;
 	std::map<std::string, dev::soltest::SoltestTests::Ptr> m_contractTests;
 };
 
