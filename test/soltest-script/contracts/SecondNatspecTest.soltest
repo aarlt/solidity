@@ -1,8 +1,0 @@
-{setup}
-    uint storedData;
-
-{teardown}
-    storedData = 0;
-
-{second test 01}
-    storedData += 1;

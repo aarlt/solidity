@@ -21,7 +21,7 @@
 
 #include "SoltestASTChecker.h"
 
-#include <test/soltest-script/SoltestTests.h>
+#include <test/scripting/SoltestTests.h>
 
 namespace dev
 {

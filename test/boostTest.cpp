@@ -37,7 +37,7 @@
 
 #include <test/TestHelper.h>
 
-#include <test/soltest-script/TestSuiteGenerator.h>
+#include <test/scripting/TestSuiteGenerator.h>
 
 using namespace boost::unit_test;
 

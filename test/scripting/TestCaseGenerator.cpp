@@ -21,8 +21,8 @@
 
 #include "TestCaseGenerator.h"
 
-#include <test/soltest-script/interpreter/SoltestASTChecker.h>
-#include <test/soltest-script/interpreter/SoltestExecutor.h>
+#include <test/scripting/interpreter/SoltestASTChecker.h>
+#include <test/scripting/interpreter/SoltestExecutor.h>
 
 #include <libsolidity/ast/ASTPrinter.h>
 

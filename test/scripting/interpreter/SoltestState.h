@@ -24,7 +24,7 @@
 
 #include "StateType.h"
 #include <libsolidity/ast/AST.h>
-#include <test/soltest-script/interpreter/SoltestStack.h>
+#include <test/scripting/interpreter/SoltestStack.h>
 
 #include <map>
 #include <boost/algorithm/string.hpp>

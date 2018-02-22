@@ -23,8 +23,8 @@
 #define SOLIDITY_SOLTESTEXECUTOR_H
 
 #include <libsolidity/ast/ASTVisitor.h>
-#include <test/soltest-script/interpreter/SoltestStack.h>
-#include <test/soltest-script/interpreter/SoltestState.h>
+#include <test/scripting/interpreter/SoltestStack.h>
+#include <test/scripting/interpreter/SoltestState.h>
 
 #include <string>
 #include <cstdint>
