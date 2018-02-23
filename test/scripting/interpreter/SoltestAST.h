@@ -142,6 +142,21 @@ struct VariableDeclaration
 	std::string type;
 };
 
+struct MemberAccess
+{
+	MemberAccess(std::string const &_member, std::string const &_type) : member(_member), type(_type)
+	{
+	}
+	std::string asString() const
+	{
+		std::stringstream stream;
+		stream << "member = " << member << ", type = '" << type << "'";
+		return stream.str();
+	}
+	std::string member;
+	std::string type;
+};
+
 struct Identifier
 {
 	Identifier(std::string const &_name, std::string const &_type) : name(_name), type(_type)

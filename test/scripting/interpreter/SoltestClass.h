@@ -14,18 +14,16 @@
 	You should have received a copy of the GNU General Public License
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
-/** @file SoltestStack.h
+/** @file SoltestClass.h
  * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 
-#ifndef SOLIDITY_SOLTESTSTACK_H
-#define SOLIDITY_SOLTESTSTACK_H
+#ifndef SOLIDITY_SOLTESTCLASS_H
+#define SOLIDITY_SOLTESTCLASS_H
 
-#include "SoltestAST.h"
+#include "SoltestStack.h"
 #include "StateType.h"
-
-#include <boost/variant.hpp>
 
 namespace dev
 {
@@ -33,38 +31,21 @@ namespace dev
 namespace soltest
 {
 
-typedef boost::variant<
-	TypeId,
-
-	Literal, VariableDeclaration, BinaryOperation, Identifier, MemberAccess,
-
-	StateType
-> AST_Type;
-
-std::string TypeAsString(AST_Type const &type);
-
-std::string ValueAsString(AST_Type const &type);
-
-Literal Evaluate(Literal const &left, std::string const &op, Literal const &right);
-
-Literal Evaluate(StateType const &type);
-
-class Stack : public std::vector<AST_Type>
+class SoltestClass
 {
 public:
-	void push(AST_Type element);
+	std::vector<dev::soltest::StateType> call(dev::soltest::MemberAccess const &member,
+											  std::vector<dev::soltest::AST_Type> const &arguments);
 
-	AST_Type pop();
+	u256 setChainParams(u256 a, u256 b);
 
-	AST_Type first();
-
-	Stack &operator<<(AST_Type const &_value);
-
-	void print();
+private:
+	bool setChainParams(std::vector<dev::soltest::StateType> const &arguments,
+						std::vector<dev::soltest::StateType> &returns);
 };
 
 } // namespace soltest
 
 } // namespace dev
 
-#endif //SOLIDITY_SOLTESTSTACK_H
+#endif //SOLIDITY_SOLTESTCLASS_H

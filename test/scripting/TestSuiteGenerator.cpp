@@ -20,19 +20,14 @@
  */
 
 #include "TestSuiteGenerator.h"
-
 #include "TestCaseGenerator.h"
+#include "SoltestAsserts.h"
 
 #include <libsolidity/interface/StandardCompiler.h>
+#include <libsolidity/interface/SourceReferenceFormatter.h>
 
-#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-
-#include <iostream>
-#include <fstream>
-#include <libsolidity/interface/SourceReferenceFormatter.h>
 
 namespace dev
 {
@@ -170,32 +165,42 @@ void TestSuiteGenerator::loadContracts(std::set<std::string> const &contracts)
 		content << file.rdbuf();
 		bool success = !m_compilerStack.addSource(contract, content.str());
 		m_running = m_running && success;
-		BOOST_REQUIRE_MESSAGE(success, errors());
+		SOLTEST_REQUIRE_MESSAGE(success, contract.c_str(), 0, errors());
 	}
 }
 
 void TestSuiteGenerator::parseContracts()
 {
-	BOOST_REQUIRE_MESSAGE(m_running, "Aborting.");
-	bool success = m_compilerStack.parse();
-	m_running = m_running && success;
-	BOOST_REQUIRE_MESSAGE(success, errors());
+	if (m_running)
+	{
+		bool success = m_compilerStack.parse();
+		m_running = m_running && success;
+		for (auto &error : m_compilerStack.errors())
+		{
+			std::cout << error.get()->what() << std::endl;
+		}
+		BOOST_REQUIRE_MESSAGE(success, errors());
+	}
 }
 
 void TestSuiteGenerator::analyzeContracts()
 {
-	BOOST_REQUIRE_MESSAGE(m_running, "Aborting.");
-	bool success = m_compilerStack.analyze();
-	m_running = m_running && success;
-	BOOST_REQUIRE_MESSAGE(success, errors());
+	if (m_running)
+	{
+		bool success = m_compilerStack.analyze();
+		m_running = m_running && success;
+		BOOST_REQUIRE_MESSAGE(success, errors());
+	}
 }
 
 void TestSuiteGenerator::compileContracts()
 {
-	BOOST_REQUIRE_MESSAGE(m_running, "Aborting.");
-	bool success = m_compilerStack.compile();
-	m_running = m_running && success;
-	BOOST_REQUIRE_MESSAGE(success, errors());
+	if (m_running)
+	{
+		bool success = m_compilerStack.compile();
+		m_running = m_running && success;
+		BOOST_REQUIRE_MESSAGE(success, errors());
+	}
 }
 
 std::string TestSuiteGenerator::errors()
@@ -203,11 +208,14 @@ std::string TestSuiteGenerator::errors()
 	std::stringstream result;
 	for (auto const &error: m_compilerStack.errors())
 	{
-		auto const &err = dynamic_cast<dev::solidity::Error const &>(*error);
-		std::string formattedMessage = dev::solidity::SourceReferenceFormatter::formatExceptionInformation(
-			*error, err.typeName(), m_scannerFromSourceName
-		);
-		result << std::endl << formattedMessage;
+		if (error.get()->type() != dev::solidity::Error::Type::Warning)
+		{
+			auto const &err = dynamic_cast<dev::solidity::Error const &>(*error);
+			std::string formattedMessage = dev::solidity::SourceReferenceFormatter::formatExceptionInformation(
+				*error, err.typeName(), m_scannerFromSourceName
+			);
+			result << std::endl << formattedMessage;
+		}
 	}
 	return result.str();
 }

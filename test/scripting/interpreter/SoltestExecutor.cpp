@@ -22,6 +22,8 @@
 #include "SoltestExecutor.h"
 #include "SoltestASTChecker.h"
 
+#include <test/scripting/SoltestAsserts.h>
+
 #include <libsolidity/ast/ASTPrinter.h>
 #include <boost/test/unit_test.hpp>
 
@@ -155,31 +157,13 @@ void SoltestExecutor::endVisit(dev::solidity::UnaryOperation const &_unaryOperat
 	ASTConstVisitor::endVisit(_unaryOperation);
 }
 
-#define SOLTEST_TEST_TOOL_IMPL(frwd_type, P, FILE, LINE, assertion_descr, TL, CT, ARGS)     \
-do {                                                                            \
-    BOOST_TEST_PASSPOINT();                                                     \
-    ::boost::test_tools::tt_detail::                                            \
-    BOOST_PP_IF( frwd_type, report_assertion, check_frwd ) (                    \
-        BOOST_JOIN( BOOST_TEST_TOOL_PASS_PRED, frwd_type )( P, ARGS ),          \
-        BOOST_TEST_LAZY_MSG( assertion_descr ),                                 \
-        FILE,                                                 \
-        static_cast<std::size_t>(LINE),                                     \
-        ::boost::test_tools::tt_detail::TL,                                     \
-        ::boost::test_tools::tt_detail::CT                                      \
-        BOOST_JOIN( BOOST_TEST_TOOL_PASS_ARGS, frwd_type )( ARGS ) );           \
-} while( ::boost::test_tools::tt_detail::dummy_cond() )                         \
-/**/
-
-#define SOLTEST_REQUIRE_MESSAGE(P, FILE, LINE, M)       SOLTEST_TEST_TOOL_IMPL( 2, (P), FILE, LINE, M, REQUIRE, CHECK_MSG, _ )
-
 void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 {
-	SourceLocation const &location(_functionCall.location());
-	std::string currentFunction(m_source.substr(location.start, location.end - location.start));
-	std::string currentLine(m_source.substr(location.start, m_source.substr(location.start).find("\n")));
-	std::string currentLineNumber(currentLine.substr(currentLine.find("//_soltest_line:") + 16));
+	std::string currentFunctionCall;
+	size_t line;
+	ExtractSoltestLocation(_functionCall, m_source, currentFunctionCall, line);
 
-	BOOST_TEST_MESSAGE("- " + currentFunction + "...");
+	BOOST_TEST_MESSAGE("- " + currentFunctionCall + "...");
 
 	std::vector<AST_Type> arguments;
 	for (size_t i = 0; i < _functionCall.arguments().size(); ++i)
@@ -188,17 +172,13 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 	}
 	if (m_stack.back().type() == typeid(dev::soltest::Identifier))
 	{
-		Identifier identifier = boost::get<dev::soltest::Identifier>(m_stack.pop());
-		if (boost::starts_with(identifier.type, "contract "))
-		{
-		}
-		else if (identifier.name == "assert" && arguments.size() == 1)
+		dev::soltest::Identifier identifier = boost::get<dev::soltest::Identifier>(m_stack.pop());
+		if (identifier.name == "assert" && arguments.size() == 1)
 		{
 			if (arguments[0].type() == typeid(dev::soltest::Literal))
 			{
 				std::stringstream stream;
-				stream << currentFunction << " failed.";
-				size_t line = static_cast<std::size_t>(std::atoi(currentLineNumber.c_str()));
+				stream << currentFunctionCall << " failed.";
 				std::string raw(boost::get<Literal>(arguments[0]).value);
 				bool check;
 				if (raw == "false")
@@ -215,8 +195,19 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 			}
 		}
 	}
+	else if (m_stack.back().type() == typeid(dev::soltest::MemberAccess))
+	{
+		dev::soltest::MemberAccess memberAccess = boost::get<dev::soltest::MemberAccess>(m_stack.pop());
+		dev::soltest::Identifier identifier = boost::get<dev::soltest::Identifier>(m_stack.pop());
 
-	BOOST_TEST_MESSAGE("- " + currentFunction + "... done");
+		if (identifier.name == "soltest" && identifier.type == "contract Soltest")
+		{
+			m_soltest.call(memberAccess, arguments);
+		}
+		std::cout << arguments.size() << std::endl;
+	}
+
+	BOOST_TEST_MESSAGE("- " + currentFunctionCall + "... done");
 
 	ASTConstVisitor::endVisit(_functionCall);
 }
@@ -228,6 +219,8 @@ void SoltestExecutor::endVisit(dev::solidity::NewExpression const &_newExpressio
 
 void SoltestExecutor::endVisit(dev::solidity::MemberAccess const &_memberAccess)
 {
+	solidity::TypePointer type = _memberAccess.annotation().type;
+	m_stack << MemberAccess(_memberAccess.memberName(), type->toString());
 	ASTConstVisitor::endVisit(_memberAccess);
 }
 
