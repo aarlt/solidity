@@ -14,18 +14,17 @@
 	You should have received a copy of the GNU General Public License
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
-/** @file StateType.h
+/** @file SoltestClass.h
  * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 
-#ifndef SOLIDITY_STATETYPE_H
-#define SOLIDITY_STATETYPE_H
+#ifndef SOLIDITY_SOLTESTCLASS_H
+#define SOLIDITY_SOLTESTCLASS_H
 
 #include <libdevcore/Common.h>
-
-#include <boost/variant.hpp>
-#include <test/scripting/interpreter/contract/Contract.h>
+#include "Contract.h"
+#include <tuple>
 
 namespace dev
 {
@@ -33,21 +32,26 @@ namespace dev
 namespace soltest
 {
 
-typedef boost::variant<
-	Empty,
+class SetupContract : public dev::soltest::Contract
+{
+public:
+	SetupContract() : dev::soltest::Contract("contract SetupContract")
+	{
+		registerContractMethod<
+			SetupContract, u256, u256, u256>("setChainParams", *this, &SetupContract::setChainParams);
+	}
 
-	bool, /* double, // not  yet implemented in solidity */
-	int8_t, int16_t, int32_t, int64_t, s256, // todo: int128_t
-	uint8_t, uint16_t, uint32_t, uint64_t, u160, u256, // todo: uint128_t
-	std::string,
-
-	Address, Contract
-> StateType;
-
-typedef std::vector<StateType> StateTypes;
+	u256 setChainParams(u256 a, u256 b)
+	{
+		u256 result;
+		result = a + b;
+		std::cout << __PRETTY_FUNCTION__ << "(" << a << ", " << b << ") = " << result << std::endl;
+		return result;
+	}
+};
 
 } // namespace soltest
 
 } // namespace dev
 
-#endif //SOLIDITY_STATETYPE_H
+#endif //SOLIDITY_SOLTESTCLASS_H

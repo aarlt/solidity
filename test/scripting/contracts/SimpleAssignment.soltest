@@ -8,4 +8,5 @@
 */
     uint32 one = 1;
     uint32 two = 2;
-    soltest.setChainParams(1 + 1, 1 + 1);
+    // assert (one + 1 == two);
+    soltest.setChainParams(one + 1, two);

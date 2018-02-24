@@ -30,9 +30,8 @@ namespace dev
 namespace soltest
 {
 
-class Empty
+struct Empty
 {
-
 };
 
 struct TypeId
@@ -53,20 +52,6 @@ struct TypeId
 		return stream.str();
 	}
 	std::string type_id;
-};
-
-struct Contract
-{
-	explicit Contract(std::string const &_type) : type(_type)
-	{
-	}
-	std::string asString() const
-	{
-		std::stringstream stream;
-		stream << "type = '" << type << "'";
-		return stream.str();
-	}
-	std::string type;
 };
 
 struct Address

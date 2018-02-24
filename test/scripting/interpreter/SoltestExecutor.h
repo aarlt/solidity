@@ -25,7 +25,6 @@
 #include <libsolidity/ast/ASTVisitor.h>
 #include <test/scripting/interpreter/SoltestStack.h>
 #include <test/scripting/interpreter/SoltestState.h>
-#include <test/scripting/interpreter/SoltestClass.h>
 
 #include <string>
 #include <cstdint>
@@ -85,8 +84,6 @@ private:
 	std::string m_errors;
 	dev::soltest::Stack m_stack;
 	dev::soltest::State m_state;
-
-	SoltestClass m_soltest;
 };
 
 } // namespace soltest

@@ -14,16 +14,14 @@
 	You should have received a copy of the GNU General Public License
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
-/** @file SoltestClass.h
+/** @file Contract.cpp
  * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * @date 2018
  */
 
-#ifndef SOLIDITY_SOLTESTCLASS_H
-#define SOLIDITY_SOLTESTCLASS_H
+#include "Contract.h"
 
-#include "SoltestStack.h"
-#include "StateType.h"
+#include <boost/algorithm/string.hpp>
 
 namespace dev
 {
@@ -31,21 +29,6 @@ namespace dev
 namespace soltest
 {
 
-class SoltestClass
-{
-public:
-	std::vector<dev::soltest::StateType> call(dev::soltest::MemberAccess const &member,
-											  std::vector<dev::soltest::AST_Type> const &arguments);
-
-	u256 setChainParams(u256 a, u256 b);
-
-private:
-	bool setChainParams(std::vector<dev::soltest::StateType> const &arguments,
-						std::vector<dev::soltest::StateType> &returns);
-};
-
 } // namespace soltest
 
 } // namespace dev
-
-#endif //SOLIDITY_SOLTESTCLASS_H

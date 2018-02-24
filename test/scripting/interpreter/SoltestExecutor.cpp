@@ -23,9 +23,12 @@
 #include "SoltestASTChecker.h"
 
 #include <test/scripting/SoltestAsserts.h>
+#include <test/scripting/interpreter/contract/SetupContract.h>
 
 #include <libsolidity/ast/ASTPrinter.h>
 #include <boost/test/unit_test.hpp>
+
+#include <boost/variant.hpp>
 
 namespace dev
 {
@@ -40,10 +43,8 @@ SoltestExecutor::SoltestExecutor(dev::solidity::SourceUnit const &sourceUnit,
 								 uint32_t line)
 	: m_sourceUnit(sourceUnit), m_contract(contract), m_filename(filename), m_source(source), m_line(line)
 {
-	(void) m_sourceUnit;
-	(void) m_contract;
-	(void) m_filename;
-	(void) m_line;
+	static SetupContract soltest;
+	m_state["soltest"] = soltest;
 }
 
 bool SoltestExecutor::execute(std::string const &testcase, std::string &errors)
@@ -165,46 +166,46 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 
 	BOOST_TEST_MESSAGE("- " + currentFunctionCall + "...");
 
-	std::vector<AST_Type> arguments;
+	dev::soltest::AST_Types untyped_arguments;
 	for (size_t i = 0; i < _functionCall.arguments().size(); ++i)
 	{
-		arguments.push_back(m_stack.pop());
+		untyped_arguments.push_back(m_stack.pop());
 	}
 	if (m_stack.back().type() == typeid(dev::soltest::Identifier))
 	{
 		dev::soltest::Identifier identifier = boost::get<dev::soltest::Identifier>(m_stack.pop());
+		dev::soltest::StateTypes
+			arguments = CreateArgumentStateTypesFromFunctionType(identifier.type, untyped_arguments, m_state);
 		if (identifier.name == "assert" && arguments.size() == 1)
 		{
-			if (arguments[0].type() == typeid(dev::soltest::Literal))
-			{
-				std::stringstream stream;
-				stream << currentFunctionCall << " failed.";
-				std::string raw(boost::get<Literal>(arguments[0]).value);
-				bool check;
-				if (raw == "false")
-					check = false;
-				else if (raw == "true")
-					check = true;
-				else
-					check = boost::lexical_cast<bool>(raw);
-				SOLTEST_REQUIRE_MESSAGE(
-					check,
-					m_filename.c_str(), line,
-					stream.str()
-				);
-			}
+			BOOST_REQUIRE_MESSAGE(arguments[0].type() == typeid(bool), " assert argument need to be bool!");
+			std::stringstream stream;
+			stream << currentFunctionCall << " failed.";
+			SOLTEST_REQUIRE_MESSAGE(
+				boost::get<bool>(arguments[0]),
+				m_filename.c_str(), line,
+				stream.str()
+			);
 		}
 	}
 	else if (m_stack.back().type() == typeid(dev::soltest::MemberAccess))
 	{
 		dev::soltest::MemberAccess memberAccess = boost::get<dev::soltest::MemberAccess>(m_stack.pop());
 		dev::soltest::Identifier identifier = boost::get<dev::soltest::Identifier>(m_stack.pop());
-
-		if (identifier.name == "soltest" && identifier.type == "contract Soltest")
+		dev::soltest::StateTypes
+			arguments = CreateArgumentStateTypesFromFunctionType(memberAccess.type, untyped_arguments, m_state);
+		dev::soltest::StateTypes
+			results = CreateReturnStateTypesFromFunctionType(memberAccess.type);
+		if (boost::starts_with(identifier.type, "contract ") && boost::starts_with(memberAccess.type, "function "))
 		{
-			m_soltest.call(memberAccess, arguments);
+			// contract function call
+			BOOST_REQUIRE_MESSAGE(
+				m_state[identifier.name].type() == typeid(dev::soltest::Contract),
+				"No contract - this should not happen!"
+			);
+			std::reverse(arguments.begin(), arguments.end());
+			boost::get<dev::soltest::Contract>(m_state[identifier.name]).call(memberAccess.member, arguments, results);
 		}
-		std::cout << arguments.size() << std::endl;
 	}
 
 	BOOST_TEST_MESSAGE("- " + currentFunctionCall + "... done");

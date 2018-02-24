@@ -265,6 +265,49 @@ StateType CreateStateType(AST_Type const &type)
 	return Empty();
 }
 
+StateTypes CreateArgumentStateTypesFromFunctionType(std::string const &_functionType,
+													dev::soltest::AST_Types const &_untypedTuple,
+													dev::soltest::State &state)
+{
+	StateTypes args;
+	std::vector<std::string> argumentTypes;
+	std::string argumentTypesString(
+		_functionType.substr(_functionType.find('(') + 1, _functionType.find(')') - _functionType.find('(') - 1)
+	);
+	boost::split(argumentTypes, argumentTypesString, boost::is_any_of(","));
+	size_t argIdx = 0;
+	for (auto &argumentType : argumentTypes)
+	{
+		StateType proto(CreateStateType(argumentType));
+		if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Literal))
+		{
+			soltest::Literal literal(boost::get<soltest::Literal>(_untypedTuple[argIdx]));
+			args.push_back(LexicalCast(proto, literal.value));
+		}
+		else if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Identifier))
+		{
+			soltest::Identifier identifier(boost::get<soltest::Identifier>(_untypedTuple[argIdx]));
+			args.push_back(LexicalCast(CreateStateType(argumentType), RawValueAsString(state[identifier.name])));
+		}
+		++argIdx;
+	}
+	return args;
+}
+
+StateTypes CreateReturnStateTypesFromFunctionType(std::string const &_functionType)
+{
+	StateTypes result;
+	std::vector<dev::soltest::StateType> returns;
+	std::vector<std::string> returnTypes;
+	std::string returnTypesString(
+		_functionType.substr(_functionType.rfind('(') + 1, _functionType.rfind(')') - _functionType.rfind('(') - 1)
+	);
+	boost::split(returnTypes, returnTypesString, boost::is_any_of(","));
+	for (auto &returnType : returnTypes)
+		returns.push_back(CreateStateType(returnType));
+	return result;
+}
+
 void State::set(std::string const &name, StateType const &type)
 {
 	(*this)[name] = type;

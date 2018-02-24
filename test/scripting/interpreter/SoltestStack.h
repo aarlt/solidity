@@ -41,6 +41,8 @@ typedef boost::variant<
 	StateType
 > AST_Type;
 
+typedef std::vector<AST_Type> AST_Types;
+
 std::string TypeAsString(AST_Type const &type);
 
 std::string ValueAsString(AST_Type const &type);

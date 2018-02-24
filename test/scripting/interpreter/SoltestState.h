@@ -22,9 +22,9 @@
 #ifndef SOLIDITY_SOLTESTSTATE_H
 #define SOLIDITY_SOLTESTSTATE_H
 
-#include "StateType.h"
 #include <libsolidity/ast/AST.h>
 #include <test/scripting/interpreter/SoltestStack.h>
+#include <test/scripting/interpreter/StateType.h>
 
 #include <map>
 #include <boost/algorithm/string.hpp>
@@ -56,6 +56,12 @@ public:
 StateType CreateStateType(std::string const &_typename);
 
 StateType CreateStateType(AST_Type const &_type);
+
+StateTypes CreateArgumentStateTypesFromFunctionType(std::string const &_functionType,
+													dev::soltest::AST_Types const &_untypedTuple,
+													dev::soltest::State &state);
+
+StateTypes CreateReturnStateTypesFromFunctionType(std::string const &_functionType);
 
 StateType LexicalCast(StateType const &prototype, std::string const &_string);
 
