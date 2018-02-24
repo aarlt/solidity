@@ -177,35 +177,44 @@ StateType CreateStateType(std::string const &_typename)
 
 StateType LexicalCast(StateType const &prototype, std::string const &_string)
 {
+	std::string string(_string);
+	if (boost::starts_with(_string, "0x"))
+	{
+		u256 raw;
+		std::stringstream ss;
+		ss << std::hex << _string;
+		ss >> raw;
+		string = RawValueAsString(raw);
+	}
 	StateType result;
 	try
 	{
 		if (_string.find('.') == std::string::npos)
 		{
 			if (prototype.type() == typeid(bool))
-				result = boost::lexical_cast<bool>(_string);
+				result = boost::lexical_cast<bool>(string);
 			else if (prototype.type() == typeid(int8_t))
-				result = boost::lexical_cast<int8_t>(_string);
+				result = boost::lexical_cast<int8_t>(string);
 			else if (prototype.type() == typeid(int16_t))
-				result = boost::lexical_cast<int16_t>(_string);
+				result = boost::lexical_cast<int16_t>(string);
 			else if (prototype.type() == typeid(int32_t))
-				result = boost::lexical_cast<int32_t>(_string);
+				result = boost::lexical_cast<int32_t>(string);
 			else if (prototype.type() == typeid(int64_t))
-				result = boost::lexical_cast<int64_t>(_string);
+				result = boost::lexical_cast<int64_t>(string);
 			else if (prototype.type() == typeid(s256))
-				result = boost::lexical_cast<s256>(_string);
+				result = boost::lexical_cast<s256>(string);
 			else if (prototype.type() == typeid(uint8_t))
-				result = boost::lexical_cast<uint8_t>(_string);
+				result = boost::lexical_cast<uint8_t>(string);
 			else if (prototype.type() == typeid(uint16_t))
-				result = boost::lexical_cast<uint16_t>(_string);
+				result = boost::lexical_cast<uint16_t>(string);
 			else if (prototype.type() == typeid(uint32_t))
-				result = boost::lexical_cast<uint32_t>(_string);
+				result = boost::lexical_cast<uint32_t>(string);
 			else if (prototype.type() == typeid(uint64_t))
-				result = boost::lexical_cast<uint64_t>(_string);
+				result = boost::lexical_cast<uint64_t>(string);
 			else if (prototype.type() == typeid(u160))
-				result = boost::lexical_cast<u160>(_string);
+				result = boost::lexical_cast<u160>(string);
 			else if (prototype.type() == typeid(u256))
-				result = boost::lexical_cast<u256>(_string);
+				result = boost::lexical_cast<u256>(string);
 			else if (prototype.type() == typeid(Address))
 				result = Address(u160(_string));
 			else if (prototype.type() == typeid(Contract))

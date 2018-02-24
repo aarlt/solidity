@@ -16,5 +16,7 @@
     assert(soltest.setChainParams(one + one, two) == four);
     assert(soltest.setChainParams(two, two) == four - two + 2);
 */
-    SimpleAssignment s = new SimpleAssignment(32);
+    uint16 a = 2 + 1;
+    uint32 b = 0x2 + a * 0x1;
+    SimpleAssignment s = new SimpleAssignment(a - 0x3, b + 0x5);
     // assert (one + 1 == two);
