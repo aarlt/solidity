@@ -297,14 +297,13 @@ StateTypes CreateArgumentStateTypesFromFunctionType(std::string const &_function
 StateTypes CreateReturnStateTypesFromFunctionType(std::string const &_functionType)
 {
 	StateTypes result;
-	std::vector<dev::soltest::StateType> returns;
 	std::vector<std::string> returnTypes;
 	std::string returnTypesString(
 		_functionType.substr(_functionType.rfind('(') + 1, _functionType.rfind(')') - _functionType.rfind('(') - 1)
 	);
 	boost::split(returnTypes, returnTypesString, boost::is_any_of(","));
 	for (auto &returnType : returnTypes)
-		returns.push_back(CreateStateType(returnType));
+		result.push_back(CreateStateType(returnType));
 	return result;
 }
 

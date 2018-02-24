@@ -194,8 +194,6 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 		dev::soltest::Identifier identifier = boost::get<dev::soltest::Identifier>(m_stack.pop());
 		dev::soltest::StateTypes
 			arguments = CreateArgumentStateTypesFromFunctionType(memberAccess.type, untyped_arguments, m_state);
-		dev::soltest::StateTypes
-			results = CreateReturnStateTypesFromFunctionType(memberAccess.type);
 		if (boost::starts_with(identifier.type, "contract ") && boost::starts_with(memberAccess.type, "function "))
 		{
 			// contract function call
@@ -204,7 +202,20 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 				"No contract - this should not happen!"
 			);
 			std::reverse(arguments.begin(), arguments.end());
-			boost::get<dev::soltest::Contract>(m_state[identifier.name]).call(memberAccess.member, arguments, results);
+			dev::soltest::StateTypes
+				results = CreateReturnStateTypesFromFunctionType(memberAccess.type);
+			BOOST_REQUIRE_MESSAGE(
+				boost::get<dev::soltest::Contract>(m_state[identifier.name]).call(memberAccess.member,
+																				  arguments,
+																				  results),
+				"Contract couldn't be called."
+			);
+			for (auto &result : results)
+				m_stack.push(
+					dev::soltest::Literal(
+						dev::solidity::Type::Category::RationalNumber, RawValueAsString(result)
+					)
+				);
 		}
 	}
 

@@ -35,7 +35,7 @@ namespace dev
 namespace soltest
 {
 
-// the following statements are just like an forward declaration, yep, it looks quite hacky
+// forward declaration fun :D
 
 class Contract;
 
@@ -66,14 +66,26 @@ public:
 		return stream.str();
 	}
 
-	bool call(std::string const &methodName, StateTypes const &arguments = {}, StateTypes const &results = {})
+	bool call(std::string const &methodName, StateTypes const &arguments, StateTypes &results)
 	{
 		std::cout << methodName << "(" << arguments.size() << " X " << results.size() << ")" << std::endl;
 		try
 		{
 			std::function<StateTypes(StateTypes)> contractMethod(m_methods[methodName]);
 			StateTypes current = contractMethod(arguments);
-			std::cout << methodName << current.size() << std::endl;
+			std::cout << methodName << " " << results.size() << " " << current.size() << std::endl;
+			if (results.size() != current.size())
+			{
+				return false;
+			}
+			for (size_t i = 0; i < results.size(); ++i)
+			{
+				if (results[i].type() != current[i].type())
+				{
+					return false;
+				}
+			}
+			results = current;
 			return true;
 		}
 		catch (const std::bad_function_call &e)
@@ -92,7 +104,7 @@ public:
 		{
 			TArgument0 argument0 = boost::get<TArgument0>(args[0]);
 			StateTypes result;
-			function(self, argument0);
+			result.push_back(function(self, argument0));
 			return result;
 		};
 	}
@@ -106,7 +118,7 @@ public:
 			TArgument0 argument0 = boost::get<TArgument0>(args[0]);
 			TArgument1 argument1 = boost::get<TArgument1>(args[1]);
 			StateTypes result;
-			function(self, argument0, argument1);
+			result.push_back(function(self, argument0, argument1));
 			return result;
 		};
 	}
