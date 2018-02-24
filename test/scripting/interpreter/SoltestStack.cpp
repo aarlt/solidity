@@ -46,6 +46,8 @@ std::string TypeAsString(AST_Type const &type)
 		return "Identifier";
 	else if (type.type() == typeid(MemberAccess))
 		return "MemberAccess";
+	else if (type.type() == typeid(NewExpression))
+		return "NewExpression";
 
 	else if (type.type() == typeid(StateType))
 	{
@@ -104,6 +106,8 @@ std::string ValueAsString(AST_Type const &type)
 		result << boost::get<Identifier>(type).asString();
 	else if (type.type() == typeid(MemberAccess))
 		result << boost::get<MemberAccess>(type).asString();
+	else if (type.type() == typeid(NewExpression))
+		result << boost::get<NewExpression>(type).asString();
 
 	else if (type.type() == typeid(StateType))
 	{

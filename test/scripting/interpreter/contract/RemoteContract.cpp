@@ -19,4 +19,25 @@
  * @date 2018
  */
 
+#include <test/scripting/interpreter/SoltestState.h>
 #include "RemoteContract.h"
+
+namespace dev
+{
+
+namespace soltest
+{
+
+bool dev::soltest::RemoteContract::construct(dev::soltest::StateTypes &arguments)
+{
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+	for (auto &arg : arguments)
+	{
+		std::cout << " - " << TypeAsString(arg) << " " << ValueAsString(arg) << std::endl;
+	}
+	return true;
+}
+
+} // namespace soltest
+
+} // namespace dev

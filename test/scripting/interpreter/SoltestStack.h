@@ -36,7 +36,7 @@ namespace soltest
 typedef boost::variant<
 	TypeId,
 
-	Literal, VariableDeclaration, BinaryOperation, Identifier, MemberAccess,
+	Literal, VariableDeclaration, BinaryOperation, Identifier, MemberAccess, NewExpression,
 
 	StateType
 > AST_Type;

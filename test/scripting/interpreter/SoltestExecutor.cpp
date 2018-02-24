@@ -24,6 +24,7 @@
 
 #include <test/scripting/SoltestAsserts.h>
 #include <test/scripting/interpreter/contract/SetupContract.h>
+#include <test/scripting/interpreter/contract/RemoteContract.h>
 
 #include <libsolidity/ast/ASTPrinter.h>
 #include <boost/test/unit_test.hpp>
@@ -160,6 +161,7 @@ void SoltestExecutor::endVisit(dev::solidity::UnaryOperation const &_unaryOperat
 
 void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 {
+	print(_functionCall);
 	std::string currentFunctionCall;
 	size_t line;
 	ExtractSoltestLocation(_functionCall, m_source, currentFunctionCall, line);
@@ -218,6 +220,20 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 				);
 		}
 	}
+	else if (m_stack.back().type() == typeid(dev::soltest::NewExpression))
+	{
+		dev::soltest::NewExpression newExpression = boost::get<dev::soltest::NewExpression>(m_stack.pop());
+		dev::soltest::VariableDeclaration
+			variableDeclaration = boost::get<dev::soltest::VariableDeclaration>(m_stack.pop());
+
+		dev::soltest::StateTypes
+			arguments = CreateArgumentStateTypesFromFunctionType(newExpression.type, untyped_arguments, m_state);
+		RemoteContract contract(variableDeclaration.type);
+		std::reverse(arguments.begin(), arguments.end());
+		contract.construct(arguments);
+		m_state[variableDeclaration.name] = contract;
+		m_state.print();
+	}
 
 	BOOST_TEST_MESSAGE("- " + currentFunctionCall + "... done");
 
@@ -226,6 +242,8 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 
 void SoltestExecutor::endVisit(dev::solidity::NewExpression const &_newExpression)
 {
+	std::string type = _newExpression.annotation().type->toString();
+	m_stack.push(dev::soltest::NewExpression(type));
 	ASTConstVisitor::endVisit(_newExpression);
 }
 

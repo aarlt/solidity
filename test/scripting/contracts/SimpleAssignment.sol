@@ -1,7 +1,7 @@
 pragma solidity ^0.4.0;
 
 contract SimpleAssignment {
-    function SimpleAssignment(uint a) public {
+    function SimpleAssignment(uint16 a) public {
     }
 
     function add(uint a, uint b) public pure returns (uint sum)  {
@@ -12,4 +12,3 @@ contract SimpleAssignment {
         return (a + b, a * b);
     }
 }
-

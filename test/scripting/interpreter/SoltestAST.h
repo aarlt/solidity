@@ -147,10 +147,6 @@ struct Identifier
 	Identifier(std::string const &_name, std::string const &_type) : name(_name), type(_type)
 	{
 	}
-	Literal toLiteral()
-	{
-		return Literal(dev::solidity::Type::Category::RationalNumber, "");
-	}
 	std::string asString() const
 	{
 		std::stringstream stream;
@@ -173,6 +169,20 @@ struct BinaryOperation
 		return stream.str();
 	}
 	std::string op;
+};
+
+struct NewExpression
+{
+	NewExpression(std::string const &_type) : type(_type)
+	{
+	}
+	std::string asString() const
+	{
+		std::stringstream stream;
+		stream << "type = '" << type << "'";
+		return stream.str();
+	}
+	std::string type;
 };
 
 } // namespace soltest

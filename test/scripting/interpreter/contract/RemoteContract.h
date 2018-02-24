@@ -36,6 +36,8 @@ public:
 	RemoteContract(std::string const &type) : dev::soltest::Contract(type)
 	{
 	}
+
+	bool construct(StateTypes &arguments);
 };
 
 } // namespace soltest
