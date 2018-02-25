@@ -24,7 +24,6 @@
 
 #include <test/scripting/SoltestAsserts.h>
 #include <test/scripting/interpreter/contract/SetupContract.h>
-#include <test/scripting/interpreter/contract/RemoteContract.h>
 
 #include <libsolidity/ast/ASTPrinter.h>
 #include <boost/test/unit_test.hpp>
@@ -206,10 +205,10 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 			std::reverse(arguments.begin(), arguments.end());
 			dev::soltest::StateTypes
 				results = CreateReturnStateTypesFromFunctionType(memberAccess.type);
-			BOOST_REQUIRE_MESSAGE(
-				boost::get<dev::soltest::Contract>(m_state[identifier.name]).call(memberAccess.member,
-																				  arguments,
-																				  results),
+			SOLTEST_REQUIRE_MESSAGE(
+				boost::get<dev::soltest::Contract>(
+					m_state[identifier.name]).call(memberAccess.member, arguments, results),
+				m_filename.c_str(), line,
 				"Contract couldn't be called."
 			);
 			for (auto &result : results)
@@ -228,9 +227,9 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 
 		dev::soltest::StateTypes
 			arguments = CreateArgumentStateTypesFromFunctionType(newExpression.type, untyped_arguments, m_state);
-		RemoteContract contract(variableDeclaration.type);
+		Contract contract(variableDeclaration.type, true);
 		std::reverse(arguments.begin(), arguments.end());
-		contract.construct(arguments);
+		BOOST_REQUIRE_MESSAGE(contract.construct(arguments), "Construction failed.");
 		m_state[variableDeclaration.name] = contract;
 		m_state.print();
 	}

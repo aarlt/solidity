@@ -55,7 +55,7 @@ using StateTypes = std::vector<StateType>;
 class Contract
 {
 public:
-	explicit Contract(std::string const &_type) : type(_type)
+	explicit Contract(std::string const &_type, bool _remote = false) : type(_type), m_remote(_remote)
 	{
 	}
 
@@ -66,31 +66,46 @@ public:
 		return stream.str();
 	}
 
+	bool construct(StateTypes const &arguments)
+	{
+		if (m_remote)
+		{
+			return remoteConstruct(arguments);
+		}
+		return true;
+	}
+
 	bool call(std::string const &methodName, StateTypes const &arguments, StateTypes &results)
 	{
-		std::cout << methodName << "(" << arguments.size() << " X " << results.size() << ")" << std::endl;
-		try
+		if (m_remote)
 		{
-			std::function<StateTypes(StateTypes)> contractMethod(m_methods[methodName]);
-			StateTypes current = contractMethod(arguments);
-			std::cout << methodName << " " << results.size() << " " << current.size() << std::endl;
-			if (results.size() != current.size())
+			return remoteCall(methodName, arguments, results);
+		}
+		else
+		{
+			try
 			{
-				return false;
-			}
-			for (size_t i = 0; i < results.size(); ++i)
-			{
-				if (results[i].type() != current[i].type())
+				std::function<StateTypes(StateTypes)> contractMethod(m_methods[methodName]);
+				StateTypes current = contractMethod(arguments);
+				std::cout << methodName << " " << results.size() << " " << current.size() << std::endl;
+				if (results.size() != current.size())
 				{
 					return false;
 				}
+				for (size_t i = 0; i < results.size(); ++i)
+				{
+					if (results[i].type() != current[i].type())
+					{
+						return false;
+					}
+				}
+				results = current;
+				return true;
 			}
-			results = current;
-			return true;
-		}
-		catch (const std::bad_function_call &e)
-		{
-			std::cout << e.what() << '\n';
+			catch (const std::bad_function_call &e)
+			{
+				std::cout << e.what() << '\n';
+			}
 		}
 		return false;
 	}
@@ -125,6 +140,21 @@ public:
 	std::string type;
 
 private:
+	bool remoteConstruct(StateTypes const &arguments)
+	{
+		(void) arguments;
+		return true;
+	}
+
+	bool remoteCall(std::string const &methodName, StateTypes const &arguments, StateTypes &results)
+	{
+		(void) methodName;
+		(void) arguments;
+		(void) results;
+		return true;
+	}
+
+	bool m_remote;
 	std::map<std::string, std::function<StateTypes(StateTypes)>> m_methods;
 };
 
