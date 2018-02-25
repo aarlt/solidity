@@ -285,9 +285,9 @@ StateTypes CreateArgumentStateTypesFromFunctionType(std::string const &_function
 	);
 	boost::split(argumentTypes, argumentTypesString, boost::is_any_of(","));
 	size_t argIdx = 0;
-	if (argumentTypes.size() != 1 && !argumentTypes[0].empty())
+	for (auto &argumentType : argumentTypes)
 	{
-		for (auto &argumentType : argumentTypes)
+		if (argIdx < _untypedTuple.size())
 		{
 			StateType proto(CreateStateType(argumentType));
 			if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Literal))
@@ -298,7 +298,8 @@ StateTypes CreateArgumentStateTypesFromFunctionType(std::string const &_function
 			else if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Identifier))
 			{
 				soltest::Identifier identifier(boost::get<soltest::Identifier>(_untypedTuple[argIdx]));
-				args.push_back(LexicalCast(CreateStateType(argumentType), RawValueAsString(state[identifier.name])));
+				args.push_back(LexicalCast(CreateStateType(argumentType),
+										   RawValueAsString(state[identifier.name])));
 			}
 			++argIdx;
 		}

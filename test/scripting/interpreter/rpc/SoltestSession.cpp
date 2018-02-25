@@ -150,7 +150,7 @@ void SoltestSession::sendMessage(dev::soltest::Contract &_contract,
 	SoltestSession::TransactionData d;
 	d.data = "0x" + toHex(_data);
 	d.from = "0x" + _contract.account().hex();
-	d.gas = "0x5FD000";
+	d.gas = "0x500000";
 	d.gasPrice = "0x" + u256("1").str();
 	d.value = "0x" + _value.str();
 	(void) _value;
@@ -163,11 +163,11 @@ void SoltestSession::sendMessage(dev::soltest::Contract &_contract,
 	}
 
 	std::string before = eth_getBlockByNumber("latest", false)["number"].asString();
-	std::cout << before << std::endl;
-	string txHash = this->eth_sendTransaction(d);
-	std::string current = eth_getBlockByNumber("latest", false)["number"].asString();
+	std::string txHash;
+	std::string current(before);
 	while (before == current)
 	{
+		txHash = this->eth_sendTransaction(d);
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		current = eth_getBlockByNumber("latest", false)["number"].asString();
 	}

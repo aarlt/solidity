@@ -75,14 +75,13 @@ bool Contract::call(std::string const &methodName, StateTypes const &arguments, 
 
 bool Contract::remoteConstruct(StateTypes const &arguments)
 {
-	(void) arguments;
 	if (this->type.find("contract ") != std::string::npos && m_compilerStack != nullptr && m_rpc != nullptr)
 	{
 		std::string contractName(this->type.substr(9));
 		eth::LinkerObject obj = m_compilerStack->object(contractName);
 		BOOST_REQUIRE(obj.linkReferences.empty());
 		u256 value(200000000);
-		if (arguments.size() == 0)
+		if (arguments.empty())
 			m_rpc->sendMessage(*this, obj.bytecode, true, value);
 
 		// todo: multiple arguments
