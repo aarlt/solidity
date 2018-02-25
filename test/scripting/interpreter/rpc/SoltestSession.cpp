@@ -71,7 +71,8 @@ Json::Value SoltestSession::eth_getBlockByNumber(string const &_blockNumber, boo
 	return rpcCall("eth_getBlockByNumber", {quote(_blockNumber), _fullObjects ? "true" : "false"});
 }
 
-Json::Value SoltestSession::eth_getAccounts() {
+Json::Value SoltestSession::eth_getAccounts()
+{
 	return rpcCall("eth_accounts");
 }
 
@@ -152,8 +153,8 @@ void SoltestSession::sendMessage(dev::soltest::Contract &_contract,
 	d.from = "0x" + _contract.account().hex();
 	d.gas = "0x500000";
 	d.gasPrice = "0x" + u256("1").str();
-	d.value = "0x" + _value.str();
-	(void) _value;
+	if (_value)
+		d.value = "0x" + _value.str();
 	if (!_isCreation)
 	{
 		d.to = "0x" + dev::toString(_contract.address());
@@ -261,7 +262,10 @@ string SoltestSession::TransactionData::toJson() const
 	}
 	json["gas"] = gas;
 	json["gasprice"] = gasPrice;
-	json["value"] = value;
+	if (value.empty())
+	{
+		json["value"] = value;
+	}
 	json["data"] = data;
 	return jsonCompactPrint(json);
 }

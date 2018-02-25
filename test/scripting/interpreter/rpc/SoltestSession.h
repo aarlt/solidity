@@ -90,7 +90,7 @@ public:
 	std::string personal_newAccount(std::string const &_password);
 	void personal_unlockAccount(std::string const &_address, std::string const &_password, int _duration);
 
-	void sendMessage(dev::soltest::Contract& _contract, bytes const& _data, bool _isCreation, u256 const& _value);
+	void sendMessage(dev::soltest::Contract& _contract, bytes const& _data, bool _isCreation, u256 const& _value = 0);
 
 	Json::Value rpcCall(std::string const &_methodName,
 						std::vector<std::string> const &_args = std::vector<std::string>(),
