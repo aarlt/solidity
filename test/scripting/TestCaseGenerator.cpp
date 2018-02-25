@@ -23,6 +23,7 @@
 
 #include <test/scripting/interpreter/SoltestASTChecker.h>
 #include <test/scripting/interpreter/SoltestExecutor.h>
+#include <test/scripting/interpreter/rpc/SoltestSession.h>
 
 #include <libsolidity/ast/ASTPrinter.h>
 
@@ -173,7 +174,11 @@ void TestCaseGenerator::executeSoltest(std::string const &contract,
 	if (sourceUnit)
 	{
 		std::string errors;
-		dev::soltest::SoltestExecutor executor(*sourceUnit, contract, filename, m_sources[contract], line);
+		dev::soltest::SoltestExecutor
+			executor(
+			dev::soltest::SoltestSession::instance("/tmp/ipc"),
+			m_compilerStack,
+			*sourceUnit, contract, filename, m_sources[contract], line);
 		BOOST_REQUIRE_MESSAGE(executor.execute(testcase, errors), errors);
 	}
 }

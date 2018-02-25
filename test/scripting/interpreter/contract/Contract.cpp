@@ -29,6 +29,78 @@ namespace dev
 namespace soltest
 {
 
+bool Contract::construct(StateTypes const &arguments)
+{
+	if (m_rpc != nullptr)
+	{
+		return remoteConstruct(arguments);
+	}
+	return true;
+}
+
+bool Contract::call(std::string const &methodName, StateTypes const &arguments, StateTypes &results)
+{
+	if (m_rpc != nullptr)
+	{
+		return remoteCall(methodName, arguments, results);
+	}
+	else
+	{
+		try
+		{
+			std::function<StateTypes(StateTypes)> contractMethod(m_methods[methodName]);
+			StateTypes current = contractMethod(arguments);
+			std::cout << methodName << " " << results.size() << " " << current.size() << std::endl;
+			if (results.size() != current.size())
+			{
+				return false;
+			}
+			for (size_t i = 0; i < results.size(); ++i)
+			{
+				if (results[i].type() != current[i].type())
+				{
+					return false;
+				}
+			}
+			results = current;
+			return true;
+		}
+		catch (const std::bad_function_call &e)
+		{
+			std::cout << e.what() << '\n';
+		}
+	}
+	return false;
+}
+
+bool Contract::remoteConstruct(StateTypes const &arguments)
+{
+	(void) arguments;
+	if (this->type.find("contract ") != std::string::npos && m_compilerStack != nullptr && m_rpc != nullptr)
+	{
+		std::string contractName(this->type.substr(9));
+		eth::LinkerObject obj = m_compilerStack->object(contractName);
+		BOOST_REQUIRE(obj.linkReferences.empty());
+		u256 value(200000000);
+		if (arguments.size() == 0)
+			m_rpc->sendMessage(*this, obj.bytecode, true, value);
+
+		// todo: multiple arguments
+
+		return true;
+	}
+	return false;
+}
+
+bool Contract::remoteCall(std::string const &methodName, StateTypes const &arguments, StateTypes &results)
+{
+	(void) methodName;
+	(void) arguments;
+	(void) results;
+
+	return true;
+}
+
 } // namespace soltest
 
 } // namespace dev

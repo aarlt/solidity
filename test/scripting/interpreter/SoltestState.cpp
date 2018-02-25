@@ -285,20 +285,23 @@ StateTypes CreateArgumentStateTypesFromFunctionType(std::string const &_function
 	);
 	boost::split(argumentTypes, argumentTypesString, boost::is_any_of(","));
 	size_t argIdx = 0;
-	for (auto &argumentType : argumentTypes)
+	if (argumentTypes.size() != 1 && !argumentTypes[0].empty())
 	{
-		StateType proto(CreateStateType(argumentType));
-		if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Literal))
+		for (auto &argumentType : argumentTypes)
 		{
-			soltest::Literal literal(boost::get<soltest::Literal>(_untypedTuple[argIdx]));
-			args.push_back(LexicalCast(proto, literal.value));
+			StateType proto(CreateStateType(argumentType));
+			if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Literal))
+			{
+				soltest::Literal literal(boost::get<soltest::Literal>(_untypedTuple[argIdx]));
+				args.push_back(LexicalCast(proto, literal.value));
+			}
+			else if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Identifier))
+			{
+				soltest::Identifier identifier(boost::get<soltest::Identifier>(_untypedTuple[argIdx]));
+				args.push_back(LexicalCast(CreateStateType(argumentType), RawValueAsString(state[identifier.name])));
+			}
+			++argIdx;
 		}
-		else if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Identifier))
-		{
-			soltest::Identifier identifier(boost::get<soltest::Identifier>(_untypedTuple[argIdx]));
-			args.push_back(LexicalCast(CreateStateType(argumentType), RawValueAsString(state[identifier.name])));
-		}
-		++argIdx;
 	}
 	return args;
 }
@@ -319,13 +322,13 @@ StateTypes CreateReturnStateTypesFromFunctionType(std::string const &_functionTy
 void State::set(std::string const &name, StateType const &type)
 {
 	(*this)[name] = type;
-	print();
+	// print();
 }
 
 void State::set(std::string const &name, AST_Type const &type)
 {
 	(*this)[name] = CreateStateType(type);
-	print();
+	// print();
 }
 
 StateType &State::get(std::string const &name)

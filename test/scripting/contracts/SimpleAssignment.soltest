@@ -18,6 +18,6 @@
 */
     uint16 a = 2 + 1;
     uint32 b = 0x2 + a * 0x1;
-    SimpleAssignment s = new SimpleAssignment(a - 0x3, b + 0x5);
+    SimpleAssignment s = new SimpleAssignment();
     s.add(2, 3);
     // assert (one + 1 == two);

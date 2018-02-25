@@ -23,7 +23,6 @@
 #include "SoltestASTChecker.h"
 
 #include <test/scripting/SoltestAsserts.h>
-#include <test/scripting/interpreter/contract/SetupContract.h>
 
 #include <libsolidity/ast/ASTPrinter.h>
 #include <boost/test/unit_test.hpp>
@@ -36,15 +35,24 @@ namespace dev
 namespace soltest
 {
 
-SoltestExecutor::SoltestExecutor(dev::solidity::SourceUnit const &sourceUnit,
+SoltestExecutor::SoltestExecutor(dev::soltest::SoltestSession &_rpc,
+								 dev::solidity::CompilerStack &_compilerStack,
+								 dev::solidity::SourceUnit const &sourceUnit,
 								 std::string const &contract,
 								 std::string const &filename,
 								 std::string const &source,
 								 uint32_t line)
-	: m_sourceUnit(sourceUnit), m_contract(contract), m_filename(filename), m_source(source), m_line(line)
+	: m_rpc(_rpc),
+	  m_sourceUnit(sourceUnit),
+	  m_contract(contract),
+	  m_filename(filename),
+	  m_source(source),
+	  m_line(line),
+	  m_compilerStack(_compilerStack)
 {
-	static SetupContract soltest;
-	m_state["soltest"] = soltest;
+	m_account = h160(m_rpc.eth_getAccounts()[0].asString());
+	m_rpc.personal_unlockAccount("0x" + m_account.hex(), "", 0);
+	m_state["soltest"] = m_soltest;
 }
 
 bool SoltestExecutor::execute(std::string const &testcase, std::string &errors)
@@ -160,7 +168,6 @@ void SoltestExecutor::endVisit(dev::solidity::UnaryOperation const &_unaryOperat
 
 void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 {
-	print(_functionCall);
 	std::string currentFunctionCall;
 	size_t line;
 	ExtractSoltestLocation(_functionCall, m_source, currentFunctionCall, line);
@@ -227,11 +234,11 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 
 		dev::soltest::StateTypes
 			arguments = CreateArgumentStateTypesFromFunctionType(newExpression.type, untyped_arguments, m_state);
-		Contract contract(variableDeclaration.type, true);
+		Contract contract(variableDeclaration.type, &m_rpc, &m_compilerStack);
+		contract.setAccount(m_account);
 		std::reverse(arguments.begin(), arguments.end());
 		BOOST_REQUIRE_MESSAGE(contract.construct(arguments), "Construction failed.");
 		m_state[variableDeclaration.name] = contract;
-		m_state.print();
 	}
 
 	BOOST_TEST_MESSAGE("- " + currentFunctionCall + "... done");

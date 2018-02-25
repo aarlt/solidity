@@ -27,6 +27,10 @@
 #include <sstream>
 
 #include <test/scripting/interpreter/SoltestAST.h>
+#include <test/scripting/interpreter/rpc/SoltestSession.h>
+
+#include <libsolidity/interface/CompilerStack.h>
+
 #include <boost/variant.hpp>
 
 namespace dev
@@ -55,59 +59,31 @@ using StateTypes = std::vector<StateType>;
 class Contract
 {
 public:
-	explicit Contract(std::string const &_type, bool _remote = false) : type(_type), m_remote(_remote)
+	explicit Contract(std::string const &_type,
+					  dev::soltest::SoltestSession *_rpc = nullptr,
+					  dev::solidity::CompilerStack *_compilerStack = nullptr)
+		: type(_type), m_address(0), m_account(0), m_rpc(_rpc), m_compilerStack(_compilerStack)
 	{
 	}
 
-	std::string asString() const
+	void setAccount(h160 &_account)
 	{
-		std::stringstream stream;
-		stream << "type = '" << type << "'";
-		return stream.str();
+		m_account = _account;
 	}
 
-	bool construct(StateTypes const &arguments)
+	h160 account() const
 	{
-		if (m_remote)
-		{
-			return remoteConstruct(arguments);
-		}
-		return true;
+		return m_account;
 	}
 
-	bool call(std::string const &methodName, StateTypes const &arguments, StateTypes &results)
+	void setAddress(h160 &_address)
 	{
-		if (m_remote)
-		{
-			return remoteCall(methodName, arguments, results);
-		}
-		else
-		{
-			try
-			{
-				std::function<StateTypes(StateTypes)> contractMethod(m_methods[methodName]);
-				StateTypes current = contractMethod(arguments);
-				std::cout << methodName << " " << results.size() << " " << current.size() << std::endl;
-				if (results.size() != current.size())
-				{
-					return false;
-				}
-				for (size_t i = 0; i < results.size(); ++i)
-				{
-					if (results[i].type() != current[i].type())
-					{
-						return false;
-					}
-				}
-				results = current;
-				return true;
-			}
-			catch (const std::bad_function_call &e)
-			{
-				std::cout << e.what() << '\n';
-			}
-		}
-		return false;
+		m_address = _address;
+	}
+
+	h160 address() const
+	{
+		return m_address;
 	}
 
 	template<typename TContract, typename TReturn, typename TArgument0>
@@ -137,24 +113,33 @@ public:
 			return result;
 		};
 	}
+
+	std::string asString() const
+	{
+		std::stringstream stream;
+		stream << "type = '" << type << "'";
+		if (m_rpc != nullptr)
+		{
+			stream << " @ 0x" << m_address;
+		}
+		return stream.str();
+	}
+
+	bool construct(StateTypes const &arguments);
+
+	bool call(std::string const &methodName, StateTypes const &arguments, StateTypes &results);
+
 	std::string type;
 
 private:
-	bool remoteConstruct(StateTypes const &arguments)
-	{
-		(void) arguments;
-		return true;
-	}
+	bool remoteConstruct(StateTypes const &arguments);
 
-	bool remoteCall(std::string const &methodName, StateTypes const &arguments, StateTypes &results)
-	{
-		(void) methodName;
-		(void) arguments;
-		(void) results;
-		return true;
-	}
+	bool remoteCall(std::string const &methodName, StateTypes const &arguments, StateTypes &results);
 
-	bool m_remote;
+	h160 m_address;
+	h160 m_account;
+	dev::soltest::SoltestSession *m_rpc;
+	dev::solidity::CompilerStack *m_compilerStack;
 	std::map<std::string, std::function<StateTypes(StateTypes)>> m_methods;
 };
 

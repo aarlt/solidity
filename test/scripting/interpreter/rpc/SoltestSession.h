@@ -14,66 +14,38 @@
 	You should have received a copy of the GNU General Public License
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
-/** @file RPCSession.h
- * @author Dimtiry Khokhlov <dimitry@ethdev.com>
- * @date 2016
+/** @file SoltestSession.h
+ * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
+ * based on test/RPCSession.h, written by Dimtiry Khokhlov <dimitry@ethdev.com>
+ * and test/libsolidity/SolidityExecutionFramework.h, written by Christian <c@ethdev.com>
+ * @date 2018
  */
-#pragma once
 
-#if defined(_WIN32)
-#include <windows.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#endif
+#ifndef SOLIDITY_SOLTESTSESSION_H
+#define SOLIDITY_SOLTESTSESSION_H
 
 #include <json/value.h>
+
+#include <test/RPCSession.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 #include <map>
+#include <libdevcore/Common.h>
+#include <libdevcore/FixedHash.h>
 
-#if defined(_WIN32)
-class IPCSocket : public boost::noncopyable
+namespace dev
 {
-public:
-	explicit IPCSocket(std::string const& _path);
-	std::string sendRequest(std::string const& _req);
-	~IPCSocket() { CloseHandle(m_socket); }
 
-	std::string const& path() const { return m_path; }
-
-private:
-	std::string m_path;
-	HANDLE m_socket;
-	TCHAR m_readBuf[512000];
-};
-#else
-class IPCSocket : public boost::noncopyable
+namespace soltest
 {
-public:
-	explicit IPCSocket(std::string const &_path);
-	std::string sendRequest(std::string const &_req);
-	~IPCSocket() { close(m_socket); }
 
-	std::string const &path() const { return m_path; }
+class Contract;
 
-private:
-
-	std::string m_path;
-	int m_socket;
-	/// Socket read timeout in milliseconds. Needs to be large because the key generation routine
-	/// might take long.
-	unsigned static constexpr m_readTimeOutMS = 300000;
-	char m_readBuf[512000];
-};
-#endif
-
-class RPCSession : public boost::noncopyable
+class SoltestSession : public boost::noncopyable
 {
 public:
 	struct TransactionData
@@ -103,33 +75,29 @@ public:
 		std::string blockNumber;
 	};
 
-	static RPCSession &instance(std::string const &_path);
+	static SoltestSession &instance(std::string const &_path);
 
 	std::string eth_getCode(std::string const &_address, std::string const &_blockNumber);
 	Json::Value eth_getBlockByNumber(std::string const &_blockNumber, bool _fullObjects);
 	std::string eth_call(TransactionData const &_td, std::string const &_blockNumber);
 	TransactionReceipt eth_getTransactionReceipt(std::string const &_transactionHash);
 	std::string eth_sendTransaction(TransactionData const &_td);
+	Json::Value eth_getAccounts();
 	std::string eth_sendTransaction(std::string const &_transaction);
 	std::string eth_getBalance(std::string const &_address, std::string const &_blockNumber);
 	std::string eth_getStorageRoot(std::string const &_address, std::string const &_blockNumber);
+
 	std::string personal_newAccount(std::string const &_password);
 	void personal_unlockAccount(std::string const &_address, std::string const &_password, int _duration);
-	void test_setChainParams(std::vector<std::string> const &_accounts);
-	void test_setChainParams(std::string const &_config);
-	void test_rewindToBlock(size_t _blockNr);
-	void test_modifyTimestamp(size_t _timestamp);
-	void test_mineBlocks(int _number);
+
+	void sendMessage(dev::soltest::Contract& _contract, bytes const& _data, bool _isCreation, u256 const& _value);
+
 	Json::Value rpcCall(std::string const &_methodName,
 						std::vector<std::string> const &_args = std::vector<std::string>(),
 						bool _canFail = false);
 
-	std::string const &account(size_t _id) const { return m_accounts.at(_id); }
-	std::string const &accountCreate();
-	std::string const &accountCreateIfNotExists(size_t _id);
-
 private:
-	explicit RPCSession(std::string const &_path);
+	explicit SoltestSession(std::string const &_path);
 
 	inline std::string quote(std::string const &_arg) { return "\"" + _arg + "\""; }
 	/// Parse std::string replacing keywords to values
@@ -144,3 +112,8 @@ private:
 	std::vector<std::string> m_accounts;
 };
 
+} // namespace soltest
+
+} // namespace dev
+
+#endif //SOLIDITY_SOLTESTSESSION_H

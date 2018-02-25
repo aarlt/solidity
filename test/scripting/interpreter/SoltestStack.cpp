@@ -248,7 +248,7 @@ AST_Type Stack::pop()
 	{
 		AST_Type result = this->back();
 		this->pop_back();
-		print();
+		// print();
 		return result;
 	}
 	else
@@ -273,7 +273,7 @@ AST_Type Stack::first()
 Stack &Stack::operator<<(AST_Type const &_value)
 {
 	push(_value);
-	print();
+	// print();
 	return *this;
 }
 

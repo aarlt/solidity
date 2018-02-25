@@ -23,8 +23,11 @@
 #define SOLIDITY_SOLTESTEXECUTOR_H
 
 #include <libsolidity/ast/ASTVisitor.h>
+#include <libsolidity/interface/CompilerStack.h>
 #include <test/scripting/interpreter/SoltestStack.h>
 #include <test/scripting/interpreter/SoltestState.h>
+#include <test/scripting/interpreter/rpc/SoltestSession.h>
+#include <test/scripting/interpreter/contract/SetupContract.h>
 
 #include <string>
 #include <cstdint>
@@ -40,7 +43,10 @@ namespace soltest
 class SoltestExecutor : private dev::solidity::ASTConstVisitor
 {
 public:
-	SoltestExecutor(dev::solidity::SourceUnit const &sourceUnit,
+
+	SoltestExecutor(dev::soltest::SoltestSession &_rpc,
+					dev::solidity::CompilerStack &_compilerStack,
+					dev::solidity::SourceUnit const &sourceUnit,
 					std::string const &contract,
 					std::string const &filename,
 					std::string const &source,
@@ -75,6 +81,8 @@ private:
 
 	void endVisit(dev::solidity::IndexAccess const &_indexAccess) override;
 
+	dev::soltest::SoltestSession &m_rpc;
+
 	dev::solidity::SourceUnit const &m_sourceUnit;
 	std::string m_contract;
 	std::string m_filename;
@@ -84,6 +92,12 @@ private:
 	std::string m_errors;
 	dev::soltest::Stack m_stack;
 	dev::soltest::State m_state;
+
+	SetupContract m_soltest;
+
+	h160 m_account;
+
+	dev::solidity::CompilerStack &m_compilerStack;
 };
 
 } // namespace soltest
