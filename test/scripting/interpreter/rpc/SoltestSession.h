@@ -17,7 +17,7 @@
 /** @file SoltestSession.h
  * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * based on test/RPCSession.h, written by Dimtiry Khokhlov <dimitry@ethdev.com>
- * and test/libsolidity/SolidityExecutionFramework.h, written by Christian <c@ethdev.com>
+ * and test/libsolidity/SolidityExecutionFramework.h and test/ExecutionFramework.h, written by Christian <c@ethdev.com>
  * @date 2018
  */
 
@@ -36,12 +36,19 @@
 #include <map>
 #include <libdevcore/Common.h>
 #include <libdevcore/FixedHash.h>
+#include <libdevcore/SHA3.h>
 
 namespace dev
 {
 
 namespace soltest
 {
+
+static const u256 wei = 1;
+static const u256 shannon = u256("1000000000");
+static const u256 szabo = shannon * 1000;
+static const u256 finney = szabo * 1000;
+static const u256 ether = finney * 1000;
 
 class Contract;
 
@@ -90,7 +97,24 @@ public:
 	std::string personal_newAccount(std::string const &_password);
 	void personal_unlockAccount(std::string const &_address, std::string const &_password, int _duration);
 
-	void sendMessage(dev::soltest::Contract& _contract, bytes const& _data, bool _isCreation, u256 const& _value = 0);
+	bytes sendMessage(dev::soltest::Contract &_contract,
+					  h160 _from,
+					  bytes const &_data,
+					  bool _isCreation,
+					  u256 const &_value = 0);
+
+	void sendEther(h160 const& _from, h160 const& _to, u256 const& _value);
+
+	bytes callContractFunctionWithValueNoEncoding(dev::soltest::Contract &_contract,
+												  h160 _from,
+												  std::string _sig,
+												  u256 const &_value,
+												  bytes const &_arguments);
+
+	bytes callContractFunctionNoEncoding(dev::soltest::Contract &_contract,
+										 h160 _from,
+										 std::string _sig,
+										 bytes const &_arguments);
 
 	Json::Value rpcCall(std::string const &_methodName,
 						std::vector<std::string> const &_args = std::vector<std::string>(),

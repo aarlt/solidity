@@ -22,6 +22,7 @@
 #include "Contract.h"
 
 #include <boost/algorithm/string.hpp>
+#include <test/scripting/interpreter/SoltestState.h>
 
 namespace dev
 {
@@ -29,20 +30,20 @@ namespace dev
 namespace soltest
 {
 
-bool Contract::construct(StateTypes const &arguments)
+bool Contract::construct(h160 _from, StateTypes const &arguments)
 {
-	if (m_rpc != nullptr)
+	if (m_remote)
 	{
-		return remoteConstruct(arguments);
+		return remoteConstruct(_from, arguments);
 	}
 	return true;
 }
 
-bool Contract::call(std::string const &methodName, StateTypes const &arguments, StateTypes &results)
+bool Contract::call(h160 _from, std::string const &methodName, StateTypes const &arguments, StateTypes &results)
 {
-	if (m_rpc != nullptr)
+	if (m_remote)
 	{
-		return remoteCall(methodName, arguments, results);
+		return remoteCall(_from, methodName, arguments, results);
 	}
 	else
 	{
@@ -50,7 +51,6 @@ bool Contract::call(std::string const &methodName, StateTypes const &arguments, 
 		{
 			std::function<StateTypes(StateTypes)> contractMethod(m_methods[methodName]);
 			StateTypes current = contractMethod(arguments);
-			std::cout << methodName << " " << results.size() << " " << current.size() << std::endl;
 			if (results.size() != current.size())
 			{
 				return false;
@@ -73,29 +73,45 @@ bool Contract::call(std::string const &methodName, StateTypes const &arguments, 
 	return false;
 }
 
-bool Contract::remoteConstruct(StateTypes const &arguments)
+bool Contract::remoteConstruct(h160 _from, StateTypes const &_arguments)
 {
 	if (this->type.find("contract ") != std::string::npos && m_compilerStack != nullptr && m_rpc != nullptr)
 	{
 		std::string contractName(this->type.substr(9));
 		eth::LinkerObject obj = m_compilerStack->object(contractName);
 		BOOST_REQUIRE(obj.linkReferences.empty());
-		if (arguments.empty())
-			m_rpc->sendMessage(*this, obj.bytecode, true);
+		bytes arguments;
 
-		// todo: multiple arguments
+		for (auto &arg : _arguments)
+			arguments += ValueAsBytes(arg);
+
+		m_rpc->sendMessage(*this, _from, obj.bytecode + arguments, true);
 
 		return true;
 	}
 	return false;
 }
 
-bool Contract::remoteCall(std::string const &methodName, StateTypes const &arguments, StateTypes &results)
+bool Contract::remoteCall(h160 _from,
+						  std::string const &_methodName,
+						  StateTypes const &_arguments,
+						  StateTypes &_results)
 {
-	(void) methodName;
-	(void) arguments;
-	(void) results;
-
+	bytes arguments;
+	std::stringstream signature;
+	signature << _methodName << "(";
+	for (auto &arg : _arguments)
+	{
+		signature << TypeAsString(arg);
+		if (&arg != &(*_arguments.rbegin()))
+			signature << ",";
+	}
+	signature << ")";
+	for (auto &arg : _arguments)
+		arguments += ValueAsBytes(arg);
+	bytes rawResult = m_rpc->callContractFunctionNoEncoding(*this, _from, signature.str(), arguments);
+	for (auto &result : _results)
+		result = LexicalCast(result, toHex(rawResult));
 	return true;
 }
 

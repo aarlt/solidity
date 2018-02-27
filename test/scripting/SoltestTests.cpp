@@ -138,14 +138,16 @@ std::string SoltestTests::NormalizeName(std::string const &name)
 
 std::string SoltestTests::SoltestContract()
 {
+	// todo: generate the following contract code from information defined in test/scripting/interpreter/contract/SoltestContract.cpp
 	char const *sourceCode = R"(
 		pragma solidity ^0.4.0;
 		contract Soltest {
-			function setChainParams(uint a, uint b) public returns(uint d) { return a; }
-			function mineBlocks(uint a) public returns(uint d) { return a; }
-			function modifyTimestamp(uint a) public returns(uint d) { return a; }
-			function addBlock(uint a) public returns(uint d) { return a; }
-			function rewindToBlock(uint a) public returns(uint d) { return a; }
+			function setAccount(string account) public pure { }
+			function setChainParams(uint a, uint b) public pure returns(uint d) { return a; }
+			function mineBlocks(uint a) public pure returns(uint d) { return a; }
+			function modifyTimestamp(uint a) public pure returns(uint d) { return a; }
+			function addBlock(uint a) public pure returns(uint d) { return a; }
+			function rewindToBlock(uint a) public pure returns(uint d) { return a; }
 		}
 	)";
 	return sourceCode;

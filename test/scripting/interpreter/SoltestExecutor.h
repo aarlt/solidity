@@ -27,7 +27,7 @@
 #include <test/scripting/interpreter/SoltestStack.h>
 #include <test/scripting/interpreter/SoltestState.h>
 #include <test/scripting/interpreter/rpc/SoltestSession.h>
-#include <test/scripting/interpreter/contract/SetupContract.h>
+#include <test/scripting/interpreter/contract/SoltestContract.h>
 
 #include <string>
 #include <cstdint>
@@ -56,6 +56,8 @@ public:
 
 private:
 	void print(dev::solidity::ASTNode const &node);
+
+	bool visit(dev::solidity::VariableDeclarationStatement const &_variableDeclarationStatement) override;
 
 	void endVisit(dev::solidity::VariableDeclarationStatement const &_variableDeclarationStatement) override;
 
@@ -88,16 +90,14 @@ private:
 	std::string m_filename;
 	std::string m_source;
 	uint32_t m_line;
+	dev::solidity::CompilerStack &m_compilerStack;
+	dev::soltest::SoltestContract m_soltest;
 
 	std::string m_errors;
 	dev::soltest::Stack m_stack;
 	dev::soltest::State m_state;
 
-	SetupContract m_soltest;
-
 	h160 m_account;
-
-	dev::solidity::CompilerStack &m_compilerStack;
 };
 
 } // namespace soltest

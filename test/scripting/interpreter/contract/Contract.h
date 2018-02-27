@@ -60,20 +60,11 @@ class Contract
 {
 public:
 	explicit Contract(std::string const &_type,
+					  bool isRemote = true,
 					  dev::soltest::SoltestSession *_rpc = nullptr,
 					  dev::solidity::CompilerStack *_compilerStack = nullptr)
-		: type(_type), m_address(0), m_account(0), m_rpc(_rpc), m_compilerStack(_compilerStack)
+		: type(_type), m_address(0), m_rpc(_rpc), m_compilerStack(_compilerStack), m_remote(isRemote)
 	{
-	}
-
-	void setAccount(h160 &_account)
-	{
-		m_account = _account;
-	}
-
-	h160 account() const
-	{
-		return m_account;
 	}
 
 	void setAddress(h160 &_address)
@@ -86,6 +77,21 @@ public:
 		return m_address;
 	}
 
+	// void(TContract &, TArgument0)
+	template<typename TContract, typename TReturn, typename TArgument0>
+	void registerContractMethod(std::string const &name,
+								TContract &self,
+								std::function<void(TContract &, TArgument0)> function)
+	{
+		m_methods[name] = [&self, function](StateTypes args) -> StateTypes
+		{
+			TArgument0 argument0 = boost::get<TArgument0>(args[0]);
+			function(self, argument0);
+			return StateTypes(); // will return empty StateTypes vector -> void function
+		};
+	}
+
+	// TReturn(TContract &, TArgument0)
 	template<typename TContract, typename TReturn, typename TArgument0>
 	void registerContractMethod(std::string const &name,
 								TContract &self,
@@ -100,6 +106,7 @@ public:
 		};
 	}
 
+	// TReturn(TContract &, TArgument0, TArgument1)
 	template<typename TContract, typename TReturn, typename TArgument0, typename TArgument1>
 	void registerContractMethod(std::string const &name, TContract &self,
 								std::function<TReturn(TContract &, TArgument0, TArgument1)> function)
@@ -125,22 +132,23 @@ public:
 		return stream.str();
 	}
 
-	bool construct(StateTypes const &arguments);
+	bool construct(h160 _from, StateTypes const &arguments);
 
-	bool call(std::string const &methodName, StateTypes const &arguments, StateTypes &results);
+	bool call(h160 _from, std::string const &methodName, StateTypes const &arguments, StateTypes &results);
 
 	std::string type;
 
-private:
-	bool remoteConstruct(StateTypes const &arguments);
+protected:
+	bool remoteConstruct(h160 _from, StateTypes const &_arguments);
 
-	bool remoteCall(std::string const &methodName, StateTypes const &arguments, StateTypes &results);
+	bool remoteCall(h160 _from, std::string const &_methodName, StateTypes const &_arguments, StateTypes &_results);
 
 	h160 m_address;
-	h160 m_account;
 	dev::soltest::SoltestSession *m_rpc;
 	dev::solidity::CompilerStack *m_compilerStack;
 	std::map<std::string, std::function<StateTypes(StateTypes)>> m_methods;
+
+	bool m_remote;
 };
 
 } // namespace soltest

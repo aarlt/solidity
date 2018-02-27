@@ -41,6 +41,8 @@ std::string ValueAsString(StateType const &type);
 
 std::string RawValueAsString(StateType const &type);
 
+bytes ValueAsBytes(StateType const &type);
+
 class State : public std::map<std::string, StateType>
 {
 public:

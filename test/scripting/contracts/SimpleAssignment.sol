@@ -1,14 +1,17 @@
 pragma solidity ^0.4.0;
 
 contract SimpleAssignment {
-    function SimpleAssignment() public {
+    uint16 d;
+    address owner;
+    function SimpleAssignment(uint16 a) public {
+        owner = msg.sender;
+        d = a;
     }
-
-    function add(uint a, uint b) public pure returns (uint sum)  {
-        return a + b;
-    }
-
-    function multi(uint a, uint b) public pure returns (uint sum, uint product)  {
-        return (a + b, a * b);
+    function add(uint16 a, uint16 b) public returns (uint16 sum)  {
+        if (msg.sender == owner) {
+            return a + b + d;
+        } else {
+            return a + b;
+        }
     }
 }

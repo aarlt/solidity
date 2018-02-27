@@ -48,10 +48,9 @@ SoltestExecutor::SoltestExecutor(dev::soltest::SoltestSession &_rpc,
 	  m_filename(filename),
 	  m_source(source),
 	  m_line(line),
-	  m_compilerStack(_compilerStack)
+	  m_compilerStack(_compilerStack),
+	  m_soltest(_rpc)
 {
-	m_account = h160(m_rpc.eth_getAccounts()[0].asString());
-	m_rpc.personal_unlockAccount("0x" + m_account.hex(), "", 0);
 	m_state["soltest"] = m_soltest;
 }
 
@@ -77,6 +76,14 @@ void SoltestExecutor::print(dev::solidity::ASTNode const &node)
 {
 	dev::solidity::ASTPrinter printer(node);
 	printer.print(std::cout);
+}
+
+bool SoltestExecutor::visit(dev::solidity::VariableDeclarationStatement const &_variableDeclarationStatement)
+{
+	(void) _variableDeclarationStatement;
+	// remove not needed function returns from stack
+	m_stack.clear();
+	return true;
 }
 
 void SoltestExecutor::endVisit(dev::solidity::VariableDeclarationStatement const &_variableDeclarationStatement)
@@ -214,16 +221,27 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 				results = CreateReturnStateTypesFromFunctionType(memberAccess.type);
 			SOLTEST_REQUIRE_MESSAGE(
 				boost::get<dev::soltest::Contract>(
-					m_state[identifier.name]).call(memberAccess.member, arguments, results),
+					m_state[identifier.name]).call(m_soltest.account(), memberAccess.member, arguments, results),
 				m_filename.c_str(), line,
 				"Contract couldn't be called."
 			);
 			for (auto &result : results)
-				m_stack.push(
-					dev::soltest::Literal(
-						dev::solidity::Type::Category::RationalNumber, RawValueAsString(result)
-					)
-				);
+				if (result.type() == typeid(bool))
+				{
+					m_stack.push(
+						dev::soltest::Literal(
+							dev::solidity::Type::Category::Bool, RawValueAsString(result)
+						)
+					);
+				}
+				else
+				{
+					m_stack.push(
+						dev::soltest::Literal(
+							dev::solidity::Type::Category::RationalNumber, RawValueAsString(result)
+						)
+					);
+				}
 		}
 	}
 	else if (m_stack.back().type() == typeid(dev::soltest::NewExpression))
@@ -234,10 +252,9 @@ void SoltestExecutor::endVisit(dev::solidity::FunctionCall const &_functionCall)
 
 		dev::soltest::StateTypes
 			arguments = CreateArgumentStateTypesFromFunctionType(newExpression.type, untyped_arguments, m_state);
-		Contract contract(variableDeclaration.type, &m_rpc, &m_compilerStack);
-		contract.setAccount(m_account);
+		Contract contract(variableDeclaration.type, true, &m_rpc, &m_compilerStack);
 		std::reverse(arguments.begin(), arguments.end());
-		BOOST_REQUIRE_MESSAGE(contract.construct(arguments), "Construction failed.");
+		BOOST_REQUIRE_MESSAGE(contract.construct(m_soltest.account(), arguments), "Construction failed.");
 		m_state[variableDeclaration.name] = contract;
 	}
 

@@ -20,7 +20,7 @@
  * Low-level IPC communication between the test framework and the Ethereum node.
  * @author Alexander Arlt <alexander.arlt@arlt-labs.com>
  * based on test/RPCSession.h, written by Dimtiry Khokhlov <dimitry@ethdev.com>
- * and test/libsolidity/SolidityExecutionFramework.h, written by Christian <c@ethdev.com>
+ * and test/libsolidity/SolidityExecutionFramework.h and test/ExecutionFramework.h, written by Christian <c@ethdev.com>
  * @date 2018
  */
 
@@ -131,40 +131,30 @@ void SoltestSession::personal_unlockAccount(string const &_address, string const
 	);
 }
 
-void SoltestSession::sendMessage(dev::soltest::Contract &_contract,
-								 bytes const &_data,
-								 bool _isCreation,
-								 u256 const &_value)
+bytes SoltestSession::sendMessage(dev::soltest::Contract &_contract,
+								  h160 _from,
+								  bytes const &_data,
+								  bool _isCreation,
+								  u256 const &_value)
 {
-	/*
-	if (m_showMessages)
-	{
-		if (_isCreation)
-			cout << "CREATE " << m_sender.hex() << ":" << endl;
-		else
-			cout << "CALL   " << m_sender.hex() << " -> " << m_contractAddress.hex() << ":" << endl;
-		if (_value > 0)
-			cout << " value: " << _value << endl;
-		cout << " in:      " << toHex(_data) << endl;
-	}
-	 */
+	bytes result;
 	SoltestSession::TransactionData d;
 	d.data = "0x" + toHex(_data);
-	d.from = "0x" + _contract.account().hex();
+	d.from = "0x" + _from.hex();
 	d.gas = "0x500000";
 	d.gasPrice = "0x" + u256("1").str();
 	if (_value)
 		d.value = "0x" + _value.str();
 	if (!_isCreation)
 	{
-		d.to = "0x" + dev::toString(_contract.address());
+		d.to = "0x" + _contract.address().hex();
 		BOOST_REQUIRE(this->eth_getCode(d.to, "latest").size() > 2);
 		// Use eth_call to get the output
-		bytes output = fromHex(this->eth_call(d, "latest"), WhenError::Throw);
+		result = fromHex(this->eth_call(d, "latest"), WhenError::Throw);
 	}
 
-	std::string before = eth_getBlockByNumber("latest", false)["number"].asString();
 	std::string txHash;
+	std::string before = eth_getBlockByNumber("latest", false)["number"].asString();
 	std::string current(before);
 	while (before == current)
 	{
@@ -184,17 +174,8 @@ void SoltestSession::sendMessage(dev::soltest::Contract &_contract,
 		_contract.setAddress(contractAddress);
 		BOOST_REQUIRE(_contract.address());
 		string code = this->eth_getCode("0x" + _contract.address().hex(), "latest");
-		bytes output = fromHex(code, WhenError::Throw);
+		result = fromHex(code, WhenError::Throw);
 	}
-
-	/*
-	if (m_showMessages)
-	{
-		cout << " out:     " << toHex(m_output) << endl;
-		cout << " tx hash: " << txHash << endl;
-	}
-	*/
-
 	/*
 	m_gasUsed = u256(receipt.gasUsed);
 	m_logs.clear();
@@ -208,6 +189,28 @@ void SoltestSession::sendMessage(dev::soltest::Contract &_contract,
 		m_logs.push_back(entry);
 	}
 	 */
+	return result;
+}
+
+void SoltestSession::sendEther(h160 const &_from, h160 const &_to, u256 const &_value)
+{
+	SoltestSession::TransactionData d;
+	d.data = "0x";
+	d.from = "0x" + _from.hex();
+	d.gas = "0x500000";
+	d.gasPrice = "0x" + u256("1").str();
+	d.value = "0x" + _value.str();
+	d.to = "0x" + _to.hex();
+
+	std::string txHash;
+	std::string before = eth_getBlockByNumber("latest", false)["number"].asString();
+	std::string current(before);
+	while (before == current)
+	{
+		txHash = this->eth_sendTransaction(d);
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		current = eth_getBlockByNumber("latest", false)["number"].asString();
+	}
 }
 
 string SoltestSession::personal_newAccount(string const &_password)
@@ -252,6 +255,24 @@ SoltestSession::SoltestSession(const string &_path) :
 {
 }
 
+bytes SoltestSession::callContractFunctionWithValueNoEncoding(dev::soltest::Contract &_contract,
+															  h160 _from,
+															  std::string _sig,
+															  u256 const &_value,
+															  bytes const &_arguments)
+{
+	FixedHash<4> hash(dev::keccak256(_sig));
+	return sendMessage(_contract, _from, hash.asBytes() + _arguments, false, _value);
+}
+
+bytes SoltestSession::callContractFunctionNoEncoding(dev::soltest::Contract &_contract,
+													 h160 _from,
+													 std::string _sig,
+													 bytes const &_arguments)
+{
+	return callContractFunctionWithValueNoEncoding(_contract, _from, _sig, 0, _arguments);
+}
+
 string SoltestSession::TransactionData::toJson() const
 {
 	Json::Value json;
@@ -262,7 +283,7 @@ string SoltestSession::TransactionData::toJson() const
 	}
 	json["gas"] = gas;
 	json["gasprice"] = gasPrice;
-	if (value.empty())
+	if (!value.empty())
 	{
 		json["value"] = value;
 	}

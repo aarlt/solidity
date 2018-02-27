@@ -48,28 +48,25 @@ bool TestSuiteGenerator::parseCommandLineArguments(int argc, char **argv)
 	for (auto i = 0; i < argc; i++)
 	{
 		std::string argument(argv[i]);
+		std::string absolutePath
+			(boost::starts_with(argument, "/") ? argument :
+			 boost::filesystem::current_path().string() + boost::filesystem::path::preferred_separator + argument);
 		if (argument == "--ipcpath")
 		{
 			m_options[argument] = argv[i + 1];
 			++i;
 		}
 		else if (boost::starts_with(argument, "-"))
-		{
 			m_options[argument] = "yes";
-		}
-		else if (boost::filesystem::exists(argument))
+		else if (boost::filesystem::exists(absolutePath))
 		{
-			if (boost::filesystem::extension(argument) == ".sol")
+			if (boost::filesystem::extension(absolutePath) == ".sol")
+				m_contractFiles.insert(absolutePath);
+			else if (boost::filesystem::extension(absolutePath) == ".soltest")
 			{
-				m_contractFiles.insert(argument);
-			}
-			else if (boost::filesystem::extension(argument) == ".soltest")
-			{
-				std::string contractFile(argument.substr(0, argument.length() - 4));
+				std::string contractFile(absolutePath.substr(0, absolutePath.length() - 4));
 				if (boost::filesystem::exists(contractFile))
-				{
 					m_contractFiles.insert(contractFile);
-				}
 			}
 		}
 	}

@@ -22,6 +22,8 @@
 #include "SoltestState.h"
 #include "SoltestStack.h"
 
+#include "test/ExecutionFramework.h"
+
 namespace dev
 {
 
@@ -33,32 +35,32 @@ std::string TypeAsString(StateType const &type)
 	if (type.type() == typeid(bool))
 		return "bool";
 	else if (type.type() == typeid(int8_t))
-		return "int8_t";
+		return "int8";
 	else if (type.type() == typeid(int16_t))
-		return "int16_t";
+		return "int16";
 	else if (type.type() == typeid(int32_t))
-		return "int32_t";
+		return "int32";
 	else if (type.type() == typeid(int64_t))
-		return "int64_t";
+		return "int64";
 	else if (type.type() == typeid(s256))
-		return "s256";
+		return "int256";
 	else if (type.type() == typeid(uint8_t))
-		return "uint8_t";
+		return "uint8";
 	else if (type.type() == typeid(uint16_t))
-		return "uint16_t";
+		return "uint16";
 	else if (type.type() == typeid(uint32_t))
-		return "uint32_t";
+		return "uint32";
 	else if (type.type() == typeid(uint64_t))
-		return "uint64_t";
+		return "uint64";
 	else if (type.type() == typeid(u160))
-		return "u160";
+		return "uint160";
 	else if (type.type() == typeid(u256))
-		return "u256";
+		return "uint256";
 	else if (type.type() == typeid(std::string))
 		return "string";
 
 	else if (type.type() == typeid(Address))
-		return "Address";
+		return "address";
 	else if (type.type() == typeid(Contract))
 		return "Contract";
 
@@ -103,13 +105,49 @@ std::string RawValueAsString(StateType const &type)
 	return result.str();
 }
 
+bytes ValueAsBytes(StateType const &type)
+{
+	if (type.type() == typeid(bool))
+		return dev::test::ExecutionFramework::encode(boost::get<bool>(type));
+	else if (type.type() == typeid(int8_t))
+		return dev::test::ExecutionFramework::encode(boost::get<int8_t>(type));
+	else if (type.type() == typeid(int16_t))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<int16_t>(type)));
+	else if (type.type() == typeid(int32_t))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<int32_t>(type)));
+	else if (type.type() == typeid(int64_t))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<int64_t>(type)));
+	else if (type.type() == typeid(s256))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<s256>(type)));
+	else if (type.type() == typeid(uint8_t))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<uint8_t>(type)));
+	else if (type.type() == typeid(uint16_t))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<uint16_t>(type)));
+	else if (type.type() == typeid(uint32_t))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<uint32_t>(type)));
+	else if (type.type() == typeid(uint64_t))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<uint64_t>(type)));
+	else if (type.type() == typeid(u160))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<u160>(type)));
+	else if (type.type() == typeid(u256))
+		return dev::test::ExecutionFramework::encode(boost::get<u256>(type));
+	else if (type.type() == typeid(std::string))
+		return dev::test::ExecutionFramework::encode(boost::get<std::string>(type));
+	else if (type.type() == typeid(Address))
+		return dev::test::ExecutionFramework::encode(u256(boost::get<Address>(type).value()));
+	else if (type.type() == typeid(Contract))
+		return dev::test::ExecutionFramework::encode(u256("0x" + boost::get<Contract>(type).address().hex()));
+
+	return bytes();
+}
+
 std::string ValueAsString(StateType const &type)
 {
 	std::stringstream result;
 	if (type.type() == typeid(bool))
 		result << boost::get<bool>(type);
 	else if (type.type() == typeid(int8_t))
-		result << boost::get<int8_t>(type) << std::hex << " = 0x" << boost::get<int8_t>(type);
+		result << boost::get<int8_t>(type);
 	else if (type.type() == typeid(int16_t))
 		result << boost::get<int16_t>(type) << std::hex << " = 0x" << boost::get<int16_t>(type);
 	else if (type.type() == typeid(int32_t))
@@ -192,7 +230,14 @@ StateType LexicalCast(StateType const &prototype, std::string const &_string)
 		if (_string.find('.') == std::string::npos)
 		{
 			if (prototype.type() == typeid(bool))
-				result = boost::lexical_cast<bool>(string);
+			{
+				if (string == "true")
+					result = boost::lexical_cast<bool>(1);
+				else if (string == "false")
+					result = boost::lexical_cast<bool>(0);
+				else
+					result = boost::lexical_cast<bool>(string);
+			}
 			else if (prototype.type() == typeid(int8_t))
 				result = boost::lexical_cast<int8_t>(string);
 			else if (prototype.type() == typeid(int16_t))
@@ -287,9 +332,13 @@ StateTypes CreateArgumentStateTypesFromFunctionType(std::string const &_function
 	size_t argIdx = 0;
 	for (auto &argumentType : argumentTypes)
 	{
+		std::string argType(argumentType);
+		if (argType == "string memory") {
+			argType = "string";
+		}
 		if (argIdx < _untypedTuple.size())
 		{
-			StateType proto(CreateStateType(argumentType));
+			StateType proto(CreateStateType(argType));
 			if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Literal))
 			{
 				soltest::Literal literal(boost::get<soltest::Literal>(_untypedTuple[argIdx]));
@@ -298,7 +347,7 @@ StateTypes CreateArgumentStateTypesFromFunctionType(std::string const &_function
 			else if (_untypedTuple[argIdx].type() == typeid(dev::soltest::Identifier))
 			{
 				soltest::Identifier identifier(boost::get<soltest::Identifier>(_untypedTuple[argIdx]));
-				args.push_back(LexicalCast(CreateStateType(argumentType),
+				args.push_back(LexicalCast(CreateStateType(argType),
 										   RawValueAsString(state[identifier.name])));
 			}
 			++argIdx;
@@ -310,13 +359,17 @@ StateTypes CreateArgumentStateTypesFromFunctionType(std::string const &_function
 StateTypes CreateReturnStateTypesFromFunctionType(std::string const &_functionType)
 {
 	StateTypes result;
-	std::vector<std::string> returnTypes;
-	std::string returnTypesString(
-		_functionType.substr(_functionType.rfind('(') + 1, _functionType.rfind(')') - _functionType.rfind('(') - 1)
-	);
-	boost::split(returnTypes, returnTypesString, boost::is_any_of(","));
-	for (auto &returnType : returnTypes)
-		result.push_back(CreateStateType(returnType));
+	// if function is not a void function
+	if (_functionType.rfind('(') != _functionType.find('(') )
+	{
+		std::vector<std::string> returnTypes;
+		std::string returnTypesString(
+			_functionType.substr(_functionType.rfind('(') + 1, _functionType.rfind(')') - _functionType.rfind('(') - 1)
+		);
+		boost::split(returnTypes, returnTypesString, boost::is_any_of(","));
+		for (auto &returnType : returnTypes)
+			result.push_back(CreateStateType(returnType));
+	}
 	return result;
 }
 
