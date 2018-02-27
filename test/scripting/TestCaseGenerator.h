@@ -38,7 +38,8 @@ namespace soltest
 class TestCaseGenerator
 {
 public:
-	explicit TestCaseGenerator(boost::unit_test::test_suite &_testSuite,
+	explicit TestCaseGenerator(std::string const& ipcpath,
+							   boost::unit_test::test_suite &_testSuite,
 							   dev::solidity::CompilerStack &compilerStack,
 							   std::set<std::string> const &_contracts = std::set<std::string>());
 
@@ -50,6 +51,8 @@ public:
 	std::vector<dev::soltest::SoltestTests::Ptr> soltests();
 
 private:
+	std::string m_ipcpath;
+
 	boost::unit_test::test_suite &m_testSuite;
 	dev::solidity::CompilerStack &m_compilerStack;
 	std::set<std::string> const &m_constracts;

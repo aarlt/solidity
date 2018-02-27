@@ -42,10 +42,11 @@ namespace dev
 namespace soltest
 {
 
-TestCaseGenerator::TestCaseGenerator(boost::unit_test::test_suite &_testSuite,
+TestCaseGenerator::TestCaseGenerator(std::string const& ipcpath,
+									 boost::unit_test::test_suite &_testSuite,
 									 dev::solidity::CompilerStack &compilerStack,
 									 std::set<std::string> const &_contracts)
-	: m_testSuite(_testSuite), m_compilerStack(compilerStack), m_constracts(_contracts)
+	: m_ipcpath(ipcpath), m_testSuite(_testSuite), m_compilerStack(compilerStack), m_constracts(_contracts)
 {
 	for (auto &contract : m_constracts)
 	{
@@ -176,7 +177,7 @@ void TestCaseGenerator::executeSoltest(std::string const &contract,
 		std::string errors;
 		dev::soltest::SoltestExecutor
 			executor(
-			dev::soltest::SoltestSession::instance("/tmp/ipc"),
+			dev::soltest::SoltestSession::instance(m_ipcpath),
 			m_compilerStack,
 			*sourceUnit, contract, filename, m_sources[contract], line);
 		BOOST_REQUIRE_MESSAGE(executor.execute(testcase, errors), errors);
