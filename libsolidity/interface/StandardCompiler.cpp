@@ -35,35 +35,35 @@ using namespace dev::solidity;
 
 namespace {
 
-Json::Value formatError(
+Json formatError(
 	bool _warning,
 	string const& _type,
 	string const& _component,
 	string const& _message,
 	string const& _formattedMessage = "",
-	Json::Value const& _sourceLocation = Json::Value()
+	Json const& _sourceLocation = Json()
 )
 {
-	Json::Value error = Json::objectValue;
+	Json error = Json::object();
 	error["type"] = _type;
 	error["component"] = _component;
 	error["severity"] = _warning ? "warning" : "error";
 	error["message"] = _message;
 	error["formattedMessage"] = (_formattedMessage.length() > 0) ? _formattedMessage : _message;
-	if (_sourceLocation.isObject())
+	if (_sourceLocation.is_object())
 		error["sourceLocation"] = _sourceLocation;
 	return error;
 }
 
-Json::Value formatFatalError(string const& _type, string const& _message)
+Json formatFatalError(string const& _type, string const& _message)
 {
-	Json::Value output = Json::objectValue;
-	output["errors"] = Json::arrayValue;
-	output["errors"].append(formatError(false, _type, "general", _message));
+	Json output = Json::object();
+	output["errors"] = Json::array();
+	output["errors"].emplace_back(formatError(false, _type, "general", _message));
 	return output;
 }
 
-Json::Value formatErrorWithException(
+Json formatErrorWithException(
 	Exception const& _exception,
 	bool const& _warning,
 	string const& _type,
@@ -83,7 +83,7 @@ Json::Value formatErrorWithException(
 	else
 		message = _message;
 
-	Json::Value sourceLocation;
+	Json sourceLocation;
 	if (location && location->sourceName)
 	{
 		sourceLocation["file"] = *location->sourceName;
@@ -94,17 +94,17 @@ Json::Value formatErrorWithException(
 	return formatError(_warning, _type, _component, message, formattedMessage, sourceLocation);
 }
 
-set<string> requestedContractNames(Json::Value const& _outputSelection)
+set<string> requestedContractNames(Json const& _outputSelection)
 {
 	set<string> names;
-	for (auto const& sourceName: _outputSelection.getMemberNames())
+	for (auto const& sourceName: _outputSelection.items())
 	{
-		for (auto const& contractName: _outputSelection[sourceName].getMemberNames())
+		for (auto const& contractName: _outputSelection[sourceName.key()].items())
 		{
 			/// Consider the "all sources" shortcuts as requesting everything.
-			if (contractName == "*" || contractName == "")
+			if (contractName.key() == "*" || contractName.key() == "")
 				return set<string>();
-			names.insert((sourceName == "*" ? "" : sourceName) + ":" + contractName);
+			names.insert((sourceName.key() == "*" ? "" : sourceName.key()) + ":" + contractName.key());
 		}
 	}
 	return names;
@@ -123,17 +123,17 @@ bool hashMatchesContent(string const& _hash, string const& _content)
 	}
 }
 
-StringMap createSourceList(Json::Value const& _input)
+StringMap createSourceList(Json const& _input)
 {
 	StringMap sources;
-	Json::Value const& jsonSources = _input["sources"];
-	if (jsonSources.isObject())
-		for (auto const& sourceName: jsonSources.getMemberNames())
-			sources[sourceName] = jsonSources[sourceName]["content"].asString();
+	Json const& jsonSources = _input["sources"];
+	if (jsonSources.is_object())
+		for (auto const& sourceName: jsonSources.items())
+			sources[sourceName.key()] = jsonSources[sourceName.key()]["content"].get<string>();
 	return sources;
 }
 
-bool isArtifactRequested(Json::Value const& _outputSelection, string const& _artifact)
+bool isArtifactRequested(Json const& _outputSelection, string const& _artifact)
 {
 	for (auto const& artifact: _outputSelection)
 		/// @TODO support sub-matching, e.g "evm" matches "evm.assembly"
@@ -155,23 +155,23 @@ bool isArtifactRequested(Json::Value const& _outputSelection, string const& _art
 ///
 /// @TODO optimise this. Perhaps flatten the structure upfront.
 ///
-bool isArtifactRequested(Json::Value const& _outputSelection, string const& _file, string const& _contract, string const& _artifact)
+bool isArtifactRequested(Json const& _outputSelection, string const& _file, string const& _contract, string const& _artifact)
 {
-	if (!_outputSelection.isObject())
+	if (!_outputSelection.is_object())
 		return false;
 
 	for (auto const& file: { _file, string("*") })
-		if (_outputSelection.isMember(file) && _outputSelection[file].isObject())
+		if (_outputSelection.find(file) != _outputSelection.end() && _outputSelection[file].is_object())
 		{
 			/// For SourceUnit-level targets (such as AST) only allow empty name, otherwise
 			/// for Contract-level targets try both contract name and wildcard
 			vector<string> contracts{ _contract };
 			if (!_contract.empty())
-				contracts.push_back("*");
+				contracts.emplace_back("*");
 			for (auto const& contract: contracts)
 				if (
-					_outputSelection[file].isMember(contract) &&
-					_outputSelection[file][contract].isArray() &&
+					_outputSelection[file].find(contract) != _outputSelection.end() &&
+					_outputSelection[file][contract].is_array() &&
 					isArtifactRequested(_outputSelection[file][contract], _artifact)
 				)
 					return true;
@@ -180,7 +180,7 @@ bool isArtifactRequested(Json::Value const& _outputSelection, string const& _fil
 	return false;
 }
 
-bool isArtifactRequested(Json::Value const& _outputSelection, string const& _file, string const& _contract, vector<string> const& _artifacts)
+bool isArtifactRequested(Json const& _outputSelection, string const& _file, string const& _contract, vector<string> const& _artifacts)
 {
 	for (auto const& artifact: _artifacts)
 		if (isArtifactRequested(_outputSelection, _file, _contract, artifact))
@@ -188,9 +188,9 @@ bool isArtifactRequested(Json::Value const& _outputSelection, string const& _fil
 	return false;
 }
 
-Json::Value formatLinkReferences(std::map<size_t, std::string> const& linkReferences)
+Json formatLinkReferences(std::map<size_t, std::string> const& linkReferences)
 {
-	Json::Value ret(Json::objectValue);
+	Json ret(Json::object());
 
 	for (auto const& ref: linkReferences)
 	{
@@ -200,14 +200,14 @@ Json::Value formatLinkReferences(std::map<size_t, std::string> const& linkRefere
 		string file = fullname.substr(0, colon);
 		string name = fullname.substr(colon + 1);
 
-		Json::Value fileObject = ret.get(file, Json::objectValue);
-		Json::Value libraryArray = fileObject.get(name, Json::arrayValue);
+		Json fileObject = ret.value(file, Json::object());
+		Json libraryArray = fileObject.value(name, Json::array());
 
-		Json::Value entry = Json::objectValue;
-		entry["start"] = Json::UInt(ref.first);
+		Json entry = Json::object();
+		entry["start"] = Json(ref.first);
 		entry["length"] = 20;
 
-		libraryArray.append(entry);
+		libraryArray.emplace_back(entry);
 		fileObject[name] = libraryArray;
 		ret[file] = fileObject;
 	}
@@ -215,9 +215,9 @@ Json::Value formatLinkReferences(std::map<size_t, std::string> const& linkRefere
 	return ret;
 }
 
-Json::Value collectEVMObject(eth::LinkerObject const& _object, string const* _sourceMap)
+Json collectEVMObject(eth::LinkerObject const& _object, string const* _sourceMap)
 {
-	Json::Value output = Json::objectValue;
+	Json output = Json::object();
 	output["object"] = _object.toHex();
 	output["opcodes"] = solidity::disassemble(_object.bytecode);
 	output["sourceMap"] = _sourceMap ? *_sourceMap : "";
@@ -227,50 +227,50 @@ Json::Value collectEVMObject(eth::LinkerObject const& _object, string const* _so
 
 }
 
-Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
+Json StandardCompiler::compileInternal(Json const& _input)
 {
 	m_compilerStack.reset(false);
 
-	if (!_input.isObject())
+	if (!_input.is_object())
 		return formatFatalError("JSONError", "Input is not a JSON object.");
 
 	if (_input["language"] != "Solidity")
 		return formatFatalError("JSONError", "Only \"Solidity\" is supported as a language.");
 
-	Json::Value const& sources = _input["sources"];
+	Json const& sources = _input["sources"];
 
-	if (!sources.isObject() && !sources.isNull())
+	if (!sources.is_object() && !sources.is_null())
 		return formatFatalError("JSONError", "\"sources\" is not a JSON object.");
 
 	if (sources.empty())
 		return formatFatalError("JSONError", "No input sources specified.");
 
-	Json::Value errors = Json::arrayValue;
+	Json errors = Json::array();
 
-	for (auto const& sourceName: sources.getMemberNames())
+	for (auto const& sourceName: sources.items())
 	{
 		string hash;
 
-		if (!sources[sourceName].isObject())
+		if (!sources[sourceName.key()].is_object())
 			return formatFatalError("JSONError", "Source input is not a JSON object.");
 
-		if (sources[sourceName]["keccak256"].isString())
-			hash = sources[sourceName]["keccak256"].asString();
+		if (sources[sourceName.key()]["keccak256"].is_string())
+			hash = sources[sourceName.key()]["keccak256"].get<string>();
 
-		if (sources[sourceName]["content"].isString())
+		if (sources[sourceName.key()]["content"].is_string())
 		{
-			string content = sources[sourceName]["content"].asString();
+			string content = sources[sourceName.key()]["content"].get<string>();
 			if (!hash.empty() && !hashMatchesContent(hash, content))
-				errors.append(formatError(
+				errors.emplace_back(formatError(
 					false,
 					"IOError",
 					"general",
-					"Mismatch between content and supplied hash for \"" + sourceName + "\""
+					"Mismatch between content and supplied hash for \"" + sourceName.key() + "\""
 				));
 			else
-				m_compilerStack.addSource(sourceName, content);
+				m_compilerStack.addSource(sourceName.key(), content);
 		}
-		else if (sources[sourceName]["urls"].isArray())
+		else if (sources[sourceName.key()]["urls"].is_array())
 		{
 			if (!m_readFile)
 				return formatFatalError("JSONError", "No import callback supplied, but URL is requested.");
@@ -278,33 +278,33 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 			bool found = false;
 			vector<string> failures;
 
-			for (auto const& url: sources[sourceName]["urls"])
+			for (auto const& url: sources[sourceName.key()]["urls"])
 			{
-				ReadCallback::Result result = m_readFile(url.asString());
+				ReadCallback::Result result = m_readFile(url.get<string>());
 				if (result.success)
 				{
 					if (!hash.empty() && !hashMatchesContent(hash, result.responseOrErrorMessage))
-						errors.append(formatError(
+						errors.emplace_back(formatError(
 							false,
 							"IOError",
 							"general",
-							"Mismatch between content and supplied hash for \"" + sourceName + "\" at \"" + url.asString() + "\""
+							"Mismatch between content and supplied hash for \"" + sourceName.key() + "\" at \"" + url.get<string>() + "\""
 						));
 					else
 					{
-						m_compilerStack.addSource(sourceName, result.responseOrErrorMessage);
+						m_compilerStack.addSource(sourceName.key(), result.responseOrErrorMessage);
 						found = true;
 						break;
 					}
 				}
 				else
-					failures.push_back("Cannot import url (\"" + url.asString() + "\"): " + result.responseOrErrorMessage);
+					failures.push_back("Cannot import url (\"" + url.get<string>() + "\"): " + result.responseOrErrorMessage);
 			}
 
 			for (auto const& failure: failures)
 			{
 				/// If the import succeeded, let mark all the others as warnings, otherwise all of them are errors.
-				errors.append(formatError(
+				errors.emplace_back(formatError(
 					found ? true : false,
 					"IOError",
 					"general",
@@ -316,38 +316,38 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 			return formatFatalError("JSONError", "Invalid input source specified.");
 	}
 
-	Json::Value const& settings = _input.get("settings", Json::Value());
+	Json const& settings = _input.value("settings", Json());
 
-	if (settings.isMember("evmVersion"))
+	if (settings.find("evmVersion") != settings.end())
 	{
-		boost::optional<EVMVersion> version = EVMVersion::fromString(settings.get("evmVersion", {}).asString());
+		boost::optional<EVMVersion> version = EVMVersion::fromString(settings.value("evmVersion", {}));
 		if (!version)
 			return formatFatalError("JSONError", "Invalid EVM version requested.");
 		m_compilerStack.setEVMVersion(*version);
 	}
 
 	vector<string> remappings;
-	for (auto const& remapping: settings.get("remappings", Json::Value()))
-		remappings.push_back(remapping.asString());
+	for (auto const& remapping: settings.value("remappings", Json()))
+		remappings.push_back(remapping.get<string>());
 	m_compilerStack.setRemappings(remappings);
 
-	Json::Value optimizerSettings = settings.get("optimizer", Json::Value());
-	bool const optimize = optimizerSettings.get("enabled", Json::Value(false)).asBool();
-	unsigned const optimizeRuns = optimizerSettings.get("runs", Json::Value(200u)).asUInt();
+	Json optimizerSettings = settings.value("optimizer", Json());
+	bool const optimize = optimizerSettings.value("enabled", false);
+	unsigned const optimizeRuns = optimizerSettings.value("runs", 200u);
 	m_compilerStack.setOptimiserSettings(optimize, optimizeRuns);
 
 	map<string, h160> libraries;
-	Json::Value jsonLibraries = settings.get("libraries", Json::Value(Json::objectValue));
-	if (!jsonLibraries.isObject())
+	Json jsonLibraries = settings.value("libraries", Json(Json::object()));
+	if (!jsonLibraries.is_object())
 		return formatFatalError("JSONError", "\"libraries\" is not a JSON object.");
-	for (auto const& sourceName: jsonLibraries.getMemberNames())
+	for (auto const& sourceName: jsonLibraries.items())
 	{
-		auto const& jsonSourceName = jsonLibraries[sourceName];
-		if (!jsonSourceName.isObject())
+		auto const& jsonSourceName = jsonLibraries[sourceName.key()];
+		if (!jsonSourceName.is_object())
 			return formatFatalError("JSONError", "library entry is not a JSON object.");
-		for (auto const& library: jsonSourceName.getMemberNames())
+		for (auto const& library: jsonSourceName.items())
 		{
-			string address = jsonSourceName[library].asString();
+			string address = jsonSourceName[library.key()].get<string>();
 
 			if (!boost::starts_with(address, "0x"))
 				return formatFatalError(
@@ -364,7 +364,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 			try
 			{
 				// @TODO use libraries only for the given source
-				libraries[library] = h160(address);
+				libraries[library.key()] = h160(address);
 			}
 			catch (dev::BadHexCharacter const&)
 			{
@@ -377,10 +377,10 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	}
 	m_compilerStack.setLibraries(libraries);
 
-	Json::Value metadataSettings = settings.get("metadata", Json::Value());
-	m_compilerStack.useMetadataLiteralSources(metadataSettings.get("useLiteralContent", Json::Value(false)).asBool());
+	Json metadataSettings = settings.value("metadata", Json());
+	m_compilerStack.useMetadataLiteralSources(metadataSettings.value("useLiteralContent", Json(false)).get<bool>());
 
-	Json::Value outputSelection = settings.get("outputSelection", Json::Value());
+	Json outputSelection = settings.value("outputSelection", Json());
 	m_compilerStack.setRequestedContractNames(requestedContractNames(outputSelection));
 
 	auto scannerFromSourceName = [&](string const& _sourceName) -> solidity::Scanner const& { return m_compilerStack.scanner(_sourceName); };
@@ -393,7 +393,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 		{
 			Error const& err = dynamic_cast<Error const&>(*error);
 
-			errors.append(formatErrorWithException(
+			errors.emplace_back(formatErrorWithException(
 				*error,
 				err.type() == Error::Type::Warning,
 				err.typeName(),
@@ -406,7 +406,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	/// This is only thrown in a very few locations.
 	catch (Error const& _error)
 	{
-		errors.append(formatErrorWithException(
+		errors.emplace_back(formatErrorWithException(
 			_error,
 			false,
 			_error.typeName(),
@@ -418,7 +418,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	/// This should not be leaked from compile().
 	catch (FatalError const& _exception)
 	{
-		errors.append(formatError(
+		errors.emplace_back(formatError(
 			false,
 			"FatalError",
 			"general",
@@ -427,7 +427,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	}
 	catch (CompilerError const& _exception)
 	{
-		errors.append(formatErrorWithException(
+		errors.emplace_back(formatErrorWithException(
 			_exception,
 			false,
 			"CompilerError",
@@ -438,7 +438,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	}
 	catch (InternalCompilerError const& _exception)
 	{
-		errors.append(formatErrorWithException(
+		errors.emplace_back(formatErrorWithException(
 			_exception,
 			false,
 			"InternalCompilerError",
@@ -449,7 +449,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	}
 	catch (UnimplementedFeatureError const& _exception)
 	{
-		errors.append(formatErrorWithException(
+		errors.emplace_back(formatErrorWithException(
 			_exception,
 			false,
 			"UnimplementedFeatureError",
@@ -460,7 +460,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	}
 	catch (Exception const& _exception)
 	{
-		errors.append(formatError(
+		errors.emplace_back(formatError(
 			false,
 			"Exception",
 			"general",
@@ -469,7 +469,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	}
 	catch (...)
 	{
-		errors.append(formatError(
+		errors.emplace_back(formatError(
 			false,
 			"Exception",
 			"general",
@@ -481,19 +481,19 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	bool const compilationSuccess = m_compilerStack.state() == CompilerStack::State::CompilationSuccessful;
 
 	/// Inconsistent state - stop here to receive error reports from users
-	if (!compilationSuccess && (errors.size() == 0))
+	if (!compilationSuccess && errors.empty())
 		return formatFatalError("InternalCompilerError", "No error reported, but compilation failed.");
 
-	Json::Value output = Json::objectValue;
+	Json output = Json::object();
 
-	if (errors.size() > 0)
+	if (!errors.empty())
 		output["errors"] = errors;
 
-	output["sources"] = Json::objectValue;
+	output["sources"] = Json::object();
 	unsigned sourceIndex = 0;
 	for (string const& sourceName: analysisSuccess ? m_compilerStack.sourceNames() : vector<string>())
 	{
-		Json::Value sourceResult = Json::objectValue;
+		Json sourceResult = Json::object();
 		sourceResult["id"] = sourceIndex++;
 		if (isArtifactRequested(outputSelection, sourceName, "", "ast"))
 			sourceResult["ast"] = ASTJsonConverter(false, m_compilerStack.sourceIndices()).toJson(m_compilerStack.ast(sourceName));
@@ -502,7 +502,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 		output["sources"][sourceName] = sourceResult;
 	}
 
-	Json::Value contractsOutput = Json::objectValue;
+	Json contractsOutput = Json::object();
 	for (string const& contractName: compilationSuccess ? m_compilerStack.contractNames() : vector<string>())
 	{
 		size_t colon = contractName.rfind(':');
@@ -511,7 +511,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 		string name = contractName.substr(colon + 1);
 
 		// ABI, documentation and metadata
-		Json::Value contractData(Json::objectValue);
+		Json contractData(Json::object());
 		if (isArtifactRequested(outputSelection, file, name, "abi"))
 			contractData["abi"] = m_compilerStack.contractABI(contractName);
 		if (isArtifactRequested(outputSelection, file, name, "metadata"))
@@ -522,7 +522,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 			contractData["devdoc"] = m_compilerStack.natspecDev(contractName);
 
 		// EVM
-		Json::Value evmData(Json::objectValue);
+		Json evmData(Json::object());
 		// @TODO: add ir
 		if (isArtifactRequested(outputSelection, file, name, "evm.assembly"))
 			evmData["assembly"] = m_compilerStack.assemblyString(contractName, createSourceList(_input));
@@ -557,8 +557,8 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 
 		contractData["evm"] = evmData;
 
-		if (!contractsOutput.isMember(file))
-			contractsOutput[file] = Json::objectValue;
+		if (contractsOutput.find(file) == contractsOutput.end())
+			contractsOutput[file] = Json::object();
 
 		contractsOutput[file][name] = contractData;
 	}
@@ -567,19 +567,15 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	return output;
 }
 
-Json::Value StandardCompiler::compile(Json::Value const& _input)
+Json StandardCompiler::compile(Json const& _input)
 {
 	try
 	{
 		return compileInternal(_input);
 	}
-	catch (Json::LogicError const& _exception)
+	catch (Json::exception const& _exception)
 	{
-		return formatFatalError("InternalCompilerError", string("JSON logic exception: ") + _exception.what());
-	}
-	catch (Json::RuntimeError const& _exception)
-	{
-		return formatFatalError("InternalCompilerError", string("JSON runtime exception: ") + _exception.what());
+		return formatFatalError("InternalCompilerError", string("JSON exception: ") + _exception.what());
 	}
 	catch (Exception const& _exception)
 	{
@@ -593,7 +589,7 @@ Json::Value StandardCompiler::compile(Json::Value const& _input)
 
 string StandardCompiler::compile(string const& _input)
 {
-	Json::Value input;
+	Json input;
 	string errors;
 	try
 	{
@@ -606,7 +602,7 @@ string StandardCompiler::compile(string const& _input)
 	}
 
 	// cout << "Input: " << input.toStyledString() << endl;
-	Json::Value output = compile(input);
+	Json output = compile(input);
 	// cout << "Output: " << output.toStyledString() << endl;
 
 	try

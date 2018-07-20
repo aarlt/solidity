@@ -68,7 +68,7 @@ public:
 		return m_context.assemblyString(_sourceCodes);
 	}
 	/// @arg _sourceCodes is the map of input files to source code strings
-	Json::Value assemblyJSON(StringMap const& _sourceCodes = StringMap()) const
+	Json assemblyJSON(StringMap const& _sourceCodes = StringMap()) const
 	{
 		return m_context.assemblyJSON(_sourceCodes);
 	}

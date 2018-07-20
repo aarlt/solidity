@@ -27,7 +27,7 @@
 #include <libsolidity/ast/ASTVisitor.h>
 #include <libsolidity/interface/Exceptions.h>
 #include <libsolidity/ast/ASTAnnotations.h>
-#include <json/json.h>
+#include <libdevcore/JSON.h>
 
 namespace dev
 {
@@ -49,16 +49,16 @@ public:
 	);
 	/// Output the json representation of the AST to _stream.
 	void print(std::ostream& _stream, ASTNode const& _node);
-	Json::Value&& toJson(ASTNode const& _node);
+	Json&& toJson(ASTNode const& _node);
 	template <class T>
-	Json::Value toJson(std::vector<ASTPointer<T>> const& _nodes)
+	Json toJson(std::vector<ASTPointer<T>> const& _nodes)
 	{
-		Json::Value ret(Json::arrayValue);
+		Json ret;
 		for (auto const& n: _nodes)
 			if (n)
 				appendMove(ret, toJson(*n));
 			else
-				ret.append(Json::nullValue);
+				ret.push_back(nullptr);
 		return ret;
 	}
 	bool visit(SourceUnit const& _node) override;
@@ -113,60 +113,60 @@ private:
 	void setJsonNode(
 		ASTNode const& _node,
 		std::string const& _nodeName,
-		std::initializer_list<std::pair<std::string, Json::Value>>&& _attributes
+		std::initializer_list<std::pair<std::string, Json>>&& _attributes
 	);
 	void setJsonNode(
 		ASTNode const& _node,
 		std::string const& _nodeName,
-		std::vector<std::pair<std::string, Json::Value>>&& _attributes
+		std::vector<std::pair<std::string, Json>>&& _attributes
 	);
 	std::string sourceLocationToString(SourceLocation const& _location) const;
 	static std::string namePathToString(std::vector<ASTString> const& _namePath);
-	static Json::Value idOrNull(ASTNode const* _pt)
+	static Json idOrNull(ASTNode const* _pt)
 	{
-		return _pt ? Json::Value(nodeId(*_pt)) : Json::nullValue;
+		return _pt ? Json(nodeId(*_pt)) : Json(nullptr);
 	}
-	Json::Value toJsonOrNull(ASTNode const* _node)
+	Json toJsonOrNull(ASTNode const* _node)
 	{
-		return _node ? toJson(*_node) : Json::nullValue;
+		return _node ? toJson(*_node) : Json(nullptr);
 	}
-	Json::Value inlineAssemblyIdentifierToJson(std::pair<assembly::Identifier const* , InlineAssemblyAnnotation::ExternalIdentifierInfo> _info) const;
+	Json inlineAssemblyIdentifierToJson(std::pair<assembly::Identifier const* , InlineAssemblyAnnotation::ExternalIdentifierInfo> _info) const;
 	static std::string location(VariableDeclaration::Location _location);
 	static std::string contractKind(ContractDefinition::ContractKind _kind);
 	static std::string functionCallKind(FunctionCallKind _kind);
 	static std::string literalTokenKind(Token::Value _token);
 	static std::string type(Expression const& _expression);
 	static std::string type(VariableDeclaration const& _varDecl);
-	static int nodeId(ASTNode const& _node)
+	static size_t nodeId(ASTNode const& _node)
 	{
 		return _node.id();
 	}
 	template<class Container>
-	static Json::Value getContainerIds(Container const& container)
+	static Json getContainerIds(Container const& container)
 	{
-		Json::Value tmp(Json::arrayValue);
+		Json tmp = Json::array();
 		for (auto const& element: container)
 		{
 			solAssert(element, "");
-			tmp.append(nodeId(*element));
+			tmp.emplace_back(nodeId(*element));
 		}
 		return tmp;
 	}
-	static Json::Value typePointerToJson(TypePointer _tp, bool _short = false);
-	static Json::Value typePointerToJson(std::shared_ptr<std::vector<TypePointer>> _tps);
+	static Json typePointerToJson(TypePointer _tp, bool _short = false);
+	static Json typePointerToJson(std::shared_ptr<std::vector<TypePointer>> _tps);
 	void appendExpressionAttributes(
-		std::vector<std::pair<std::string, Json::Value>> &_attributes,
+		std::vector<std::pair<std::string, Json>> &_attributes,
 		ExpressionAnnotation const& _annotation
 	);
-	static void appendMove(Json::Value& _array, Json::Value&& _value)
+	static void appendMove(Json& _array, Json&& _value)
 	{
-		solAssert(_array.isArray(), "");
-		_array.append(std::move(_value));
+		solAssert(_array.is_array(), "");
+		_array.emplace_back(std::move(_value));
 	}
 
 	bool m_legacy = false; ///< if true, use legacy format
 	bool m_inEvent = false; ///< whether we are currently inside an event or not
-	Json::Value m_currentValue;
+	Json m_currentValue;
 	std::map<std::string, unsigned> m_sourceIndices;
 };
 

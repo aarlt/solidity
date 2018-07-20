@@ -73,41 +73,41 @@ ReadCallback::Callback wrapReadCallback(CStyleReadFileCallback _readCallback = n
 }
 
 /// Translates a gas value as a string to a JSON number or null
-Json::Value gasToJson(Json::Value const& _value)
+Json gasToJson(Json const& _value)
 {
-	if (_value.isObject())
+	if (_value.is_object())
 	{
-		Json::Value ret = Json::objectValue;
-		for (auto const& sig: _value.getMemberNames())
-			ret[sig] = gasToJson(_value[sig]);
+		Json ret = Json::object();
+		for (auto const& sig: _value.items())
+			ret[sig.key()] = gasToJson(_value[sig.key()]);
 		return ret;
 	}
 
 	if (_value == "infinite")
-		return Json::Value(Json::nullValue);
+		return Json(nullptr);
 
-	u256 value(_value.asString());
-	if (value > std::numeric_limits<Json::LargestUInt>::max())
-		return Json::Value(Json::nullValue);
+	u256 value(_value.get<string>());
+	if (value > std::numeric_limits<Json::number_integer_t>::max())
+		return Json(nullptr);
 	else
-		return Json::Value(Json::LargestUInt(value));
+		return Json(static_cast<Json::number_integer_t>(value));
 }
 
-Json::Value translateGasEstimates(Json::Value const& estimates)
+Json translateGasEstimates(Json const& estimates)
 {
-	Json::Value output(Json::objectValue);
+	Json output(Json::object());
 
-	if (estimates["creation"].isObject())
+	if (estimates["creation"].is_object())
 	{
-		Json::Value creation(Json::arrayValue);
+		Json creation(Json::array());
 		creation[0] = gasToJson(estimates["creation"]["executionCost"]);
 		creation[1] = gasToJson(estimates["creation"]["codeDepositCost"]);
 		output["creation"] = creation;
 	}
 	else
-		output["creation"] = Json::objectValue;
-	output["external"] = gasToJson(estimates.get("external", Json::objectValue));
-	output["internal"] = gasToJson(estimates.get("internal", Json::objectValue));
+		output["creation"] = Json::object();
+	output["external"] = gasToJson(estimates.value("external", Json::object()));
+	output["internal"] = gasToJson(estimates.value("internal", Json::object()));
 
 	return output;
 }
@@ -115,16 +115,16 @@ Json::Value translateGasEstimates(Json::Value const& estimates)
 string compile(StringMap const& _sources, bool _optimize, CStyleReadFileCallback _readCallback)
 {
 	/// create new JSON input format
-	Json::Value input = Json::objectValue;
+	Json input = Json::object();
 	input["language"] = "Solidity";
-	input["sources"] = Json::objectValue;
+	input["sources"] = Json::object();
 	for (auto const& source: _sources)
 	{
-		input["sources"][source.first] = Json::objectValue;
+		input["sources"][source.first] = Json::object();
 		input["sources"][source.first]["content"] = source.second;
 	}
-	input["settings"] = Json::objectValue;
-	input["settings"]["optimizer"] = Json::objectValue;
+	input["settings"] = Json::object();
+	input["settings"]["optimizer"] = Json::object();
 	input["settings"]["optimizer"]["enabled"] = _optimize;
 	input["settings"]["optimizer"]["runs"] = 200;
 
@@ -134,7 +134,7 @@ string compile(StringMap const& _sources, bool _optimize, CStyleReadFileCallback
 	input["settings"]["outputSelection"]["*"]["*"][0] = "*";
 
 	StandardCompiler compiler(wrapReadCallback(_readCallback));
-	Json::Value ret = compiler.compile(input);
+	Json ret = compiler.compile(input);
 
 	/// transform JSON to match the old format
 	// {
@@ -170,39 +170,39 @@ string compile(StringMap const& _sources, bool _optimize, CStyleReadFileCallback
 	//     }
 	//   }
 	// }
-	Json::Value output = Json::objectValue;
+	Json output = Json::object();
 
-	if (ret.isMember("errors"))
+	if (ret.find("errors") != ret.end())
 	{
-		output["errors"] = Json::arrayValue;
+		output["errors"] = Json::array();
 		for (auto const& error: ret["errors"])
-			output["errors"].append(
+			output["errors"].emplace_back(
 				!error["formattedMessage"].empty() ? error["formattedMessage"] : error["message"]
 			);
 	}
 
-	output["sourceList"] = Json::arrayValue;
+	output["sourceList"] = Json::array();
 	for (auto const& source: _sources)
-		output["sourceList"].append(source.first);
+		output["sourceList"].emplace_back(source.first);
 
-	if (ret.isMember("sources"))
+	if (ret.find("sources") != ret.end())
 	{
-		output["sources"] = Json::objectValue;
-		for (auto const& sourceName: ret["sources"].getMemberNames())
+		output["sources"] = Json::object();
+		for (auto const& sourceName: ret["sources"].items())
 		{
-			output["sources"][sourceName] = Json::objectValue;
-			output["sources"][sourceName]["AST"] = ret["sources"][sourceName]["legacyAST"];
+			output["sources"][sourceName.key()] = Json::object();
+			output["sources"][sourceName.key()]["AST"] = ret["sources"][sourceName.key()]["legacyAST"];
 		}
 	}
 
-	if (ret.isMember("contracts"))
+	if (ret.find("contracts") != ret.end())
 	{
-		output["contracts"] = Json::objectValue;
-		for (auto const& sourceName: ret["contracts"].getMemberNames())
-			for (auto const& contractName: ret["contracts"][sourceName].getMemberNames())
+		output["contracts"] = Json::object();
+		for (auto const& sourceName: ret["contracts"].items())
+			for (auto const& contractName: ret["contracts"][sourceName.key()].items())
 			{
-				Json::Value contractInput = ret["contracts"][sourceName][contractName];
-				Json::Value contractOutput = Json::objectValue;
+				Json contractInput = ret["contracts"][sourceName.key()][contractName.key()];
+				Json contractOutput = Json::object();
 				contractOutput["interface"] = jsonCompactPrint(contractInput["abi"]);
 				contractOutput["metadata"] = contractInput["metadata"];
 				contractOutput["functionHashes"] = contractInput["evm"]["methodIdentifiers"];
@@ -213,7 +213,7 @@ string compile(StringMap const& _sources, bool _optimize, CStyleReadFileCallback
 				contractOutput["srcmap"] = contractInput["evm"]["bytecode"]["sourceMap"];
 				contractOutput["runtimeBytecode"] = contractInput["evm"]["deployedBytecode"]["object"];
 				contractOutput["srcmapRuntime"] = contractInput["evm"]["deployedBytecode"]["sourceMap"];
-				output["contracts"][sourceName + ":" + contractName] = contractOutput;
+				output["contracts"][sourceName.key() + ":" + contractName.key()] = contractOutput;
 			}
 	}
 
@@ -230,22 +230,22 @@ string compile(StringMap const& _sources, bool _optimize, CStyleReadFileCallback
 string compileMulti(string const& _input, bool _optimize, CStyleReadFileCallback _readCallback = nullptr)
 {
 	string errors;
-	Json::Value input;
+	Json input;
 	if (!jsonParseStrict(_input, input, &errors))
 	{
-		Json::Value jsonErrors(Json::arrayValue);
-		jsonErrors.append("Error parsing input JSON: " + errors);
-		Json::Value output(Json::objectValue);
+		Json jsonErrors(Json::array());
+		jsonErrors.emplace_back("Error parsing input JSON: " + errors);
+		Json output(Json::object());
 		output["errors"] = jsonErrors;
 		return jsonCompactPrint(output);
 	}
 	else
 	{
 		StringMap sources;
-		Json::Value jsonSources = input["sources"];
-		if (jsonSources.isObject())
-			for (auto const& sourceName: jsonSources.getMemberNames())
-				sources[sourceName] = jsonSources[sourceName].asString();
+		Json jsonSources = input["sources"];
+		if (jsonSources.is_object())
+			for (auto const& sourceName: jsonSources.items())
+				sources[sourceName.key()] = jsonSources[sourceName.key()].get<string>();
 		return compile(sources, _optimize, _readCallback);
 	}
 }

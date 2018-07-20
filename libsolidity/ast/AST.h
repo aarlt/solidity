@@ -22,7 +22,6 @@
 
 #pragma once
 
-
 #include <libsolidity/ast/ASTForward.h>
 #include <libsolidity/parsing/Token.h>
 #include <libsolidity/ast/Types.h>
@@ -33,7 +32,7 @@
 #include <libevmasm/Instruction.h>
 
 #include <libdevcore/FixedHash.h>
-#include <json/json.h>
+#include <libdevcore/JSON.h>
 
 #include <boost/noncopyable.hpp>
 

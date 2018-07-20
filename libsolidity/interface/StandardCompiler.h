@@ -47,13 +47,13 @@ public:
 
 	/// Sets all input parameters according to @a _input which conforms to the standardized input
 	/// format, performs compilation and returns a standardized output.
-	Json::Value compile(Json::Value const& _input);
+	Json compile(Json const& _input);
 	/// Parses input as JSON and peforms the above processing steps, returning a serialized JSON
 	/// output. Parsing errors are returned as regular errors.
 	std::string compile(std::string const& _input);
 
 private:
-	Json::Value compileInternal(Json::Value const& _input);
+	Json compileInternal(Json const& _input);
 
 	CompilerStack m_compilerStack;
 	ReadCallback::Callback m_readFile;

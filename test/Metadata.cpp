@@ -49,26 +49,26 @@ string bytecodeSansMetadata(string const& _bytecode)
 
 bool isValidMetadata(string const& _metadata)
 {
-	Json::Value metadata;
+	Json metadata;
 	if (!jsonParseStrict(_metadata, metadata))
 		return false;
 
 	if (
-		!metadata.isObject() ||
-		!metadata.isMember("version") ||
-		!metadata.isMember("language") ||
-		!metadata.isMember("compiler") ||
-		!metadata.isMember("settings") ||
-		!metadata.isMember("sources") ||
-		!metadata.isMember("output") ||
-		!metadata["settings"].isMember("evmVersion")
+		!metadata.is_object() ||
+		metadata.find("version") == metadata.end() ||
+		metadata.find("language") == metadata.end() ||
+		metadata.find("compiler") == metadata.end() ||
+		metadata.find("settings") == metadata.end() ||
+		metadata.find("sources") == metadata.end() ||
+		metadata.find("output") == metadata.end() ||
+		metadata["settings"].find("evmVersion") == metadata["settings"].end()
 	)
 		return false;
 
-	if (!metadata["version"].isNumeric() || metadata["version"] != 1)
+	if (!metadata["version"].is_number() || metadata["version"] != 1)
 		return false;
 
-	if (!metadata["language"].isString() || metadata["language"].asString() != "Solidity")
+	if (!metadata["language"].is_string() || metadata["language"].get<string>() != "Solidity")
 		return false;
 
 	/// @TODO add more strict checks

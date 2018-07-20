@@ -50,8 +50,6 @@
 #include <libdevcore/SwarmHash.h>
 #include <libdevcore/JSON.h>
 
-#include <json/json.h>
-
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
@@ -412,13 +410,13 @@ string CompilerStack::assemblyString(string const& _contractName, StringMap _sou
 }
 
 /// FIXME: cache the JSON
-Json::Value CompilerStack::assemblyJSON(string const& _contractName, StringMap _sourceCodes) const
+Json CompilerStack::assemblyJSON(string const& _contractName, StringMap _sourceCodes) const
 {
 	Contract const& currentContract = contract(_contractName);
 	if (currentContract.compiler)
 		return currentContract.compiler->assemblyJSON(_sourceCodes);
 	else
-		return Json::Value();
+		return Json();
 }
 
 vector<string> CompilerStack::sourceNames() const
@@ -438,12 +436,12 @@ map<string, unsigned> CompilerStack::sourceIndices() const
 	return indices;
 }
 
-Json::Value const& CompilerStack::contractABI(string const& _contractName) const
+Json const& CompilerStack::contractABI(string const& _contractName) const
 {
 	return contractABI(contract(_contractName));
 }
 
-Json::Value const& CompilerStack::contractABI(Contract const& _contract) const
+Json const& CompilerStack::contractABI(Contract const& _contract) const
 {
 	if (m_stackState < AnalysisSuccessful)
 		BOOST_THROW_EXCEPTION(CompilerError() << errinfo_comment("Parsing was not successful."));
@@ -452,17 +450,17 @@ Json::Value const& CompilerStack::contractABI(Contract const& _contract) const
 
 	// caches the result
 	if (!_contract.abi)
-		_contract.abi.reset(new Json::Value(ABI::generate(*_contract.contract)));
+		_contract.abi.reset(new Json(ABI::generate(*_contract.contract)));
 
 	return *_contract.abi;
 }
 
-Json::Value const& CompilerStack::natspecUser(string const& _contractName) const
+Json const& CompilerStack::natspecUser(string const& _contractName) const
 {
 	return natspecUser(contract(_contractName));
 }
 
-Json::Value const& CompilerStack::natspecUser(Contract const& _contract) const
+Json const& CompilerStack::natspecUser(Contract const& _contract) const
 {
 	if (m_stackState < AnalysisSuccessful)
 		BOOST_THROW_EXCEPTION(CompilerError() << errinfo_comment("Parsing was not successful."));
@@ -471,17 +469,17 @@ Json::Value const& CompilerStack::natspecUser(Contract const& _contract) const
 
 	// caches the result
 	if (!_contract.userDocumentation)
-		_contract.userDocumentation.reset(new Json::Value(Natspec::userDocumentation(*_contract.contract)));
+		_contract.userDocumentation.reset(new Json(Natspec::userDocumentation(*_contract.contract)));
 
 	return *_contract.userDocumentation;
 }
 
-Json::Value const& CompilerStack::natspecDev(string const& _contractName) const
+Json const& CompilerStack::natspecDev(string const& _contractName) const
 {
 	return natspecDev(contract(_contractName));
 }
 
-Json::Value const& CompilerStack::natspecDev(Contract const& _contract) const
+Json const& CompilerStack::natspecDev(Contract const& _contract) const
 {
 	if (m_stackState < AnalysisSuccessful)
 		BOOST_THROW_EXCEPTION(CompilerError() << errinfo_comment("Parsing was not successful."));
@@ -490,14 +488,14 @@ Json::Value const& CompilerStack::natspecDev(Contract const& _contract) const
 
 	// caches the result
 	if (!_contract.devDocumentation)
-		_contract.devDocumentation.reset(new Json::Value(Natspec::devDocumentation(*_contract.contract)));
+		_contract.devDocumentation.reset(new Json(Natspec::devDocumentation(*_contract.contract)));
 
 	return *_contract.devDocumentation;
 }
 
-Json::Value CompilerStack::methodIdentifiers(string const& _contractName) const
+Json CompilerStack::methodIdentifiers(string const& _contractName) const
 {
-	Json::Value methodIdentifiers(Json::objectValue);
+	Json methodIdentifiers(Json::object());
 	for (auto const& it: contractDefinition(_contractName).interfaceFunctions())
 		methodIdentifiers[it.second->externalSignature()] = toHex(it.first.ref());
 	return methodIdentifiers;
@@ -840,7 +838,7 @@ CompilerStack::Source const& CompilerStack::source(string const& _sourceName) co
 
 string CompilerStack::createMetadata(Contract const& _contract) const
 {
-	Json::Value meta;
+	Json meta;
 	meta["version"] = 1;
 	meta["language"] = "Solidity";
 	meta["compiler"]["version"] = VersionStringStrict;
@@ -851,7 +849,7 @@ string CompilerStack::createMetadata(Contract const& _contract) const
 	for (auto const sourceUnit: _contract.contract->sourceUnit().referencedSourceUnits(true))
 		referencedSources.insert(sourceUnit->annotation().path);
 
-	meta["sources"] = Json::objectValue;
+	meta["sources"] = Json::object();
 	for (auto const& s: m_sources)
 	{
 		if (!referencedSources.count(s.first))
@@ -864,8 +862,8 @@ string CompilerStack::createMetadata(Contract const& _contract) const
 			meta["sources"][s.first]["content"] = s.second.scanner->source();
 		else
 		{
-			meta["sources"][s.first]["urls"] = Json::arrayValue;
-			meta["sources"][s.first]["urls"].append(
+			meta["sources"][s.first]["urls"] = Json::array();
+			meta["sources"][s.first]["urls"].emplace_back(
 				"bzzr://" + toHex(dev::swarmHash(s.second.scanner->source()).asBytes())
 			);
 		}
@@ -876,14 +874,14 @@ string CompilerStack::createMetadata(Contract const& _contract) const
 	meta["settings"]["compilationTarget"][_contract.contract->sourceUnitName()] =
 		_contract.contract->annotation().canonicalName;
 
-	meta["settings"]["remappings"] = Json::arrayValue;
+	meta["settings"]["remappings"] = Json::array();
 	set<string> remappings;
 	for (auto const& r: m_remappings)
 		remappings.insert(r.context + ":" + r.prefix + "=" + r.target);
 	for (auto const& r: remappings)
-		meta["settings"]["remappings"].append(r);
+		meta["settings"]["remappings"].emplace_back(r);
 
-	meta["settings"]["libraries"] = Json::objectValue;
+	meta["settings"]["libraries"] = Json::object();
 	for (auto const& library: m_libraries)
 		meta["settings"]["libraries"][library.first] = "0x" + toHex(library.second.asBytes());
 
@@ -970,24 +968,24 @@ string CompilerStack::computeSourceMapping(eth::AssemblyItems const& _items) con
 namespace
 {
 
-Json::Value gasToJson(GasEstimator::GasConsumption const& _gas)
+Json gasToJson(GasEstimator::GasConsumption const& _gas)
 {
 	if (_gas.isInfinite)
-		return Json::Value("infinite");
+		return Json("infinite");
 	else
-		return Json::Value(toString(_gas.value));
+		return Json(_gas.value.str());
 }
 
 }
 
-Json::Value CompilerStack::gasEstimates(string const& _contractName) const
+Json CompilerStack::gasEstimates(string const& _contractName) const
 {
 	if (!assemblyItems(_contractName) && !runtimeAssemblyItems(_contractName))
-		return Json::Value();
+		return Json();
 
 	using Gas = GasEstimator::GasConsumption;
 	GasEstimator gasEstimator(m_evmVersion);
-	Json::Value output(Json::objectValue);
+	Json output(Json::object());
 
 	if (eth::AssemblyItems const* items = assemblyItems(_contractName))
 	{
@@ -995,7 +993,7 @@ Json::Value CompilerStack::gasEstimates(string const& _contractName) const
 		u256 bytecodeSize(runtimeObject(_contractName).bytecode.size());
 		Gas codeDepositGas = bytecodeSize * eth::GasCosts::createDataGas;
 
-		Json::Value creation(Json::objectValue);
+		Json creation(Json::object());
 		creation["codeDepositCost"] = gasToJson(codeDepositGas);
 		creation["executionCost"] = gasToJson(executionGas);
 		/// TODO: implement + overload to avoid the need of +=
@@ -1008,7 +1006,7 @@ Json::Value CompilerStack::gasEstimates(string const& _contractName) const
 	{
 		/// External functions
 		ContractDefinition const& contract = contractDefinition(_contractName);
-		Json::Value externalFunctions(Json::objectValue);
+		Json externalFunctions(Json::object());
 		for (auto it: contract.interfaceFunctions())
 		{
 			string sig = it.second->externalSignature();
@@ -1025,7 +1023,7 @@ Json::Value CompilerStack::gasEstimates(string const& _contractName) const
 			output["external"] = externalFunctions;
 
 		/// Internal functions
-		Json::Value internalFunctions(Json::objectValue);
+		Json internalFunctions(Json::object());
 		for (auto const& it: contract.definedFunctions())
 		{
 			/// Exclude externally visible functions, constructor and the fallback function

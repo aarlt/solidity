@@ -30,7 +30,6 @@
 #include <libevmasm/GasMeter.h>
 
 #include <fstream>
-#include <json/json.h>
 
 using namespace std;
 using namespace dev;
@@ -217,9 +216,9 @@ string Assembly::assemblyString(StringMap const& _sourceCodes) const
 	return tmp.str();
 }
 
-Json::Value Assembly::createJsonValue(string _name, int _begin, int _end, string _value, string _jumpType)
+Json Assembly::createJsonValue(string _name, int _begin, int _end, string _value, string _jumpType)
 {
-	Json::Value value;
+	Json value;
 	value["name"] = _name;
 	value["begin"] = _begin;
 	value["end"] = _end;
@@ -237,65 +236,65 @@ string Assembly::toStringInHex(u256 _value)
 	return hexStr.str();
 }
 
-Json::Value Assembly::assemblyJSON(StringMap const& _sourceCodes) const
+Json Assembly::assemblyJSON(StringMap const& _sourceCodes) const
 {
-	Json::Value root;
+	Json root;
 
-	Json::Value& collection = root[".code"] = Json::arrayValue;
+	Json& collection = root[".code"];
 	for (AssemblyItem const& i: m_items)
 	{
 		switch (i.type())
 		{
 		case Operation:
-			collection.append(
+			collection.emplace_back(
 				createJsonValue(instructionInfo(i.instruction()).name, i.location().start, i.location().end, i.getJumpTypeAsString()));
 			break;
 		case Push:
-			collection.append(
+			collection.emplace_back(
 				createJsonValue("PUSH", i.location().start, i.location().end, toStringInHex(i.data()), i.getJumpTypeAsString()));
 			break;
 		case PushString:
-			collection.append(
+			collection.emplace_back(
 				createJsonValue("PUSH tag", i.location().start, i.location().end, m_strings.at((h256)i.data())));
 			break;
 		case PushTag:
 			if (i.data() == 0)
-				collection.append(
+				collection.emplace_back(
 					createJsonValue("PUSH [ErrorTag]", i.location().start, i.location().end, ""));
 			else
-				collection.append(
+				collection.emplace_back(
 					createJsonValue("PUSH [tag]", i.location().start, i.location().end, string(i.data())));
 			break;
 		case PushSub:
-			collection.append(
+			collection.emplace_back(
 				createJsonValue("PUSH [$]", i.location().start, i.location().end, dev::toString(h256(i.data()))));
 			break;
 		case PushSubSize:
-			collection.append(
+			collection.emplace_back(
 				createJsonValue("PUSH #[$]", i.location().start, i.location().end, dev::toString(h256(i.data()))));
 			break;
 		case PushProgramSize:
-			collection.append(
+			collection.emplace_back(
 				createJsonValue("PUSHSIZE", i.location().start, i.location().end));
 			break;
 		case PushLibraryAddress:
-			collection.append(
+			collection.emplace_back(
 				createJsonValue("PUSHLIB", i.location().start, i.location().end, m_libraries.at(h256(i.data())))
 			);
 			break;
 		case PushDeployTimeAddress:
-			collection.append(
+			collection.emplace_back(
 				createJsonValue("PUSHDEPLOYADDRESS", i.location().start, i.location().end)
 			);
 			break;
 		case Tag:
-			collection.append(
+			collection.emplace_back(
 				createJsonValue("tag", i.location().start, i.location().end, string(i.data())));
-			collection.append(
+			collection.emplace_back(
 				createJsonValue("JUMPDEST", i.location().start, i.location().end));
 			break;
 		case PushData:
-			collection.append(createJsonValue("PUSH data", i.location().start, i.location().end, toStringInHex(i.data())));
+			collection.emplace_back(createJsonValue("PUSH data", i.location().start, i.location().end, toStringInHex(i.data())));
 			break;
 		default:
 			BOOST_THROW_EXCEPTION(InvalidOpcode());
@@ -304,7 +303,7 @@ Json::Value Assembly::assemblyJSON(StringMap const& _sourceCodes) const
 
 	if (!m_data.empty() || !m_subs.empty())
 	{
-		Json::Value& data = root[".data"] = Json::objectValue;
+		Json& data = root[".data"];
 		for (auto const& i: m_data)
 			if (u256(i.first) >= m_subs.size())
 				data[toStringInHex((u256)i.first)] = toHex(i.second);

@@ -28,8 +28,7 @@
 #include <libdevcore/Common.h>
 #include <libdevcore/Assertions.h>
 #include <libdevcore/SHA3.h>
-
-#include <json/json.h>
+#include <libdevcore/JSON.h>
 
 #include <iostream>
 #include <sstream>
@@ -136,7 +135,7 @@ public:
 	) const;
 
 	/// Create a JSON representation of the assembly.
-	Json::Value assemblyJSON(
+	Json assemblyJSON(
 		StringMap const& _sourceCodes = StringMap()
 	) const;
 
@@ -149,7 +148,7 @@ protected:
 	unsigned bytesRequired(unsigned subTagSize) const;
 
 private:
-	static Json::Value createJsonValue(std::string _name, int _begin, int _end, std::string _value = std::string(), std::string _jumpType = std::string());
+	static Json createJsonValue(std::string _name, int _begin, int _end, std::string _value = std::string(), std::string _jumpType = std::string());
 	static std::string toStringInHex(u256 _value);
 
 protected:

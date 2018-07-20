@@ -287,10 +287,10 @@ void CommandLineInterface::handleSignatureHashes(string const& _contract)
 	if (!m_args.count(g_argSignatureHashes))
 		return;
 
-	Json::Value methodIdentifiers = m_compiler->methodIdentifiers(_contract);
+	Json methodIdentifiers = m_compiler->methodIdentifiers(_contract);
 	string out;
-	for (auto const& name: methodIdentifiers.getMemberNames())
-		out += methodIdentifiers[name].asString() + ": " + name + "\n";
+	for (auto const& name: methodIdentifiers.items())
+		out += methodIdentifiers[name.key()].get<string>() + ": " + name.key() + "\n";
 
 	if (m_args.count(g_argOutputDir))
 		createFile(m_compiler->filesystemFriendlyName(_contract) + ".signatures", out);
@@ -362,47 +362,47 @@ void CommandLineInterface::handleNatspec(bool _natspecDev, string const& _contra
 
 void CommandLineInterface::handleGasEstimation(string const& _contract)
 {
-	Json::Value estimates = m_compiler->gasEstimates(_contract);
+	Json estimates = m_compiler->gasEstimates(_contract);
 	cout << "Gas estimation:" << endl;
 
-	if (estimates["creation"].isObject())
+	if (estimates["creation"].is_object())
 	{
-		Json::Value creation = estimates["creation"];
+		Json creation = estimates["creation"];
 		cout << "construction:" << endl;
-		cout << "   " << creation["executionCost"].asString();
-		cout << " + " << creation["codeDepositCost"].asString();
-		cout << " = " << creation["totalCost"].asString() << endl;
+		cout << "   " << creation["executionCost"].get<string>();
+		cout << " + " << creation["codeDepositCost"].get<string>();
+		cout << " = " << creation["totalCost"].get<string>() << endl;
 	}
 
-	if (estimates["external"].isObject())
+	if (estimates["external"].is_object())
 	{
-		Json::Value externalFunctions = estimates["external"];
+		Json externalFunctions = estimates["external"];
 		cout << "external:" << endl;
-		for (auto const& name: externalFunctions.getMemberNames())
+		for (auto const& name: externalFunctions.items())
 		{
-			if (name.empty())
+			if (name.key().empty())
 				cout << "   fallback:\t";
 			else
-				cout << "   " << name << ":\t";
-			cout << externalFunctions[name].asString() << endl;
+				cout << "   " << name.key() << ":\t";
+			cout << externalFunctions[name.key()].get<string>() << endl;
 		}
 	}
 
-	if (estimates["internal"].isObject())
+	if (estimates["internal"].is_object())
 	{
-		Json::Value internalFunctions = estimates["internal"];
+		Json internalFunctions = estimates["internal"];
 		cout << "internal:" << endl;
-		for (auto const& name: internalFunctions.getMemberNames())
+		for (auto const& name: internalFunctions.items())
 		{
-			cout << "   " << name << ":\t";
-			cout << internalFunctions[name].asString() << endl;
+			cout << "   " << name.key() << ":\t";
+			cout << internalFunctions[name.key()].get<string>() << endl;
 		}
 	}
 }
 
 bool CommandLineInterface::readInputFilesAndConfigureRemappings()
 {
-	bool ignoreMissing = m_args.count(g_argIgnoreMissingFiles);
+	bool ignoreMissing = m_args.count(g_argIgnoreMissingFiles) > 0;
 	bool addStdin = false;
 	if (m_args.count(g_argInputFile))
 		for (string path: m_args[g_argInputFile].as<vector<string>>())
@@ -894,7 +894,7 @@ void CommandLineInterface::handleCombinedJSON()
 	if (!m_args.count(g_argCombinedJson))
 		return;
 
-	Json::Value output(Json::objectValue);
+	Json output(Json::object());
 
 	output[g_strVersion] = ::dev::solidity::VersionString;
 	set<string> requests;
@@ -902,10 +902,10 @@ void CommandLineInterface::handleCombinedJSON()
 	vector<string> contracts = m_compiler->contractNames();
 
 	if (!contracts.empty())
-		output[g_strContracts] = Json::Value(Json::objectValue);
+		output[g_strContracts] = Json(Json::object());
 	for (string const& contractName: contracts)
 	{
-		Json::Value& contractData = output[g_strContracts][contractName] = Json::objectValue;
+		Json& contractData = output[g_strContracts][contractName] = Json::object();
 		if (requests.count(g_strAbi))
 			contractData[g_strAbi] = dev::jsonCompactPrint(m_compiler->contractABI(contractName));
 		if (requests.count("metadata"))
@@ -942,20 +942,20 @@ void CommandLineInterface::handleCombinedJSON()
 	if (needsSourceList)
 	{
 		// Indices into this array are used to abbreviate source names in source locations.
-		output[g_strSourceList] = Json::Value(Json::arrayValue);
+		output[g_strSourceList] = Json(Json::array());
 
 		for (auto const& source: m_compiler->sourceNames())
-			output[g_strSourceList].append(source);
+			output[g_strSourceList].emplace_back(source);
 	}
 
 	if (requests.count(g_strAst))
 	{
 		bool legacyFormat = !requests.count(g_strCompactJSON);
-		output[g_strSources] = Json::Value(Json::objectValue);
+		output[g_strSources] = Json(Json::object());
 		for (auto const& sourceCode: m_sourceCodes)
 		{
 			ASTJsonConverter converter(legacyFormat, m_compiler->sourceIndices());
-			output[g_strSources][sourceCode.first] = Json::Value(Json::objectValue);
+			output[g_strSources][sourceCode.first] = Json(Json::object());
 			output[g_strSources][sourceCode.first]["AST"] = converter.toJson(m_compiler->ast(sourceCode.first));
 		}
 	}

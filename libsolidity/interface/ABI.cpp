@@ -25,15 +25,15 @@ using namespace std;
 using namespace dev;
 using namespace dev::solidity;
 
-Json::Value ABI::generate(ContractDefinition const& _contractDef)
+Json ABI::generate(ContractDefinition const& _contractDef)
 {
-	Json::Value abi(Json::arrayValue);
+	Json abi(Json::array());
 
 	for (auto it: _contractDef.interfaceFunctions())
 	{
 		auto externalFunctionType = it.second->interfaceFunctionType();
 		solAssert(!!externalFunctionType, "");
-		Json::Value method;
+		Json method;
 		method["type"] = "function";
 		method["name"] = it.second->declaration().name();
 		// TODO: deprecate constant in a future release
@@ -50,13 +50,13 @@ Json::Value ABI::generate(ContractDefinition const& _contractDef)
 			externalFunctionType->returnParameterTypes(),
 			_contractDef.isLibrary()
 		);
-		abi.append(method);
+		abi.emplace_back(method);
 	}
 	if (_contractDef.constructor())
 	{
 		auto externalFunctionType = FunctionType(*_contractDef.constructor(), false).interfaceFunctionType();
 		solAssert(!!externalFunctionType, "");
-		Json::Value method;
+		Json method;
 		method["type"] = "constructor";
 		method["payable"] = externalFunctionType->isPayable();
 		method["stateMutability"] = stateMutabilityToString(externalFunctionType->stateMutability());
@@ -65,60 +65,60 @@ Json::Value ABI::generate(ContractDefinition const& _contractDef)
 			externalFunctionType->parameterTypes(),
 			_contractDef.isLibrary()
 		);
-		abi.append(method);
+		abi.emplace_back(method);
 	}
 	if (_contractDef.fallbackFunction())
 	{
 		auto externalFunctionType = FunctionType(*_contractDef.fallbackFunction(), false).interfaceFunctionType();
 		solAssert(!!externalFunctionType, "");
-		Json::Value method;
+		Json method;
 		method["type"] = "fallback";
 		method["payable"] = externalFunctionType->isPayable();
 		method["stateMutability"] = stateMutabilityToString(externalFunctionType->stateMutability());
-		abi.append(method);
+		abi.emplace_back(method);
 	}
 	for (auto const& it: _contractDef.interfaceEvents())
 	{
-		Json::Value event;
+		Json event;
 		event["type"] = "event";
 		event["name"] = it->name();
 		event["anonymous"] = it->isAnonymous();
-		Json::Value params(Json::arrayValue);
+		Json params(Json::array());
 		for (auto const& p: it->parameters())
 		{
 			auto type = p->annotation().type->interfaceType(false);
 			solAssert(type, "");
-			Json::Value input;
+			Json input;
 			auto param = formatType(p->name(), *type, false);
 			param["indexed"] = p->isIndexed();
-			params.append(param);
+			params.emplace_back(param);
 		}
 		event["inputs"] = params;
-		abi.append(event);
+		abi.emplace_back(event);
 	}
 
 	return abi;
 }
 
-Json::Value ABI::formatTypeList(
+Json ABI::formatTypeList(
 	vector<string> const& _names,
 	vector<TypePointer> const& _types,
 	bool _forLibrary
 )
 {
-	Json::Value params(Json::arrayValue);
+	Json params(Json::array());
 	solAssert(_names.size() == _types.size(), "Names and types vector size does not match");
 	for (unsigned i = 0; i < _names.size(); ++i)
 	{
 		solAssert(_types[i], "");
-		params.append(formatType(_names[i], *_types[i], _forLibrary));
+		params.emplace_back(formatType(_names[i], *_types[i], _forLibrary));
 	}
 	return params;
 }
 
-Json::Value ABI::formatType(string const& _name, Type const& _type, bool _forLibrary)
+Json ABI::formatType(string const& _name, Type const& _type, bool _forLibrary)
 {
-	Json::Value ret;
+	Json ret;
 	ret["name"] = _name;
 	string suffix = (_forLibrary && _type.dataStoredIn(DataLocation::Storage)) ? " storage" : "";
 	if (_type.isValueType() || (_forLibrary && _type.dataStoredIn(DataLocation::Storage)))
@@ -135,26 +135,26 @@ Json::Value ABI::formatType(string const& _name, Type const& _type, bool _forLib
 			else
 				suffix = string("[") + arrayType->length().str() + "]";
 			solAssert(arrayType->baseType(), "");
-			Json::Value subtype = formatType("", *arrayType->baseType(), _forLibrary);
-			if (subtype.isMember("components"))
+			Json subtype = formatType("", *arrayType->baseType(), _forLibrary);
+			if (subtype.find("components") != subtype.end())
 			{
-				ret["type"] = subtype["type"].asString() + suffix;
+				ret["type"] = subtype["type"].get<string>() + suffix;
 				ret["components"] = subtype["components"];
 			}
 			else
-				ret["type"] = subtype["type"].asString() + suffix;
+				ret["type"] = subtype["type"].get<string>() + suffix;
 		}
 	}
 	else if (StructType const* structType = dynamic_cast<StructType const*>(&_type))
 	{
 		ret["type"] = "tuple";
-		ret["components"] = Json::arrayValue;
+		ret["components"] = Json::array();
 		for (auto const& member: structType->members(nullptr))
 		{
 			solAssert(member.type, "");
 			auto t = member.type->interfaceType(_forLibrary);
 			solAssert(t, "");
-			ret["components"].append(formatType(member.name, *t, _forLibrary));
+			ret["components"].emplace_back(formatType(member.name, *t, _forLibrary));
 		}
 	}
 	else

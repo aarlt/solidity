@@ -27,88 +27,56 @@
 
 using namespace std;
 
-static_assert(
-	(JSONCPP_VERSION_MAJOR == 1) && (JSONCPP_VERSION_MINOR == 8) && (JSONCPP_VERSION_PATCH == 4),
-	"Unexpected jsoncpp version: " JSONCPP_VERSION_STRING ". Expecting 1.8.4."
-);
+namespace dev {
 
-namespace dev
+string jsonPrettyPrint(Json const &_input)
 {
+	return _input.dump(4);
+}
 
-namespace
+string jsonCompactPrint(Json const &_input)
 {
+	return _input.dump(0);
+}
 
-/// StreamWriterBuilder that can be constructed with specific settings
-class StreamWriterBuilder: public Json::StreamWriterBuilder
+bool jsonParseStrict(string const &_input, Json &_json, string *_errs /* = nullptr */)
 {
-public:
-	explicit StreamWriterBuilder(map<string, string> const& _settings)
-	{
-		for (auto const& iter :_settings)
-			this->settings_[iter.first] = iter.second;
+	try {
+		// parsing input with a syntax error
+		_json = Json::parse(_input);
+		return true;
 	}
-};
-
-/// CharReaderBuilder with strict-mode settings
-class StrictModeCharReaderBuilder: public Json::CharReaderBuilder
-{
-public:
-	StrictModeCharReaderBuilder()
-	{
-		Json::CharReaderBuilder::strictMode(&this->settings_);
+	catch (Json::parse_error &e) {
+		/*
+		std::cout << "message: " << e.what() << '\n'
+				  << "exception id: " << e.id << '\n'
+				  << "byte position of error: " << e.byte << std::endl;
+		*/
+		if (_errs) {
+			*_errs = e.what();
+		}
+		return false;
 	}
-};
-
-/// Serialise the JSON object (@a _input) with specific builder (@a _builder)
-/// \param _input JSON input string
-/// \param _builder StreamWriterBuilder that is used to create new Json::StreamWriter
-/// \return serialized json object
-string print(Json::Value const& _input, Json::StreamWriterBuilder const& _builder)
-{
-	stringstream stream;
-	unique_ptr<Json::StreamWriter> writer(_builder.newStreamWriter());
-	writer->write(_input, &stream);
-	return stream.str();
 }
 
-/// Parse a JSON string (@a _input) with specified builder (@ _builder) and writes resulting JSON object to (@a _json)
-/// \param _builder CharReaderBuilder that is used to create new Json::CharReaders
-/// \param _input JSON input string
-/// \param _json [out] resulting JSON object
-/// \param _errs [out] Formatted error messages
-/// \return \c true if the document was successfully parsed, \c false if an error occurred.
-bool parse(Json::CharReaderBuilder& _builder, string const& _input, Json::Value& _json, string* _errs)
+bool jsonParse(string const &_input, Json &_json, string *_errs /* = nullptr */)
 {
-	unique_ptr<Json::CharReader> reader(_builder.newCharReader());
-	return reader->parse(_input.c_str(), _input.c_str() + _input.length(), &_json, _errs);
-}
-
-} // end anonymous namespace
-
-string jsonPrettyPrint(Json::Value const& _input)
-{
-	static map<string, string> settings{{"indentation", "  "}};
-	static StreamWriterBuilder writerBuilder(settings);
-	return print(_input, writerBuilder);
-}
-
-string jsonCompactPrint(Json::Value const& _input)
-{
-	static map<string, string> settings{{"indentation", ""}};
-	static StreamWriterBuilder writerBuilder(settings);
-	return print(_input, writerBuilder);
-}
-
-bool jsonParseStrict(string const& _input, Json::Value& _json, string* _errs /* = nullptr */)
-{
-	static StrictModeCharReaderBuilder readerBuilder;
-	return parse(readerBuilder, _input, _json, _errs);
-}
-
-bool jsonParse(string const& _input, Json::Value& _json, string *_errs /* = nullptr */)
-{
-	static Json::CharReaderBuilder readerBuilder;
-	return parse(readerBuilder, _input, _json, _errs);
+	try {
+		// parsing input with a syntax error
+		_json = Json::parse(_input);
+		return true;
+	}
+	catch (Json::parse_error &e) {
+		/*
+		std::cout << "message: " << e.what() << '\n'
+				  << "exception id: " << e.id << '\n'
+				  << "byte position of error: " << e.byte << std::endl;
+		*/
+		if (_errs) {
+			*_errs = e.what();
+		}
+		return false;
+	}
 }
 
 } // namespace dev

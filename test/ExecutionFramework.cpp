@@ -161,13 +161,13 @@ void ExecutionFramework::sendEther(Address const& _to, u256 const& _value)
 size_t ExecutionFramework::currentTimestamp()
 {
 	auto latestBlock = m_rpc.eth_getBlockByNumber("latest", false);
-	return size_t(u256(latestBlock.get("timestamp", "invalid").asString()));
+	return size_t(u256(latestBlock.value("timestamp", "invalid")));
 }
 
 size_t ExecutionFramework::blockTimestamp(u256 _number)
 {
 	auto latestBlock = m_rpc.eth_getBlockByNumber(toString(_number), false);
-	return size_t(u256(latestBlock.get("timestamp", "invalid").asString()));
+	return size_t(u256(latestBlock.value("timestamp", "invalid")));
 }
 
 Address ExecutionFramework::account(size_t _i)

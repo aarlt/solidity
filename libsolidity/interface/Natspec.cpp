@@ -31,10 +31,10 @@ using namespace std;
 using namespace dev;
 using namespace dev::solidity;
 
-Json::Value Natspec::userDocumentation(ContractDefinition const& _contractDef)
+Json Natspec::userDocumentation(ContractDefinition const& _contractDef)
 {
-	Json::Value doc;
-	Json::Value methods(Json::objectValue);
+	Json doc;
+	Json methods(Json::object());
 
 	for (auto const& it: _contractDef.interfaceFunctions())
 		if (it.second->hasDeclaration())
@@ -43,9 +43,9 @@ Json::Value Natspec::userDocumentation(ContractDefinition const& _contractDef)
 				string value = extractDoc(f->annotation().docTags, "notice");
 				if (!value.empty())
 				{
-					Json::Value user;
+					Json user;
 					// since @notice is the only user tag if missing function should not appear
-					user["notice"] = Json::Value(value);
+					user["notice"] = Json(value);
 					methods[it.second->externalSignature()] = user;
 				}
 			}
@@ -54,10 +54,10 @@ Json::Value Natspec::userDocumentation(ContractDefinition const& _contractDef)
 	return doc;
 }
 
-Json::Value Natspec::devDocumentation(ContractDefinition const& _contractDef)
+Json Natspec::devDocumentation(ContractDefinition const& _contractDef)
 {
-	Json::Value doc;
-	Json::Value methods(Json::objectValue);
+	Json doc;
+	Json methods(Json::object());
 
 	auto author = extractDoc(_contractDef.annotation().docTags, "author");
 	if (!author.empty())
@@ -70,12 +70,12 @@ Json::Value Natspec::devDocumentation(ContractDefinition const& _contractDef)
 	{
 		if (!it.second->hasDeclaration())
 			continue;
-		Json::Value method;
+		Json method;
 		if (auto fun = dynamic_cast<FunctionDefinition const*>(&it.second->declaration()))
 		{
 			auto dev = extractDoc(fun->annotation().docTags, "dev");
 			if (!dev.empty())
-				method["details"] = Json::Value(dev);
+				method["details"] = Json(dev);
 
 			auto author = extractDoc(fun->annotation().docTags, "author");
 			if (!author.empty())
@@ -85,10 +85,10 @@ Json::Value Natspec::devDocumentation(ContractDefinition const& _contractDef)
 			if (!ret.empty())
 				method["return"] = ret;
 
-			Json::Value params(Json::objectValue);
+			Json params(Json::object());
 			auto paramRange = fun->annotation().docTags.equal_range("param");
 			for (auto i = paramRange.first; i != paramRange.second; ++i)
-				params[i->second.paramName] = Json::Value(i->second.content);
+				params[i->second.paramName] = Json(i->second.content);
 
 			if (!params.empty())
 				method["params"] = params;

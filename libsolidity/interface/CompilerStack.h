@@ -32,8 +32,7 @@
 
 #include <libdevcore/Common.h>
 #include <libdevcore/FixedHash.h>
-
-#include <json/json.h>
+#include <libdevcore/JSON.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>
@@ -216,28 +215,28 @@ public:
 	/// @returns a JSON representation of the assembly.
 	/// @arg _sourceCodes is the map of input files to source code strings
 	/// Prerequisite: Successful compilation.
-	Json::Value assemblyJSON(std::string const& _contractName, StringMap _sourceCodes = StringMap()) const;
+	Json assemblyJSON(std::string const& _contractName, StringMap _sourceCodes = StringMap()) const;
 
 	/// @returns a JSON representing the contract ABI.
 	/// Prerequisite: Successful call to parse or compile.
-	Json::Value const& contractABI(std::string const& _contractName) const;
+	Json const& contractABI(std::string const& _contractName) const;
 
 	/// @returns a JSON representing the contract's user documentation.
 	/// Prerequisite: Successful call to parse or compile.
-	Json::Value const& natspecUser(std::string const& _contractName) const;
+	Json const& natspecUser(std::string const& _contractName) const;
 
 	/// @returns a JSON representing the contract's developer documentation.
 	/// Prerequisite: Successful call to parse or compile.
-	Json::Value const& natspecDev(std::string const& _contractName) const;
+	Json const& natspecDev(std::string const& _contractName) const;
 
 	/// @returns a JSON representing a map of method identifiers (hashes) to function names.
-	Json::Value methodIdentifiers(std::string const& _contractName) const;
+	Json methodIdentifiers(std::string const& _contractName) const;
 
 	/// @returns the Contract Metadata
 	std::string const& metadata(std::string const& _contractName) const;
 
 	/// @returns a JSON representing the estimated gas usage for contract creation, internal and external functions
-	Json::Value gasEstimates(std::string const& _contractName) const;
+	Json gasEstimates(std::string const& _contractName) const;
 
 private:
 	/**
@@ -259,9 +258,9 @@ private:
 		eth::LinkerObject runtimeObject;
 		eth::LinkerObject cloneObject;
 		std::string metadata; ///< The metadata json that will be hashed into the chain.
-		mutable std::unique_ptr<Json::Value const> abi;
-		mutable std::unique_ptr<Json::Value const> userDocumentation;
-		mutable std::unique_ptr<Json::Value const> devDocumentation;
+		mutable std::unique_ptr<Json const> abi;
+		mutable std::unique_ptr<Json const> userDocumentation;
+		mutable std::unique_ptr<Json const> devDocumentation;
 		mutable std::unique_ptr<std::string const> sourceMapping;
 		mutable std::unique_ptr<std::string const> runtimeSourceMapping;
 	};
@@ -296,9 +295,9 @@ private:
 
 	std::string createMetadata(Contract const& _contract) const;
 	std::string computeSourceMapping(eth::AssemblyItems const& _items) const;
-	Json::Value const& contractABI(Contract const&) const;
-	Json::Value const& natspecUser(Contract const&) const;
-	Json::Value const& natspecDev(Contract const&) const;
+	Json const& contractABI(Contract const&) const;
+	Json const& natspecUser(Contract const&) const;
+	Json const& natspecDev(Contract const&) const;
 
 	/// @returns the offset of the entry point of the given function into the list of assembly items
 	/// or zero if it is not found or does not exist.
