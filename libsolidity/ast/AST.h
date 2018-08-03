@@ -258,6 +258,26 @@ private:
 };
 
 /**
+ *  AST class for used to store comments (inline documentation).
+ */
+class Comment: public ASTNode
+{
+public:
+	Comment(
+		SourceLocation const& _location,
+		ASTString const& _comment
+	): ASTNode(_location), m_comment(_comment)
+	{}
+
+	ASTString const& comment() const { return m_comment; }
+
+private:
+
+	/// ASTString that stores the actual comment.
+	ASTString m_comment;
+};
+
+/**
  * Import directive for referencing other files / source objects.
  * Example: import "abc.sol" // imports all symbols of "abc.sol" into current scope
  * Source objects are identified by a string which can be a file name but does not have to be.
@@ -323,7 +343,11 @@ class Documented
 {
 public:
 	virtual ~Documented() = default;
-	explicit Documented(ASTPointer<ASTString> const& _documentation): m_documentation(_documentation) {}
+	explicit Documented(ASTPointer<ASTString> const& _documentation): m_documentation(_documentation) {
+		if (_documentation) {
+			std::cout << "'" << *_documentation << "'" << std::endl;
+		}
+	}
 
 	/// @return A shared pointer of an ASTString.
 	/// Can contain a nullptr in which case indicates absence of documentation
