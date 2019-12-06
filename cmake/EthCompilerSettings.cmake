@@ -183,6 +183,9 @@ endif()
 option(USE_Z3 "Allow compiling with Z3 SMT solver integration" ON)
 option(USE_CVC4 "Allow compiling with CVC4 SMT solver integration" ON)
 
+# LLVM Frontend
+option(USE_LLVM "Enable LLVM Frontend" OFF)
+
 if (("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang"))
 	option(USE_LD_GOLD "Use GNU gold linker" ON)
 	if (USE_LD_GOLD)

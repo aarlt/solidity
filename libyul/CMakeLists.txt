@@ -156,4 +156,12 @@ add_library(yul
 	optimiser/VarNameCleaner.cpp
 	optimiser/VarNameCleaner.h
 )
-target_link_libraries(yul PUBLIC evmasm devcore langutil)
+if (USE_LLVM)
+	find_package(LLVM 9.0.0)
+	target_compile_definitions(yul PUBLIC ${LLVM_DEFINITIONS})
+	target_include_directories(yul PUBLIC ${LLVM_INCLUDE_DIRS})
+	target_link_libraries(yul PUBLIC evmasm devcore langutil ${LLVM_LIBRARY_DIRS} ${LLVM_AVAILABLE_LIBS})
+else()
+	target_link_libraries(yul PUBLIC evmasm devcore langutil)
+endif()
+

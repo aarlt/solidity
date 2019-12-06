@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+    This file is part of solidity.
 
-	solidity is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    solidity is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    solidity is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * Full assembly stack that can support EVM-assembly and Yul as input and EVM, EVM1.5 and
@@ -26,18 +26,40 @@
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AsmParser.h>
 #include <libyul/AsmPrinter.h>
+#include <libyul/ObjectParser.h>
 #include <libyul/backends/evm/AsmCodeGen.h>
 #include <libyul/backends/evm/EVMAssembly.h>
 #include <libyul/backends/evm/EVMCodeTransform.h>
 #include <libyul/backends/evm/EVMDialect.h>
-#include <libyul/backends/evm/EVMObjectCompiler.h>
 #include <libyul/backends/evm/EVMMetrics.h>
-#include <libyul/backends/wasm/WasmDialect.h>
-#include <libyul/backends/wasm/EWasmObjectCompiler.h>
+#include <libyul/backends/evm/EVMObjectCompiler.h>
 #include <libyul/backends/wasm/EVMToEWasmTranslator.h>
+#include <libyul/backends/wasm/EWasmObjectCompiler.h>
+#include <libyul/backends/wasm/WasmDialect.h>
 #include <libyul/optimiser/Metrics.h>
-#include <libyul/ObjectParser.h>
 #include <libyul/optimiser/Suite.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#include <llvm/Bitstream/BitstreamReader.h>
+#include <llvm/Bitstream/BitstreamWriter.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/ExecutionEngine/MCJIT.h>
+#include <llvm/IR/CallingConv.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/IRPrintingPasses.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/raw_ostream.h>
+
+#pragma GCC diagnostic pop
 
 #include <libsolidity/interface/OptimiserSettings.h>
 
@@ -50,7 +72,7 @@ using namespace yul;
 
 namespace
 {
-Dialect const& languageToDialect(AssemblyStack::Language _language, EVMVersion _version)
+Dialect const &languageToDialect(AssemblyStack::Language _language, EVMVersion _version)
 {
 	switch (_language)
 	{
@@ -67,16 +89,16 @@ Dialect const& languageToDialect(AssemblyStack::Language _language, EVMVersion _
 	return Dialect::yul();
 }
 
-}
+} // namespace
 
 
-Scanner const& AssemblyStack::scanner() const
+Scanner const &AssemblyStack::scanner() const
 {
 	yulAssert(m_scanner, "");
 	return *m_scanner;
 }
 
-bool AssemblyStack::parseAndAnalyze(std::string const& _sourceName, std::string const& _source)
+bool AssemblyStack::parseAndAnalyze(std::string const &_sourceName, std::string const &_source)
 {
 	m_errors.clear();
 	m_analysisSuccessful = false;
@@ -108,14 +130,10 @@ void AssemblyStack::translate(AssemblyStack::Language _targetLanguage)
 	if (m_language == _targetLanguage)
 		return;
 
-	solAssert(
-		m_language == Language::StrictAssembly && _targetLanguage == Language::EWasm,
-		"Invalid language combination"
-	);
+	solAssert(m_language == Language::StrictAssembly && _targetLanguage == Language::EWasm,
+	          "Invalid language combination");
 
-	*m_parserResult = EVMToEWasmTranslator(
-		languageToDialect(m_language, m_evmVersion)
-	).run(*parserResult());
+	*m_parserResult = EVMToEWasmTranslator(languageToDialect(m_language, m_evmVersion)).run(*parserResult());
 
 	m_language = _targetLanguage;
 }
@@ -127,30 +145,28 @@ bool AssemblyStack::analyzeParsed()
 	return m_analysisSuccessful;
 }
 
-bool AssemblyStack::analyzeParsed(Object& _object)
+bool AssemblyStack::analyzeParsed(Object &_object)
 {
 	yulAssert(_object.code, "");
 	_object.analysisInfo = make_shared<AsmAnalysisInfo>();
 
-	AsmAnalyzer analyzer(
-		*_object.analysisInfo,
-		m_errorReporter,
-		std::nullopt,
-		languageToDialect(m_language, m_evmVersion),
-		{},
-		_object.dataNames()
-	);
+	AsmAnalyzer analyzer(*_object.analysisInfo,
+	                     m_errorReporter,
+	                     std::nullopt,
+	                     languageToDialect(m_language, m_evmVersion),
+	                     {},
+	                     _object.dataNames());
 	bool success = analyzer.analyze(*_object.code);
-	for (auto& subNode: _object.subObjects)
-		if (auto subObject = dynamic_cast<Object*>(subNode.get()))
+	for (auto &subNode : _object.subObjects)
+		if (auto subObject = dynamic_cast<Object *>(subNode.get()))
 			if (!analyzeParsed(*subObject))
 				success = false;
 	return success;
 }
 
-void AssemblyStack::compileEVM(AbstractAssembly& _assembly, bool _evm15, bool _optimize) const
+void AssemblyStack::compileEVM(AbstractAssembly &_assembly, bool _evm15, bool _optimize) const
 {
-	EVMDialect const* dialect = nullptr;
+	EVMDialect const *dialect = nullptr;
 
 	if (m_language == Language::Assembly)
 		dialect = &EVMDialect::looseAssemblyForEVM(m_evmVersion);
@@ -164,24 +180,19 @@ void AssemblyStack::compileEVM(AbstractAssembly& _assembly, bool _evm15, bool _o
 	EVMObjectCompiler::compile(*m_parserResult, _assembly, *dialect, _evm15, _optimize);
 }
 
-void AssemblyStack::optimize(Object& _object, bool _isCreation)
+void AssemblyStack::optimize(Object &_object, bool _isCreation)
 {
 	yulAssert(_object.code, "");
 	yulAssert(_object.analysisInfo, "");
-	for (auto& subNode: _object.subObjects)
-		if (auto subObject = dynamic_cast<Object*>(subNode.get()))
+	for (auto &subNode : _object.subObjects)
+		if (auto subObject = dynamic_cast<Object *>(subNode.get()))
 			optimize(*subObject, false);
 
-	Dialect const& dialect = languageToDialect(m_language, m_evmVersion);
+	Dialect const &dialect = languageToDialect(m_language, m_evmVersion);
 	unique_ptr<GasMeter> meter;
-	if (EVMDialect const* evmDialect = dynamic_cast<EVMDialect const*>(&dialect))
+	if (EVMDialect const *evmDialect = dynamic_cast<EVMDialect const *>(&dialect))
 		meter = make_unique<GasMeter>(*evmDialect, _isCreation, m_optimiserSettings.expectedExecutionsPerDeployment);
-	OptimiserSuite::run(
-		dialect,
-		meter.get(),
-		_object,
-		m_optimiserSettings.optimizeStackAllocation
-	);
+	OptimiserSuite::run(dialect, meter.get(), _object, m_optimiserSettings.optimizeStackAllocation);
 }
 
 MachineAssemblyObject AssemblyStack::assemble(Machine _machine) const
@@ -215,7 +226,7 @@ MachineAssemblyObject AssemblyStack::assemble(Machine _machine) const
 	case Machine::eWasm:
 	{
 		yulAssert(m_language == Language::EWasm, "");
-		Dialect const& dialect = languageToDialect(m_language, EVMVersion{});
+		Dialect const &dialect = languageToDialect(m_language, EVMVersion{});
 
 		MachineAssemblyObject object;
 		auto result = EWasmObjectCompiler::compile(*m_parserResult, dialect);
