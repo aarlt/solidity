@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(exp_operator)
 	compileAndRun(sourceCode);
 	testContractAgainstCppOnRange(
 	    "f(uint256)", [](u256 const &a) -> u256 { return u256(1 << a.convert_to<int>()); }, 0, 16);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(exp_zero)
 {
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(exp_zero)
 	compileAndRun(sourceCode);
 	testContractAgainstCppOnRange(
 	    "f(uint256)", [](u256 const &) -> u256 { return u256(1); }, 0, 16);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(recursive_calls)
 {
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(recursive_calls)
 		}
 	)";
 	compileAndRun(sourceCode);
-};
+}};
 
 BOOST_AUTO_TEST_SUITE_END()
 

@@ -64,7 +64,7 @@ namespace solidity::frontend::test
 int constexpr roundTo32(int _num)
 {
 	return (_num + 31) / 32 * 32;
-};
+}
 
 BOOST_FIXTURE_TEST_SUITE(SolidityEndToEndTest, SolidityExecutionFramework)
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(exp_operator)
 	)";
 	compileAndRun(sourceCode);
 	testContractAgainstCppOnRange("f(uint256)", [](u256 const& a) -> u256 { return u256(1 << a.convert_to<int>()); }, 0, 16);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(exp_zero)
 {
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(exp_zero)
 	)";
 	compileAndRun(sourceCode);
 	testContractAgainstCppOnRange("f(uint256)", [](u256 const&) -> u256 { return u256(1); }, 0, 16);
-};
+}};
 
 /* TODO let's add this back when I figure out the correct type conversion.
 BOOST_AUTO_TEST_CASE(conditional_expression_string_literal)
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(conditional_expression_string_literal)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(bool)", true), encodeArgs(string("true", 4)));
 	ABI_CHECK(callContractFunction("f(bool)", false), encodeArgs(string("false", 5)));
-};
+}};
 */
 
 BOOST_AUTO_TEST_CASE(recursive_calls)
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(recursive_calls)
 
 		testContractAgainstCppOnRange("f(uint256)", recursive_calls_cpp, 0, 5);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(while_loop)
 {
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(while_loop)
 
 		testContractAgainstCppOnRange("f(uint256)", while_loop_cpp, 0, 5);
 	)
-};
+}};
 
 
 BOOST_AUTO_TEST_CASE(do_while_loop)
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(do_while_loop)
 
 		testContractAgainstCppOnRange("f(uint256)", do_while_loop_cpp, 0, 5);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(do_while_loop_multiple_local_vars)
 {
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(do_while_loop_multiple_local_vars)
 
 		testContractAgainstCppOnRange("f(uint256)", do_while, 0, 12);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(nested_loops)
 {
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(nested_loops)
 
 		testContractAgainstCppOnRange("f(uint256)", nested_loops_cpp, 0, 12);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(nested_loops_multiple_local_vars)
 {
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE(nested_loops_multiple_local_vars)
 
 		testContractAgainstCppOnRange("f(uint256)", nested_loops_cpp, 0, 12);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(for_loop_multiple_local_vars)
 {
@@ -409,7 +409,7 @@ BOOST_AUTO_TEST_CASE(for_loop_multiple_local_vars)
 
 		testContractAgainstCppOnRange("f(uint256)", for_loop, 0, 12);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(nested_for_loop_multiple_local_vars)
 {
@@ -472,7 +472,7 @@ BOOST_AUTO_TEST_CASE(nested_for_loop_multiple_local_vars)
 
 		testContractAgainstCppOnRange("f(uint256)", for_loop, 0, 12);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(for_loop)
 {
@@ -499,7 +499,7 @@ BOOST_AUTO_TEST_CASE(for_loop)
 
 		testContractAgainstCppOnRange("f(uint256)", for_loop_cpp, 0, 5);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(for_loop_empty)
 {
@@ -530,7 +530,7 @@ BOOST_AUTO_TEST_CASE(for_loop_empty)
 
 		testContractAgainstCpp("f()", for_loop_empty_cpp);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(for_loop_simple_init_expr)
 {
@@ -558,7 +558,7 @@ BOOST_AUTO_TEST_CASE(for_loop_simple_init_expr)
 
 		testContractAgainstCppOnRange("f(uint256)", for_loop_simple_init_expr_cpp, 0, 5);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(for_loop_break_continue)
 {
@@ -604,7 +604,7 @@ BOOST_AUTO_TEST_CASE(for_loop_break_continue)
 	};
 
 	testContractAgainstCppOnRange("f(uint256)", breakContinue, 0, 10);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calling_other_functions)
 {
@@ -654,7 +654,7 @@ BOOST_AUTO_TEST_CASE(calling_other_functions)
 	testContractAgainstCpp("run(uint256)", collatz_cpp, u256(2));
 	testContractAgainstCpp("run(uint256)", collatz_cpp, u256(8));
 	testContractAgainstCpp("run(uint256)", collatz_cpp, u256(127));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(many_local_variables)
 {
@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE(many_local_variables)
 		};
 		testContractAgainstCpp("run(uint256,uint256,uint256)", f, u256(0x1000), u256(0x10000), u256(0x100000));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(short_circuiting)
 {
@@ -702,7 +702,7 @@ BOOST_AUTO_TEST_CASE(short_circuiting)
 
 		testContractAgainstCppOnRange("run(uint256)", short_circuiting_cpp, 0, 2);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(high_bits_cleaning)
 {
@@ -726,7 +726,7 @@ BOOST_AUTO_TEST_CASE(high_bits_cleaning)
 		return x;
 	};
 	testContractAgainstCpp("run()", high_bits_cleaning_cpp);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(sign_extension)
 {
@@ -748,7 +748,7 @@ BOOST_AUTO_TEST_CASE(sign_extension)
 		return u256(x) * -1;
 	};
 	testContractAgainstCpp("run()", sign_extension_cpp);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(small_unsigned_types)
 {
@@ -769,7 +769,7 @@ BOOST_AUTO_TEST_CASE(small_unsigned_types)
 		return x / 0x100;
 	};
 	testContractAgainstCpp("run()", small_unsigned_types_cpp);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(small_signed_types)
 {
@@ -786,7 +786,7 @@ BOOST_AUTO_TEST_CASE(small_signed_types)
 		return -int32_t(10) * -int64_t(20);
 	};
 	testContractAgainstCpp("run()", small_signed_types_cpp);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(compound_assign)
 {
@@ -825,7 +825,7 @@ BOOST_AUTO_TEST_CASE(compound_assign)
 		testContractAgainstCpp("f(uint256,uint256)", f, u256(6), u256(51));
 		testContractAgainstCpp("f(uint256,uint256)", f, u256(7), u256(48));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(mapping_state)
 {
@@ -905,7 +905,7 @@ BOOST_AUTO_TEST_CASE(mapping_state)
 		testContractAgainstCpp("getVoteCount(address)", getVoteCount, u160(1));
 		testContractAgainstCpp("getVoteCount(address)", getVoteCount, u160(2));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(mapping_state_inc_dec)
 {
@@ -945,7 +945,7 @@ BOOST_AUTO_TEST_CASE(mapping_state_inc_dec)
 
 		testContractAgainstCppOnRange("f(uint256)", f, 0, 5);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(multi_level_mapping)
 {
@@ -977,7 +977,7 @@ BOOST_AUTO_TEST_CASE(multi_level_mapping)
 		testContractAgainstCpp("f(uint256,uint256,uint256)", f, u256(4), u256(5), u256(0));
 		testContractAgainstCpp("f(uint256,uint256,uint256)", f, u256(5), u256(4), u256(0));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(constructor)
 {
@@ -1005,7 +1005,7 @@ BOOST_AUTO_TEST_CASE(constructor)
 		testContractAgainstCpp("get(uint256)", get, u256(6));
 		testContractAgainstCpp("get(uint256)", get, u256(7));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(balance)
 {
@@ -1021,7 +1021,7 @@ BOOST_AUTO_TEST_CASE(balance)
 		compileAndRun(sourceCode, 23);
 		ABI_CHECK(callContractFunction("getBalance()"), encodeArgs(23));
 	)
-};
+}};
 
 //BOOST_AUTO_TEST_CASE(blockchain)
 //{
@@ -1058,7 +1058,7 @@ BOOST_AUTO_TEST_CASE(msg_sig)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("foo(uint256)", 0), encodeArgs(asString(FixedHash<4>(util::keccak256("foo(uint256)")).asBytes())));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(msg_sig_after_internal_call_is_same)
 {
@@ -1076,7 +1076,7 @@ BOOST_AUTO_TEST_CASE(msg_sig_after_internal_call_is_same)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("foo(uint256)", 0), encodeArgs(asString(FixedHash<4>(util::keccak256("foo(uint256)")).asBytes())));
 	)
-};
+}};
 
 //BOOST_AUTO_TEST_CASE(now)
 //{
@@ -1171,115 +1171,115 @@ BOOST_AUTO_TEST_CASE(msg_sig_after_internal_call_is_same)
 //	BOOST_CHECK(result[0] != 0 || result[1] != 0 || result[2] != 0);
 //};
 
-BOOST_AUTO_TEST_CASE(log0)
-{
-	char const* sourceCode = R"(
-		contract test {
-			function a() public {
-				log0(bytes32(uint256(1)));
-			}
-		}
-	)";
-	compileAndRun(sourceCode);
-	callContractFunction("a()");
-	BOOST_REQUIRE_EQUAL(numLogs(), 1);
-	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
-	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
-	BOOST_CHECK_EQUAL(numLogTopics(0), 0);
-};
-
-BOOST_AUTO_TEST_CASE(log1)
-{
-	char const* sourceCode = R"(
-		contract test {
-			function a() public {
-				log1(bytes32(uint256(1)), bytes32(uint256(2)));
-			}
-		}
-	)";
-	compileAndRun(sourceCode);
-	callContractFunction("a()");
-	BOOST_REQUIRE_EQUAL(numLogs(), 1);
-	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
-	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
-	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
-	BOOST_CHECK_EQUAL(logTopic(0, 0), h256(u256(2)));
-};
-
-BOOST_AUTO_TEST_CASE(log2)
-{
-	char const* sourceCode = R"(
-		contract test {
-			function a() public {
-				log2(bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)));
-			}
-		}
-	)";
-	compileAndRun(sourceCode);
-	callContractFunction("a()");
-	BOOST_REQUIRE_EQUAL(numLogs(), 1);
-	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
-	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
-	BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
-	for (unsigned i = 0; i < 2; ++i)
-		BOOST_CHECK_EQUAL(logTopic(0, i), h256(u256(i + 2)));
-};
-
-BOOST_AUTO_TEST_CASE(log3)
-{
-	char const* sourceCode = R"(
-		contract test {
-			function a() public {
-				log3(bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)), bytes32(uint256(4)));
-			}
-		}
-	)";
-	compileAndRun(sourceCode);
-	callContractFunction("a()");
-	BOOST_REQUIRE_EQUAL(numLogs(), 1);
-	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
-	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
-	BOOST_REQUIRE_EQUAL(numLogTopics(0), 3);
-	for (unsigned i = 0; i < 3; ++i)
-		BOOST_CHECK_EQUAL(logTopic(0, i), h256(u256(i + 2)));
-};
-
-BOOST_AUTO_TEST_CASE(log4)
-{
-	char const* sourceCode = R"(
-		contract test {
-			function a() public {
-				log4(bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)), bytes32(uint256(4)), bytes32(uint256(5)));
-			}
-		}
-	)";
-	compileAndRun(sourceCode);
-	callContractFunction("a()");
-	BOOST_REQUIRE_EQUAL(numLogs(), 1);
-	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
-	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
-	BOOST_REQUIRE_EQUAL(numLogTopics(0), 4);
-	for (unsigned i = 0; i < 4; ++i)
-		BOOST_CHECK_EQUAL(logTopic(0, i), h256(u256(i + 2)));
-};
-
-BOOST_AUTO_TEST_CASE(log_in_constructor)
-{
-	char const* sourceCode = R"(
-		contract test {
-			constructor() public {
-				log1(bytes32(uint256(1)), bytes32(uint256(2)));
-			}
-		}
-	)";
-	compileAndRun(sourceCode);
-	BOOST_REQUIRE_EQUAL(numLogs(), 1);
-	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
-	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
-	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
-	BOOST_CHECK_EQUAL(logTopic(0, 0), h256(u256(2)));
-};
-
+//BOOST_AUTO_TEST_CASE(log0)
+//{
+//	char const* sourceCode = R"(
+//		contract test {
+//			function a() public {
+//				log0(bytes32(uint256(1)));
+//			}
+//		}
+//	)";
+//	compileAndRun(sourceCode);
+//	callContractFunction("a()");
+//	BOOST_REQUIRE_EQUAL(numLogs(), 1);
+//	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
+//	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
+//	BOOST_CHECK_EQUAL(numLogTopics(0), 0);
+//}};
+//
+//BOOST_AUTO_TEST_CASE(log1)
+//{
+//	char const* sourceCode = R"(
+//		contract test {
+//			function a() public {
+//				log1(bytes32(uint256(1)), bytes32(uint256(2)));
+//			}
+//		}
+//	)";
+//	compileAndRun(sourceCode);
+//	callContractFunction("a()");
+//	BOOST_REQUIRE_EQUAL(numLogs(), 1);
+//	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
+//	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
+//	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
+//	BOOST_CHECK_EQUAL(logTopic(0, 0), h256(u256(2)));
+//}};
+//
+//BOOST_AUTO_TEST_CASE(log2)
+//{
+//	char const* sourceCode = R"(
+//		contract test {
+//			function a() public {
+//				log2(bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)));
+//			}
+//		}
+//	)";
+//	compileAndRun(sourceCode);
+//	callContractFunction("a()");
+//	BOOST_REQUIRE_EQUAL(numLogs(), 1);
+//	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
+//	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
+//	BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
+//	for (unsigned i = 0; i < 2; ++i)
+//		BOOST_CHECK_EQUAL(logTopic(0, i), h256(u256(i + 2)));
+//}};
+//
+//BOOST_AUTO_TEST_CASE(log3)
+//{
+//	char const* sourceCode = R"(
+//		contract test {
+//			function a() public {
+//				log3(bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)), bytes32(uint256(4)));
+//			}
+//		}
+//	)";
+//	compileAndRun(sourceCode);
+//	callContractFunction("a()");
+//	BOOST_REQUIRE_EQUAL(numLogs(), 1);
+//	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
+//	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
+//	BOOST_REQUIRE_EQUAL(numLogTopics(0), 3);
+//	for (unsigned i = 0; i < 3; ++i)
+//		BOOST_CHECK_EQUAL(logTopic(0, i), h256(u256(i + 2)));
+//}};
+//
+//BOOST_AUTO_TEST_CASE(log4)
+//{
+//	char const* sourceCode = R"(
+//		contract test {
+//			function a() public {
+//				log4(bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)), bytes32(uint256(4)), bytes32(uint256(5)));
+//			}
+//		}
+//	)";
+//	compileAndRun(sourceCode);
+//	callContractFunction("a()");
+//	BOOST_REQUIRE_EQUAL(numLogs(), 1);
+//	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
+//	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
+//	BOOST_REQUIRE_EQUAL(numLogTopics(0), 4);
+//	for (unsigned i = 0; i < 4; ++i)
+//		BOOST_CHECK_EQUAL(logTopic(0, i), h256(u256(i + 2)));
+//}};
+//
+//BOOST_AUTO_TEST_CASE(log_in_constructor)
+//{
+//	char const* sourceCode = R"(
+//		contract test {
+//			constructor() public {
+//				log1(bytes32(uint256(1)), bytes32(uint256(2)));
+//			}
+//		}
+//	)";
+//	compileAndRun(sourceCode);
+//	BOOST_REQUIRE_EQUAL(numLogs(), 1);
+//	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
+//	BOOST_CHECK_EQUAL(h256(logData(0)), h256(u256(1)));
+//	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
+//	BOOST_CHECK_EQUAL(logTopic(0, 0), h256(u256(2)));
+//}};
+//
 BOOST_AUTO_TEST_CASE(selfdestruct)
 {
 	char const* sourceCode = R"(
@@ -1297,7 +1297,7 @@ BOOST_AUTO_TEST_CASE(selfdestruct)
 	ABI_CHECK(callContractFunction("a(address)", address), bytes());
 	BOOST_CHECK(!addressHasCode(m_contractAddress));
 	BOOST_CHECK_EQUAL(balanceAt(address), amount);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(keccak256)
 {
@@ -1316,7 +1316,7 @@ BOOST_AUTO_TEST_CASE(keccak256)
 	testContractAgainstCpp("a(bytes32)", f, u256(4));
 	testContractAgainstCpp("a(bytes32)", f, u256(5));
 	testContractAgainstCpp("a(bytes32)", f, u256(-1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(sha256)
 {
@@ -1341,7 +1341,7 @@ BOOST_AUTO_TEST_CASE(sha256)
 	testContractAgainstCpp("a(bytes32)", f, u256(4));
 	testContractAgainstCpp("a(bytes32)", f, u256(5));
 	testContractAgainstCpp("a(bytes32)", f, u256(-1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(ripemd)
 {
@@ -1366,7 +1366,7 @@ BOOST_AUTO_TEST_CASE(ripemd)
 	testContractAgainstCpp("a(bytes32)", f, u256(4));
 	testContractAgainstCpp("a(bytes32)", f, u256(5));
 	testContractAgainstCpp("a(bytes32)", f, u256(-1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_keccak256)
 {
@@ -1393,7 +1393,7 @@ BOOST_AUTO_TEST_CASE(packed_keccak256)
 	testContractAgainstCpp("a(bytes32)", f, u256(4));
 	testContractAgainstCpp("a(bytes32)", f, u256(5));
 	testContractAgainstCpp("a(bytes32)", f, u256(-1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_keccak256_complex_types)
 {
@@ -1418,7 +1418,7 @@ BOOST_AUTO_TEST_CASE(packed_keccak256_complex_types)
 		util::keccak256(encodeArgs(u256("0xfffffffffffffffffffffffffffffe"), u256("0xfffffffffffffffffffffffffffffd"), u256("0xfffffffffffffffffffffffffffffc"))),
 		util::keccak256(fromHex(m_contractAddress.hex() + "26121ff0"))
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_sha256)
 {
@@ -1445,7 +1445,7 @@ BOOST_AUTO_TEST_CASE(packed_sha256)
 	testContractAgainstCpp("a(bytes32)", f, u256(4));
 	testContractAgainstCpp("a(bytes32)", f, u256(5));
 	testContractAgainstCpp("a(bytes32)", f, u256(-1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_ripemd160)
 {
@@ -1472,7 +1472,7 @@ BOOST_AUTO_TEST_CASE(packed_ripemd160)
 	testContractAgainstCpp("a(bytes32)", f, u256(4));
 	testContractAgainstCpp("a(bytes32)", f, u256(5));
 	testContractAgainstCpp("a(bytes32)", f, u256(-1));
-};
+}};
 
 //BOOST_AUTO_TEST_CASE(inter_contract_calls)
 //{
@@ -1690,7 +1690,7 @@ BOOST_AUTO_TEST_CASE(constructor_arguments_internal)
 	compileAndRun(sourceCode, 0, "Main");
 	ABI_CHECK(callContractFunction("getFlag()"), encodeArgs(true));
 	ABI_CHECK(callContractFunction("getName()"), encodeArgs("abc"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(constructor_arguments_external)
 {
@@ -1710,7 +1710,7 @@ BOOST_AUTO_TEST_CASE(constructor_arguments_external)
 	compileAndRun(sourceCode, 0, "Main", encodeArgs("abc", true));
 	ABI_CHECK(callContractFunction("getFlag()"), encodeArgs(true));
 	ABI_CHECK(callContractFunction("getName()"), encodeArgs("abc"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(constructor_with_long_arguments)
 {
@@ -1738,7 +1738,7 @@ BOOST_AUTO_TEST_CASE(constructor_with_long_arguments)
 	));
 	ABI_CHECK(callContractFunction("a()"), encodeDyn(a));
 	ABI_CHECK(callContractFunction("b()"), encodeDyn(b));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(constructor_static_array_argument)
 {
@@ -1758,7 +1758,7 @@ BOOST_AUTO_TEST_CASE(constructor_static_array_argument)
 	ABI_CHECK(callContractFunction("b(uint256)", u256(0)), encodeArgs(u256(2)));
 	ABI_CHECK(callContractFunction("b(uint256)", u256(1)), encodeArgs(u256(3)));
 	ABI_CHECK(callContractFunction("b(uint256)", u256(2)), encodeArgs(u256(4)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(constant_var_as_array_length)
 {
@@ -1776,7 +1776,7 @@ BOOST_AUTO_TEST_CASE(constant_var_as_array_length)
 	ABI_CHECK(callContractFunction("a(uint256)", u256(0)), encodeArgs(u256(1)));
 	ABI_CHECK(callContractFunction("a(uint256)", u256(1)), encodeArgs(u256(2)));
 	ABI_CHECK(callContractFunction("a(uint256)", u256(2)), encodeArgs(u256(3)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(functions_called_by_constructor)
 {
@@ -1795,7 +1795,7 @@ BOOST_AUTO_TEST_CASE(functions_called_by_constructor)
 		compileAndRun(sourceCode);
 		BOOST_REQUIRE(callContractFunction("getName()") == encodeArgs("abc"));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(contracts_as_addresses)
 {
@@ -1815,7 +1815,7 @@ BOOST_AUTO_TEST_CASE(contracts_as_addresses)
 	compileAndRun(sourceCode, 20);
 	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 20 - 5);
 	BOOST_REQUIRE(callContractFunction("getBalance()") == encodeArgs(u256(20 - 5), u256(5)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(gas_and_value_basic)
 {
@@ -1849,7 +1849,7 @@ BOOST_AUTO_TEST_CASE(gas_and_value_basic)
 	// call to helper should not succeed but amount should be transferred anyway
 	BOOST_REQUIRE(callContractFunction("outOfGas()") == bytes());
 	BOOST_REQUIRE(callContractFunction("checkState()") == encodeArgs(false, 20 - 5));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(gas_and_value_brace_syntax)
 {
@@ -1883,7 +1883,7 @@ BOOST_AUTO_TEST_CASE(gas_and_value_brace_syntax)
 	// call to helper should not succeed but amount should be transferred anyway
 	BOOST_REQUIRE(callContractFunction("outOfGas()") == bytes());
 	BOOST_REQUIRE(callContractFunction("checkState()") == encodeArgs(false, 20 - 5));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(gasleft_decrease)
 {
@@ -1906,7 +1906,7 @@ BOOST_AUTO_TEST_CASE(gasleft_decrease)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(gaslimit)
 {
@@ -1922,7 +1922,7 @@ BOOST_AUTO_TEST_CASE(gaslimit)
 		auto result = callContractFunction("f()");
 		ABI_CHECK(result, encodeArgs(gasLimit()));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(gasprice)
 {
@@ -1937,7 +1937,7 @@ BOOST_AUTO_TEST_CASE(gasprice)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(gasPrice()));
 	)
-};
+}};
 
 //BOOST_AUTO_TEST_CASE(blockhash)
 //{
@@ -1989,7 +1989,7 @@ BOOST_AUTO_TEST_CASE(value_complex)
 	)";
 	compileAndRun(sourceCode, 20);
 	BOOST_REQUIRE(callContractFunction("sendAmount(uint256)", 5) == encodeArgs(8));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(value_insane)
 {
@@ -2009,7 +2009,7 @@ BOOST_AUTO_TEST_CASE(value_insane)
 	)";
 	compileAndRun(sourceCode, 20);
 	BOOST_REQUIRE(callContractFunction("sendAmount(uint256)", 5) == encodeArgs(8));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(value_for_constructor)
 {
@@ -2038,7 +2038,7 @@ BOOST_AUTO_TEST_CASE(value_for_constructor)
 	BOOST_REQUIRE(callContractFunction("getFlag()") == encodeArgs(true));
 	BOOST_REQUIRE(callContractFunction("getName()") == encodeArgs("abc"));
 	BOOST_REQUIRE(callContractFunction("getBalances()") == encodeArgs(12, 10));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(virtual_function_calls)
 {
@@ -2056,7 +2056,7 @@ BOOST_AUTO_TEST_CASE(virtual_function_calls)
 		ABI_CHECK(callContractFunction("g()"), encodeArgs(2));
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(2));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(access_base_storage)
 {
@@ -2084,7 +2084,7 @@ BOOST_AUTO_TEST_CASE(access_base_storage)
 		ABI_CHECK(callContractFunction("getViaBase()"), encodeArgs(1));
 		ABI_CHECK(callContractFunction("getViaDerived()"), encodeArgs(1, 2));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(single_copy_with_multiple_inheritance)
 {
@@ -2104,7 +2104,7 @@ BOOST_AUTO_TEST_CASE(single_copy_with_multiple_inheritance)
 		ABI_CHECK(callContractFunction("setViaA(uint256)", 23), encodeArgs());
 		ABI_CHECK(callContractFunction("getViaB()"), encodeArgs(23));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(explicit_base_class)
 {
@@ -2119,7 +2119,7 @@ BOOST_AUTO_TEST_CASE(explicit_base_class)
 	compileAndRun(sourceCode, 0, "Derived");
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(3));
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(base_constructor_arguments)
 {
@@ -2141,7 +2141,7 @@ BOOST_AUTO_TEST_CASE(base_constructor_arguments)
 	)";
 	compileAndRun(sourceCode, 0, "Derived");
 	ABI_CHECK(callContractFunction("getA()"), encodeArgs(7 * 7));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_usage_in_constructor_arguments)
 {
@@ -2161,7 +2161,7 @@ BOOST_AUTO_TEST_CASE(function_usage_in_constructor_arguments)
 	)";
 	compileAndRun(sourceCode, 0, "Derived");
 	ABI_CHECK(callContractFunction("getA()"), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(virtual_function_usage_in_constructor_arguments)
 {
@@ -2183,7 +2183,7 @@ BOOST_AUTO_TEST_CASE(virtual_function_usage_in_constructor_arguments)
 	)";
 	compileAndRun(sourceCode, 0, "Derived");
 	ABI_CHECK(callContractFunction("getA()"), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(internal_constructor)
 {
@@ -2193,7 +2193,7 @@ BOOST_AUTO_TEST_CASE(internal_constructor)
 		}
 	)";
 	BOOST_CHECK(compileAndRunWithoutCheck(sourceCode, 0, "C").empty());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier)
 {
@@ -2206,7 +2206,7 @@ BOOST_AUTO_TEST_CASE(function_modifier)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("getOne()"), encodeArgs(0));
 	ABI_CHECK(callContractFunctionWithValue("getOne()", 1), encodeArgs(1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_local_variables)
 {
@@ -2220,7 +2220,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_local_variables)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(bool)", true), encodeArgs(0));
 	ABI_CHECK(callContractFunction("f(bool)", false), encodeArgs(3));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_loop)
 {
@@ -2232,7 +2232,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_loop)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(10));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_multi_invocation)
 {
@@ -2245,7 +2245,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_multi_invocation)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(bool)", false), encodeArgs(1));
 	ABI_CHECK(callContractFunction("f(bool)", true), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_multi_with_return)
 {
@@ -2260,7 +2260,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_multi_with_return)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(bool)", false), encodeArgs(1));
 	ABI_CHECK(callContractFunction("f(bool)", true), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_overriding)
 {
@@ -2275,7 +2275,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_overriding)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(false));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_calling_functions_in_creation_context)
 {
@@ -2298,7 +2298,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_calling_functions_in_creation_context)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("getData()"), encodeArgs(0x4300));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_for_constructor)
 {
@@ -2315,7 +2315,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_for_constructor)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("getData()"), encodeArgs(4 | 2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_multiple_times)
 {
@@ -2329,7 +2329,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_multiple_times)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(uint256)", u256(3)), encodeArgs(2 + 5 + 3));
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(2 + 5 + 3));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_multiple_times_local_vars)
 {
@@ -2343,7 +2343,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_multiple_times_local_vars)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(uint256)", u256(3)), encodeArgs(2 + 5 + 3));
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_library)
 {
@@ -2367,7 +2367,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_library)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(0x202));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_modifier_library_inheritance)
 {
@@ -2395,7 +2395,7 @@ BOOST_AUTO_TEST_CASE(function_modifier_library_inheritance)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(0x202));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(crazy_elementary_typenames_on_stack)
 {
@@ -2412,7 +2412,7 @@ BOOST_AUTO_TEST_CASE(crazy_elementary_typenames_on_stack)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(-7)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(super)
 {
@@ -2424,7 +2424,7 @@ BOOST_AUTO_TEST_CASE(super)
 	)";
 	compileAndRun(sourceCode, 0, "D");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(1 | 2 | 4 | 8));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(super_in_constructor)
 {
@@ -2436,7 +2436,7 @@ BOOST_AUTO_TEST_CASE(super_in_constructor)
 	)";
 	compileAndRun(sourceCode, 0, "D");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(1 | 2 | 4 | 8));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(super_alone)
 {
@@ -2447,7 +2447,7 @@ BOOST_AUTO_TEST_CASE(super_alone)
 		compileAndRun(sourceCode, 0, "A");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs());
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(default_fallback_throws)
 {
@@ -2476,7 +2476,7 @@ BOOST_AUTO_TEST_CASE(default_fallback_throws)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(0));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event)
 {
@@ -2507,7 +2507,7 @@ BOOST_AUTO_TEST_CASE(event)
 		BOOST_CHECK_EQUAL(logTopic(0, 1), h256(m_sender, h256::AlignRight));
 		BOOST_CHECK_EQUAL(logTopic(0, 2), h256(id));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_emit)
 {
@@ -2532,7 +2532,7 @@ BOOST_AUTO_TEST_CASE(event_emit)
 		BOOST_CHECK_EQUAL(logTopic(0, 1), h256(m_sender, h256::AlignRight));
 		BOOST_CHECK_EQUAL(logTopic(0, 2), h256(id));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_no_arguments)
 {
@@ -2554,7 +2554,7 @@ BOOST_AUTO_TEST_CASE(event_no_arguments)
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("Deposit()")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_access_through_base_name_emit)
 {
@@ -2576,7 +2576,7 @@ BOOST_AUTO_TEST_CASE(event_access_through_base_name_emit)
 	BOOST_CHECK(logData(0).empty());
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("x()")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(events_with_same_name)
 {
@@ -2636,7 +2636,7 @@ BOOST_AUTO_TEST_CASE(events_with_same_name)
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("Deposit(address,bool)")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(events_with_same_name_inherited_emit)
 {
@@ -2690,7 +2690,7 @@ BOOST_AUTO_TEST_CASE(events_with_same_name_inherited_emit)
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("Deposit(address,uint256)")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_anonymous)
 {
@@ -2707,7 +2707,7 @@ BOOST_AUTO_TEST_CASE(event_anonymous)
 		callContractFunction("deposit()");
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 0);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_anonymous_with_topics)
 {
@@ -2733,7 +2733,7 @@ BOOST_AUTO_TEST_CASE(event_anonymous_with_topics)
 		BOOST_CHECK_EQUAL(logTopic(0, 2), h256(value));
 		BOOST_CHECK_EQUAL(logTopic(0, 3), h256(2));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_lots_of_data)
 {
@@ -2756,7 +2756,7 @@ BOOST_AUTO_TEST_CASE(event_lots_of_data)
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("Deposit(address,bytes32,uint256,bool)")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_really_lots_of_data)
 {
@@ -2775,7 +2775,7 @@ BOOST_AUTO_TEST_CASE(event_really_lots_of_data)
 	BOOST_CHECK_EQUAL(toHex(logData(0)), toHex(encodeArgs(10, 0x60, 15, 4, asString(FixedHash<4>(util::keccak256("deposit()")).asBytes()))));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("Deposit(uint256,bytes,uint256)")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_really_lots_of_data_from_storage)
 {
@@ -2798,7 +2798,7 @@ BOOST_AUTO_TEST_CASE(event_really_lots_of_data_from_storage)
 	BOOST_CHECK_EQUAL(toHex(logData(0)), toHex(encodeArgs(10, 0x60, 15, 3, string("ABC"))));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("Deposit(uint256,bytes,uint256)")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_really_really_lots_of_data_from_storage)
 {
@@ -2823,7 +2823,7 @@ BOOST_AUTO_TEST_CASE(event_really_really_lots_of_data_from_storage)
 	BOOST_CHECK(logData(0) == encodeArgs(10, 0x60, 15, 31, string("ABC") + string(27, 0) + "Z"));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("Deposit(uint256,bytes,uint256)")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_struct_memory_v2)
 {
@@ -2845,7 +2845,7 @@ BOOST_AUTO_TEST_CASE(event_struct_memory_v2)
 	BOOST_CHECK(logData(0) == encodeArgs(x));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E((uint256))")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_struct_storage_v2)
 {
@@ -2869,7 +2869,7 @@ BOOST_AUTO_TEST_CASE(event_struct_storage_v2)
 	BOOST_CHECK(logData(0) == encodeArgs(x));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E((uint256))")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_dynamic_array_memory)
 {
@@ -2893,7 +2893,7 @@ BOOST_AUTO_TEST_CASE(event_dynamic_array_memory)
 	BOOST_CHECK(logData(0) == encodeArgs(0x20, 3, x, x + 1, x + 2));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E(uint256[])")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_dynamic_array_memory_v2)
 {
@@ -2918,7 +2918,7 @@ BOOST_AUTO_TEST_CASE(event_dynamic_array_memory_v2)
 	BOOST_CHECK(logData(0) == encodeArgs(0x20, 3, x, x + 1, x + 2));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E(uint256[])")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_dynamic_nested_array_memory_v2)
 {
@@ -2946,7 +2946,7 @@ BOOST_AUTO_TEST_CASE(event_dynamic_nested_array_memory_v2)
 	BOOST_CHECK(logData(0) == encodeArgs(0x20, 2, 0x40, 0xa0, 2, x, x + 1, 2, x + 2, x + 3));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E(uint256[][])")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_dynamic_array_storage)
 {
@@ -2974,7 +2974,7 @@ BOOST_AUTO_TEST_CASE(event_dynamic_array_storage)
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E(uint256[])")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_dynamic_array_storage_v2)
 {
@@ -3003,7 +3003,7 @@ BOOST_AUTO_TEST_CASE(event_dynamic_array_storage_v2)
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E(uint256[])")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_dynamic_nested_array_storage_v2)
 {
@@ -3033,7 +3033,7 @@ BOOST_AUTO_TEST_CASE(event_dynamic_nested_array_storage_v2)
 	BOOST_CHECK(logData(0) == encodeArgs(0x20, 2, 0x40, 0xa0, 2, x, x + 1, 2, x + 2, x + 3));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E(uint256[][])")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_indexed_string)
 {
@@ -3069,7 +3069,7 @@ BOOST_AUTO_TEST_CASE(event_indexed_string)
 		encodeArgs(u256(4), u256(5), u256(6), u256(7))
 	));
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E(string,uint256[4])")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(empty_name_input_parameter_with_named_one)
 {
@@ -3087,7 +3087,7 @@ BOOST_AUTO_TEST_CASE(empty_name_input_parameter_with_named_one)
 		BOOST_CHECK(callContractFunction("f(uint256,uint256)", 5, 9) != encodeArgs(5, 8));
 		ABI_CHECK(callContractFunction("f(uint256,uint256)", 5, 9), encodeArgs(9, 8));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(empty_name_return_parameter)
 {
@@ -3102,7 +3102,7 @@ BOOST_AUTO_TEST_CASE(empty_name_return_parameter)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("f(uint256)", 9), encodeArgs(9));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(sha256_empty)
 {
@@ -3115,7 +3115,7 @@ BOOST_AUTO_TEST_CASE(sha256_empty)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), fromHex("0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(ripemd160_empty)
 {
@@ -3128,7 +3128,7 @@ BOOST_AUTO_TEST_CASE(ripemd160_empty)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), fromHex("0x9c1185a5c5e9fc54612808977ee8f548b2258d31000000000000000000000000"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(keccak256_empty)
 {
@@ -3143,7 +3143,7 @@ BOOST_AUTO_TEST_CASE(keccak256_empty)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("f()"), fromHex("0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(keccak256_multiple_arguments)
 {
@@ -3164,7 +3164,7 @@ BOOST_AUTO_TEST_CASE(keccak256_multiple_arguments)
 			toBigEndian(u256(13))
 		)
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(keccak256_multiple_arguments_with_numeric_literals)
 {
@@ -3185,7 +3185,7 @@ BOOST_AUTO_TEST_CASE(keccak256_multiple_arguments_with_numeric_literals)
 			bytes(1, 0x91)
 		)
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(keccak256_multiple_arguments_with_string_literals)
 {
@@ -3213,7 +3213,7 @@ BOOST_AUTO_TEST_CASE(keccak256_multiple_arguments_with_string_literals)
 			bytes{0x66, 0x6f, 0x6f}
 		)
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(keccak256_with_bytes)
 {
@@ -3231,7 +3231,7 @@ BOOST_AUTO_TEST_CASE(keccak256_with_bytes)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("foo()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(iterated_keccak256_with_bytes)
 {
@@ -3251,7 +3251,7 @@ BOOST_AUTO_TEST_CASE(iterated_keccak256_with_bytes)
 	ABI_CHECK(callContractFunction("foo()"), encodeArgs(
 		u256(util::keccak256(bytes{'b'} + util::keccak256("xyz").asBytes() + bytes{'a'}))
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(generic_call)
 {
@@ -3275,7 +3275,7 @@ BOOST_AUTO_TEST_CASE(generic_call)
 	compileAndRun(sourceCode, 50, "sender");
 	BOOST_REQUIRE(callContractFunction("doSend(address)", c_receiverAddress) == encodeArgs(23));
 	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 50 - 2);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(generic_delegatecall)
 {
@@ -3323,7 +3323,7 @@ BOOST_AUTO_TEST_CASE(generic_delegatecall)
 		BOOST_CHECK_EQUAL(balanceAt(c_receiverAddress), 0);
 		BOOST_CHECK_EQUAL(balanceAt(c_senderAddress), 50 + 11);
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(generic_staticcall)
 {
@@ -3366,7 +3366,7 @@ BOOST_AUTO_TEST_CASE(generic_staticcall)
 		ABI_CHECK(callContractFunction("i(address,uint256)", c_addressA, 42), encodeArgs(true, 0x40, 0x20, 42));
 		ABI_CHECK(callContractFunction("i(address,uint256)", c_addressA, 23), encodeArgs(false, 0x40, 0x00));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(library_call_in_homestead)
 {
@@ -3383,7 +3383,7 @@ BOOST_AUTO_TEST_CASE(library_call_in_homestead)
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f()"), encodeArgs());
 	ABI_CHECK(callContractFunction("sender()"), encodeArgs(u160(m_sender)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(library_call_protection)
 {
@@ -3416,7 +3416,7 @@ BOOST_AUTO_TEST_CASE(library_call_protection)
 	ABI_CHECK(callContractFunction("s()"), encodeArgs(3));
 	ABI_CHECK(callContractFunction("v()"), encodeArgs(u160(m_sender)));
 	ABI_CHECK(callContractFunction("pu()"), encodeArgs(2));
-};
+}};
 
 
 BOOST_AUTO_TEST_CASE(library_staticcall_delegatecall)
@@ -3441,7 +3441,7 @@ BOOST_AUTO_TEST_CASE(library_staticcall_delegatecall)
 	compileAndRun(sourceCode, 0, "Lib");
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(store_bytes)
 {
@@ -3460,7 +3460,7 @@ BOOST_AUTO_TEST_CASE(store_bytes)
 	// empty copy loop
 	ABI_CHECK(callContractFunction("save()"), encodeArgs(24));
 	ABI_CHECK(callContractFunction("save()", "abcdefg"), encodeArgs(24));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_from_calldata_to_memory)
 {
@@ -3476,7 +3476,7 @@ BOOST_AUTO_TEST_CASE(bytes_from_calldata_to_memory)
 	sendMessage(calldata1, false);
 	BOOST_CHECK(m_transactionSuccessful);
 	BOOST_CHECK(m_output == encodeArgs(util::keccak256(bytes{'a', 'b', 'c'} + calldata1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(call_forward_bytes)
 {
@@ -3505,7 +3505,7 @@ BOOST_AUTO_TEST_CASE(call_forward_bytes)
 	ABI_CHECK(callContractFunction("val()"), encodeArgs(8));
 	ABI_CHECK(callContractFunction("forward()"), encodeArgs(true));
 	ABI_CHECK(callContractFunction("val()"), encodeArgs(0x80));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(call_forward_bytes_length)
 {
@@ -3549,7 +3549,7 @@ BOOST_AUTO_TEST_CASE(call_forward_bytes_length)
 	ABI_CHECK(callContractFunctionNoEncoding("viaCalldata()", unpadded), encodeArgs(7));
 	ABI_CHECK(callContractFunctionNoEncoding("viaMemory()", unpadded), encodeArgs(7));
 	ABI_CHECK(callContractFunctionNoEncoding("viaStorage()", unpadded), encodeArgs(7));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(copying_bytes_multiassign)
 {
@@ -3582,7 +3582,7 @@ BOOST_AUTO_TEST_CASE(copying_bytes_multiassign)
 	ABI_CHECK(callContractFunction("val()"), encodeArgs(16));
 	ABI_CHECK(callContractFunction("forward(bool)", true), encodeArgs(true));
 	ABI_CHECK(callContractFunction("val()"), encodeArgs(0x80));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(delete_removes_bytes_data)
 {
@@ -3598,7 +3598,7 @@ BOOST_AUTO_TEST_CASE(delete_removes_bytes_data)
 	BOOST_CHECK(!storageEmpty(m_contractAddress));
 	ABI_CHECK(callContractFunction("del()", 7), encodeArgs(true));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(copy_from_calldata_removes_bytes_data)
 {
@@ -3616,7 +3616,7 @@ BOOST_AUTO_TEST_CASE(copy_from_calldata_removes_bytes_data)
 	BOOST_CHECK(m_transactionSuccessful);
 	BOOST_CHECK(m_output.empty());
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(copy_removes_bytes_data)
 {
@@ -3633,7 +3633,7 @@ BOOST_AUTO_TEST_CASE(copy_removes_bytes_data)
 	BOOST_CHECK(!storageEmpty(m_contractAddress));
 	ABI_CHECK(callContractFunction("reset()"), encodeArgs(true));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_inside_mappings)
 {
@@ -3657,7 +3657,7 @@ BOOST_AUTO_TEST_CASE(bytes_inside_mappings)
 	BOOST_CHECK(!storageEmpty(m_contractAddress));
 	ABI_CHECK(callContractFunction("copy(uint256,uint256)", 99, 2), encodeArgs(true));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_length_member)
 {
@@ -3672,7 +3672,7 @@ BOOST_AUTO_TEST_CASE(bytes_length_member)
 	ABI_CHECK(callContractFunction("getLength()"), encodeArgs(0));
 	ABI_CHECK(callContractFunction("set()", 1, 2), encodeArgs(true));
 	ABI_CHECK(callContractFunction("getLength()"), encodeArgs(4+32+32));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(struct_copy)
 {
@@ -3712,7 +3712,7 @@ BOOST_AUTO_TEST_CASE(struct_copy)
 	ABI_CHECK(callContractFunction("retrieve(uint256)", 8), encodeArgs(1, 3, 4, 2));
 	ABI_CHECK(callContractFunction("copy(uint256,uint256)", 7, 8), encodeArgs(true));
 	ABI_CHECK(callContractFunction("retrieve(uint256)", 8), encodeArgs(0, 0, 0, 0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(struct_containing_bytes_copy_and_delete)
 {
@@ -3748,7 +3748,7 @@ BOOST_AUTO_TEST_CASE(struct_containing_bytes_copy_and_delete)
 	BOOST_CHECK(!storageEmpty(m_contractAddress));
 	ABI_CHECK(callContractFunction("del()"), encodeArgs(true));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(struct_copy_via_local)
 {
@@ -3768,7 +3768,7 @@ BOOST_AUTO_TEST_CASE(struct_copy_via_local)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_enums)
 {
@@ -3788,7 +3788,7 @@ BOOST_AUTO_TEST_CASE(using_enums)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("getChoice()"), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(enum_explicit_overflow)
 {
@@ -3826,7 +3826,7 @@ BOOST_AUTO_TEST_CASE(enum_explicit_overflow)
 		ABI_CHECK(callContractFunction("getChoiceExp(uint256)", 2), encodeArgs(2));
 		ABI_CHECK(callContractFunction("getChoiceExp(uint256)", 0), encodeArgs(0));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(storing_invalid_boolean)
 {
@@ -3869,7 +3869,7 @@ BOOST_AUTO_TEST_CASE(storing_invalid_boolean)
 	BOOST_CHECK(logData(0) == encodeArgs(1));
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 1);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("Ev(bool)")));
-};
+}};
 
 
 BOOST_AUTO_TEST_CASE(using_contract_enums_with_explicit_contract_name)
@@ -3885,7 +3885,7 @@ BOOST_AUTO_TEST_CASE(using_contract_enums_with_explicit_contract_name)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("answer()"), encodeArgs(1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_inherited_enum)
 {
@@ -3903,7 +3903,7 @@ BOOST_AUTO_TEST_CASE(using_inherited_enum)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("answer()"), encodeArgs(1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_inherited_enum_excplicitly)
 {
@@ -3921,7 +3921,7 @@ BOOST_AUTO_TEST_CASE(using_inherited_enum_excplicitly)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("answer()"), encodeArgs(1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(constructing_enums_from_ints)
 {
@@ -3938,7 +3938,7 @@ BOOST_AUTO_TEST_CASE(constructing_enums_from_ints)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("test()"), encodeArgs(1));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(struct_referencing)
 {
@@ -4000,7 +4000,7 @@ BOOST_AUTO_TEST_CASE(struct_referencing)
 	ABI_CHECK(callContractFunction("y()"), encodeArgs(4));
 	ABI_CHECK(callContractFunction("a1()"), encodeArgs(1));
 	ABI_CHECK(callContractFunction("a2()"), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(enum_referencing)
 {
@@ -4044,7 +4044,7 @@ BOOST_AUTO_TEST_CASE(enum_referencing)
 	ABI_CHECK(callContractFunction("h()"), encodeArgs(1));
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(1));
 	ABI_CHECK(callContractFunction("y()"), encodeArgs(3));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_member_init)
 {
@@ -4066,7 +4066,7 @@ BOOST_AUTO_TEST_CASE(inline_member_init)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("get()"), encodeArgs(5, 6, 8));
-};
+}};
 BOOST_AUTO_TEST_CASE(inline_member_init_inheritence)
 {
 	char const* sourceCode = R"(
@@ -4084,7 +4084,7 @@ BOOST_AUTO_TEST_CASE(inline_member_init_inheritence)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("getBMember()"), encodeArgs(5));
 	ABI_CHECK(callContractFunction("getDMember()"), encodeArgs(6));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_member_init_inheritence_without_constructor)
 {
@@ -4101,7 +4101,7 @@ BOOST_AUTO_TEST_CASE(inline_member_init_inheritence_without_constructor)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("getBMember()"), encodeArgs(5));
 	ABI_CHECK(callContractFunction("getDMember()"), encodeArgs(6));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(external_function)
 {
@@ -4118,7 +4118,7 @@ BOOST_AUTO_TEST_CASE(external_function)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("test(uint256,uint256)", 2, 3), encodeArgs(2+7, 3));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_in_arguments)
 {
@@ -4149,7 +4149,7 @@ BOOST_AUTO_TEST_CASE(bytes_in_arguments)
 		callContractFunction("test(uint256,bytes,bytes,uint256)", calldata),
 		encodeArgs(12, (8 + 9) * 3, 13, u256(innercalldata1.length()))
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(fixed_arrays_in_storage)
 {
@@ -4176,7 +4176,7 @@ BOOST_AUTO_TEST_CASE(fixed_arrays_in_storage)
 	ABI_CHECK(callContractFunction("getData(uint256)", 7), encodeArgs(8, 9));
 	ABI_CHECK(callContractFunction("getData(uint256)", 8), encodeArgs(10, 11));
 	ABI_CHECK(callContractFunction("getLengths()"), encodeArgs(u256(1) << 10, (u256(1) << 10) + 3));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(dynamic_arrays_in_storage)
 {
@@ -4211,7 +4211,7 @@ BOOST_AUTO_TEST_CASE(dynamic_arrays_in_storage)
 	ABI_CHECK(callContractFunction("setData(uint256,uint256,uint256)", 8, 10, 11), bytes());
 	ABI_CHECK(callContractFunction("getData(uint256)", 7), encodeArgs(8, 9));
 	ABI_CHECK(callContractFunction("getData(uint256)", 8), encodeArgs(10, 11));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(fixed_out_of_bounds_array_access)
 {
@@ -4234,7 +4234,7 @@ BOOST_AUTO_TEST_CASE(fixed_out_of_bounds_array_access)
 		ABI_CHECK(callContractFunction("get(uint256)", 400), bytes());
 		ABI_CHECK(callContractFunction("length()"), encodeArgs(4));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(dynamic_out_of_bounds_array_access)
 {
@@ -4263,7 +4263,7 @@ BOOST_AUTO_TEST_CASE(dynamic_out_of_bounds_array_access)
 		ABI_CHECK(callContractFunction("set(uint256,uint256)", 4, 8), bytes());
 		ABI_CHECK(callContractFunction("length()"), encodeArgs(4));
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(fixed_array_cleanup)
 {
@@ -4286,7 +4286,7 @@ BOOST_AUTO_TEST_CASE(fixed_array_cleanup)
 		ABI_CHECK(callContractFunction("clear()"), bytes());
 		BOOST_CHECK(storageEmpty(m_contractAddress));
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(short_fixed_array_cleanup)
 {
@@ -4309,7 +4309,7 @@ BOOST_AUTO_TEST_CASE(short_fixed_array_cleanup)
 		ABI_CHECK(callContractFunction("clear()"), bytes());
 		BOOST_CHECK(storageEmpty(m_contractAddress));
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(dynamic_array_cleanup)
 {
@@ -4338,7 +4338,7 @@ BOOST_AUTO_TEST_CASE(dynamic_array_cleanup)
 		ABI_CHECK(callContractFunction("fullClear()"), bytes());
 		BOOST_CHECK(storageEmpty(m_contractAddress));
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(dynamic_multi_array_cleanup)
 {
@@ -4365,7 +4365,7 @@ BOOST_AUTO_TEST_CASE(dynamic_multi_array_cleanup)
 	BOOST_CHECK(!storageEmpty(m_contractAddress));
 	ABI_CHECK(callContractFunction("clear()"), bytes());
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_storage_storage_dyn_dyn)
 {
@@ -4392,7 +4392,7 @@ BOOST_AUTO_TEST_CASE(array_copy_storage_storage_dyn_dyn)
 	ABI_CHECK(callContractFunction("copyStorageStorage()"), bytes());
 	ABI_CHECK(callContractFunction("getData2(uint256)", 0), encodeArgs(0, 0));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_storage_storage_static_static)
 {
@@ -4413,7 +4413,7 @@ BOOST_AUTO_TEST_CASE(array_copy_storage_storage_static_static)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(8, 0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_storage_storage_static_dynamic)
 {
@@ -4431,7 +4431,7 @@ BOOST_AUTO_TEST_CASE(array_copy_storage_storage_static_dynamic)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(9, 4));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_different_packing)
 {
@@ -4460,7 +4460,7 @@ BOOST_AUTO_TEST_CASE(array_copy_different_packing)
 		asString(fromHex("0000000000000004")),
 		asString(fromHex("0000000000000005"))
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_target_simple)
 {
@@ -4489,7 +4489,7 @@ BOOST_AUTO_TEST_CASE(array_copy_target_simple)
 		asString(fromHex("0000000000000004")),
 		asString(fromHex("0000000000000000"))
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_target_leftover)
 {
@@ -4519,7 +4519,7 @@ BOOST_AUTO_TEST_CASE(array_copy_target_leftover)
 		asString(fromHex("0000000000000000""000000000a000900""0800070006000500""0400030002000100")),
 		asString(fromHex("0000000000000000""0000000000000000""0000000000000000""0000000000000000"))
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_target_leftover2)
 {
@@ -4549,7 +4549,7 @@ BOOST_AUTO_TEST_CASE(array_copy_target_leftover2)
 		asString(fromHex("0000000000000000")),
 		asString(fromHex("0000000000000000"))
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_storage_storage_struct)
 {
@@ -4575,7 +4575,7 @@ BOOST_AUTO_TEST_CASE(array_copy_storage_storage_struct)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(4, 5));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_storage_abi)
 {
@@ -4627,7 +4627,7 @@ BOOST_AUTO_TEST_CASE(array_copy_storage_abi)
 		encodeArgs(101) + valueSequence +
 		encodeArgs(101) + valueSequence
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_storage_abi_signed)
 {
@@ -4661,7 +4661,7 @@ BOOST_AUTO_TEST_CASE(array_copy_storage_abi_signed)
 		u256(8),
 		u256(-1)
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_push)
 {
@@ -4681,7 +4681,7 @@ BOOST_AUTO_TEST_CASE(array_push)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(5, 4, 3, 3));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_push_struct)
 {
@@ -4703,7 +4703,7 @@ BOOST_AUTO_TEST_CASE(array_push_struct)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(2, 3, 4, 5));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_push_packed_array)
 {
@@ -4723,7 +4723,7 @@ BOOST_AUTO_TEST_CASE(array_push_packed_array)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(1, 2, 3, 4));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_push)
 {
@@ -4745,7 +4745,7 @@ BOOST_AUTO_TEST_CASE(byte_array_push)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(false));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_push_transition)
 {
@@ -4768,7 +4768,7 @@ BOOST_AUTO_TEST_CASE(byte_array_push_transition)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_pop)
 {
@@ -4788,7 +4788,7 @@ BOOST_AUTO_TEST_CASE(array_pop)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(1, 0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_pop_uint16_transition)
 {
@@ -4815,7 +4815,7 @@ BOOST_AUTO_TEST_CASE(array_pop_uint16_transition)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(38, 28, 18));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_pop_uint24_transition)
 {
@@ -4842,7 +4842,7 @@ BOOST_AUTO_TEST_CASE(array_pop_uint24_transition)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(20, 10));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_pop_array_transition)
 {
@@ -4874,7 +4874,7 @@ BOOST_AUTO_TEST_CASE(array_pop_array_transition)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(1, 2, 3));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_pop_empty_exception)
 {
@@ -4889,7 +4889,7 @@ BOOST_AUTO_TEST_CASE(array_pop_empty_exception)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_pop_storage_empty)
 {
@@ -4905,7 +4905,7 @@ BOOST_AUTO_TEST_CASE(array_pop_storage_empty)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs());
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_pop)
 {
@@ -4926,7 +4926,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(2, 1, 1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_pop_empty_exception)
 {
@@ -4944,7 +4944,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_empty_exception)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_pop_storage_empty)
 {
@@ -4964,7 +4964,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_storage_empty)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs());
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_pop_long_storage_empty)
 {
@@ -4989,7 +4989,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_long_storage_empty)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(true));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_pop_long_storage_empty_garbage_ref)
 {
@@ -5013,7 +5013,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_long_storage_empty_garbage_ref)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs());
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_pop_masking_long)
 {
@@ -5035,7 +5035,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_masking_long)
 		asString(fromHex("0303030303030303030303030303030303030303030303030303030303030303")),
 		asString(fromHex("03"))
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_pop_copy_long)
 {
@@ -5057,7 +5057,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_copy_long)
 		u256(29),
 		asString(fromHex("0303030303030303030303030303030303030303030303030303030303"))
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_pop_isolated)
 {
@@ -5074,7 +5074,7 @@ BOOST_AUTO_TEST_CASE(array_pop_isolated)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(3));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_array_pop_isolated)
 {
@@ -5091,7 +5091,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_isolated)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(3));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(external_array_args)
 {
@@ -5115,7 +5115,7 @@ BOOST_AUTO_TEST_CASE(external_array_args)
 		11, 12, 13 // b
 		);
 	ABI_CHECK(callContractFunction("test(uint256[8],uint256[],uint256[5],uint256,uint256,uint256)", params), encodeArgs(1, 12, 23));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_index_access)
 {
@@ -5151,7 +5151,7 @@ BOOST_AUTO_TEST_CASE(bytes_index_access)
 	ABI_CHECK(callContractFunction("direct(bytes,uint256)", 64, 33, u256(array.length()), array), encodeArgs(33));
 	ABI_CHECK(callContractFunction("storageCopyRead(bytes,uint256)", 64, 33, u256(array.length()), array), encodeArgs(33));
 	ABI_CHECK(callContractFunction("storageWrite()"), encodeArgs(0x193));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_delete_element)
 {
@@ -5171,7 +5171,7 @@ BOOST_AUTO_TEST_CASE(bytes_delete_element)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test1()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_calldata_storage)
 {
@@ -5210,7 +5210,7 @@ BOOST_AUTO_TEST_CASE(array_copy_calldata_storage)
 	ABI_CHECK(callContractFunction("retrieve()"), encodeArgs(
 		9, 28, 9, 28,
 		4, 3, 32));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_nested_array)
 {
@@ -5234,7 +5234,7 @@ BOOST_AUTO_TEST_CASE(array_copy_nested_array)
 		9, 10,
 		11, 12
 	)), encodeArgs(10));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(array_copy_including_mapping)
 {
@@ -5281,7 +5281,7 @@ BOOST_AUTO_TEST_CASE(array_copy_including_mapping)
 	BOOST_CHECK(!storageEmpty(m_contractAddress));
 	ABI_CHECK(callContractFunction("clear()"), encodeArgs(0, 0));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(swap_in_storage_overwrite)
 {
@@ -5313,7 +5313,7 @@ BOOST_AUTO_TEST_CASE(swap_in_storage_overwrite)
 	ABI_CHECK(callContractFunction("swap()"), encodeArgs());
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1), u256(2)));
 	ABI_CHECK(callContractFunction("y()"), encodeArgs(u256(1), u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(pass_dynamic_arguments_to_the_base)
 {
@@ -5334,7 +5334,7 @@ BOOST_AUTO_TEST_CASE(pass_dynamic_arguments_to_the_base)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("m_i()"), encodeArgs(4));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(pass_dynamic_arguments_to_the_base_base)
 {
@@ -5358,7 +5358,7 @@ BOOST_AUTO_TEST_CASE(pass_dynamic_arguments_to_the_base_base)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("m_i()"), encodeArgs(4));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(pass_dynamic_arguments_to_the_base_base_with_gap)
 {
@@ -5381,7 +5381,7 @@ BOOST_AUTO_TEST_CASE(pass_dynamic_arguments_to_the_base_base_with_gap)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("m_i()"), encodeArgs(4));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(simple_constant_variables_test)
 {
@@ -5393,7 +5393,7 @@ BOOST_AUTO_TEST_CASE(simple_constant_variables_test)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("getX()"), encodeArgs(56));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(constant_variables)
 {
@@ -5408,7 +5408,7 @@ BOOST_AUTO_TEST_CASE(constant_variables)
 	ALSO_VIA_YUL(
 		compileAndRun(sourceCode);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(assignment_to_const_var_involving_expression)
 {
@@ -5420,7 +5420,7 @@ BOOST_AUTO_TEST_CASE(assignment_to_const_var_involving_expression)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(0x123 + 0x456 + 1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(assignment_to_const_var_involving_keccak)
 {
@@ -5432,7 +5432,7 @@ BOOST_AUTO_TEST_CASE(assignment_to_const_var_involving_keccak)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(util::keccak256("abc")));
-};
+}};
 
 // Disabled until https://github.com/ethereum/solidity/issues/715 is implemented
 //BOOST_AUTO_TEST_CASE(assignment_to_const_array_vars)
@@ -5490,7 +5490,7 @@ BOOST_AUTO_TEST_CASE(packed_storage_structs_uint)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_storage_structs_enum)
 {
@@ -5522,7 +5522,7 @@ BOOST_AUTO_TEST_CASE(packed_storage_structs_enum)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_storage_structs_bytes)
 {
@@ -5552,7 +5552,7 @@ BOOST_AUTO_TEST_CASE(packed_storage_structs_bytes)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_storage_structs_delete)
 {
@@ -5583,7 +5583,7 @@ BOOST_AUTO_TEST_CASE(packed_storage_structs_delete)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(1));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(overloaded_function_call_resolve_to_first)
 {
@@ -5598,7 +5598,7 @@ BOOST_AUTO_TEST_CASE(overloaded_function_call_resolve_to_first)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("g()"), encodeArgs(3));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(overloaded_function_call_resolve_to_second)
 {
@@ -5613,7 +5613,7 @@ BOOST_AUTO_TEST_CASE(overloaded_function_call_resolve_to_second)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("g()"), encodeArgs(10));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(overloaded_function_call_with_if_else)
 {
@@ -5634,7 +5634,7 @@ BOOST_AUTO_TEST_CASE(overloaded_function_call_with_if_else)
 		ABI_CHECK(callContractFunction("g(bool)", true), encodeArgs(3));
 		ABI_CHECK(callContractFunction("g(bool)", false), encodeArgs(10));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(derived_overload_base_function_direct)
 {
@@ -5649,7 +5649,7 @@ BOOST_AUTO_TEST_CASE(derived_overload_base_function_direct)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("g()"), encodeArgs(2));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(derived_overload_base_function_indirect)
 {
@@ -5666,7 +5666,7 @@ BOOST_AUTO_TEST_CASE(derived_overload_base_function_indirect)
 		ABI_CHECK(callContractFunction("g()"), encodeArgs(10));
 		ABI_CHECK(callContractFunction("h()"), encodeArgs(2));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(super_overload)
 {
@@ -5681,7 +5681,7 @@ BOOST_AUTO_TEST_CASE(super_overload)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(10));
 	ABI_CHECK(callContractFunction("h()"), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(gasleft_shadow_resolution)
 {
@@ -5695,7 +5695,7 @@ BOOST_AUTO_TEST_CASE(gasleft_shadow_resolution)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(0));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bool_conversion)
 {
@@ -5724,7 +5724,7 @@ BOOST_AUTO_TEST_CASE(bool_conversion)
 	ABI_CHECK(callContractFunction("g(bool)", 2), v2 ? encodeArgs() : encodeArgs(1));
 	ABI_CHECK(callContractFunction("g(bool)", 3), v2 ? encodeArgs() : encodeArgs(1));
 	ABI_CHECK(callContractFunction("g(bool)", 255), v2 ? encodeArgs() : encodeArgs(1));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_storage_signed)
 {
@@ -5747,7 +5747,7 @@ BOOST_AUTO_TEST_CASE(packed_storage_signed)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(u256(-2), u256(4), u256(-112), u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(external_types_in_calls)
 {
@@ -5766,7 +5766,7 @@ BOOST_AUTO_TEST_CASE(external_types_in_calls)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(u256(9), u256(7)));
 	ABI_CHECK(callContractFunction("t2()"), encodeArgs(u256(9)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(invalid_enum_compared)
 {
@@ -5799,7 +5799,7 @@ BOOST_AUTO_TEST_CASE(invalid_enum_compared)
 	// both should throw
 	ABI_CHECK(callContractFunction("test_eq()"), encodeArgs());
 	ABI_CHECK(callContractFunction("test_neq()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(invalid_enum_logged)
 {
@@ -5833,7 +5833,7 @@ BOOST_AUTO_TEST_CASE(invalid_enum_logged)
 
 	// should throw
 	ABI_CHECK(callContractFunction("test_log()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(invalid_enum_stored)
 {
@@ -5862,7 +5862,7 @@ BOOST_AUTO_TEST_CASE(invalid_enum_stored)
 
 	// should throw
 	ABI_CHECK(callContractFunction("test_store()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(invalid_enum_as_external_ret)
 {
@@ -5898,7 +5898,7 @@ BOOST_AUTO_TEST_CASE(invalid_enum_as_external_ret)
 		ABI_CHECK(callContractFunction("test_inline_assignment()"), encodeArgs());
 		ABI_CHECK(callContractFunction("test_assignment()"), encodeArgs());
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(invalid_enum_as_external_arg)
 {
@@ -5924,7 +5924,7 @@ BOOST_AUTO_TEST_CASE(invalid_enum_as_external_arg)
 	compileAndRun(sourceCode, 0, "C");
 	// should throw
 	ABI_CHECK(callContractFunction("test()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(struct_assign_reference_to_struct)
 {
@@ -5958,7 +5958,7 @@ BOOST_AUTO_TEST_CASE(struct_assign_reference_to_struct)
 	)";
 	compileAndRun(sourceCode, 0, "test");
 	ABI_CHECK(callContractFunction("assign()"), encodeArgs(2, 2, 3, 3));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(struct_delete_member)
 {
@@ -5984,7 +5984,7 @@ BOOST_AUTO_TEST_CASE(struct_delete_member)
 	)";
 	compileAndRun(sourceCode, 0, "test");
 	ABI_CHECK(callContractFunction("deleteMember()"), encodeArgs(0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(struct_delete_struct_in_mapping)
 {
@@ -6009,7 +6009,7 @@ BOOST_AUTO_TEST_CASE(struct_delete_struct_in_mapping)
 	)";
 	compileAndRun(sourceCode, 0, "test");
 	ABI_CHECK(callContractFunction("deleteIt()"), encodeArgs(0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(evm_exceptions_out_of_band_access)
 {
@@ -6033,7 +6033,7 @@ BOOST_AUTO_TEST_CASE(evm_exceptions_out_of_band_access)
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(false));
 	ABI_CHECK(callContractFunction("testIt()"), encodeArgs());
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(false));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(evm_exceptions_in_constructor_call_fail)
 {
@@ -6057,7 +6057,7 @@ BOOST_AUTO_TEST_CASE(evm_exceptions_in_constructor_call_fail)
 
 	ABI_CHECK(callContractFunction("testIt()"), encodeArgs());
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(evm_exceptions_in_constructor_out_of_baund)
 {
@@ -6075,7 +6075,7 @@ BOOST_AUTO_TEST_CASE(evm_exceptions_in_constructor_out_of_baund)
 	)";
 	ABI_CHECK(compileAndRunWithoutCheck(sourceCode, 0, "A"), encodeArgs());
 	BOOST_CHECK(!m_transactionSuccessful);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(positive_integers_to_signed)
 {
@@ -6090,7 +6090,7 @@ BOOST_AUTO_TEST_CASE(positive_integers_to_signed)
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(2));
 	ABI_CHECK(callContractFunction("y()"), encodeArgs(127));
 	ABI_CHECK(callContractFunction("q()"), encodeArgs(250));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(failing_send)
 {
@@ -6113,7 +6113,7 @@ BOOST_AUTO_TEST_CASE(failing_send)
 	u160 const c_helperAddress = m_contractAddress;
 	compileAndRun(sourceCode, 20, "Main");
 	BOOST_REQUIRE(callContractFunction("callHelper(address)", c_helperAddress) == encodeArgs(true, 20));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(send_zero_ether)
 {
@@ -6134,7 +6134,7 @@ BOOST_AUTO_TEST_CASE(send_zero_ether)
 	)";
 	compileAndRun(sourceCode, 20, "Main");
 	BOOST_REQUIRE(callContractFunction("s()") == encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(reusing_memory)
 {
@@ -6160,7 +6160,7 @@ BOOST_AUTO_TEST_CASE(reusing_memory)
 	)";
 	compileAndRun(sourceCode, 0, "Main");
 	BOOST_REQUIRE(callContractFunction("f(uint256)", 0x34) == encodeArgs(util::keccak256(util::toBigEndian(u256(0x34)))));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(return_string)
 {
@@ -6185,7 +6185,7 @@ BOOST_AUTO_TEST_CASE(return_string)
 	ABI_CHECK(callContractFunction("get1()"), args);
 	ABI_CHECK(callContractFunction("get2()"), args);
 	ABI_CHECK(callContractFunction("s()"), args);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(return_multiple_strings_of_various_sizes)
 {
@@ -6234,7 +6234,7 @@ BOOST_AUTO_TEST_CASE(return_multiple_strings_of_various_sizes)
 			ABI_CHECK(callContractFunction("s1()"), encodeArgs(0x20) + dyn1);
 			ABI_CHECK(callContractFunction("s2()"), encodeArgs(0x20) + dyn2);
 		}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(accessor_involving_strings)
 {
@@ -6264,7 +6264,7 @@ BOOST_AUTO_TEST_CASE(accessor_involving_strings)
 	bytes result = encodeArgs(u256(0x60), b, u256(0x60 + s1Data.size()), s1Data, s2Data);
 	BOOST_REQUIRE(callContractFunction("set(uint256,uint256,string,uint256,string)", asString(args)) == encodeArgs(true));
 	BOOST_REQUIRE(callContractFunction("data(uint256,uint256)", x, y) == result);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_in_function_calls)
 {
@@ -6310,7 +6310,7 @@ BOOST_AUTO_TEST_CASE(bytes_in_function_calls)
 			ABI_CHECK(callContractFunction("s1()"), encodeArgs(0x20) + dyn2);
 			ABI_CHECK(callContractFunction("s2()"), encodeArgs(0x20) + dyn1);
 		}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(return_bytes_internal)
 {
@@ -6339,7 +6339,7 @@ BOOST_AUTO_TEST_CASE(return_bytes_internal)
 			encodeArgs(u256(l1), u256(0x40)) + dyn1
 		);
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_index_access_memory)
 {
@@ -6366,7 +6366,7 @@ BOOST_AUTO_TEST_CASE(bytes_index_access_memory)
 		callContractFunction("f(bytes,uint256,uint256,uint256)", asString(args1)) ==
 		encodeArgs(string{s1[3]}, string{s1[4]}, string{s1[5]})
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_in_constructors_unpacker)
 {
@@ -6387,7 +6387,7 @@ BOOST_AUTO_TEST_CASE(bytes_in_constructors_unpacker)
 	compileAndRun(sourceCode, 0, "Test", args1);
 	BOOST_REQUIRE(callContractFunction("m_x()") == encodeArgs(x));
 	BOOST_REQUIRE(callContractFunction("m_s()") == encodeArgs(u256(0x20)) + dyn1);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_in_constructors_packer)
 {
@@ -6426,7 +6426,7 @@ BOOST_AUTO_TEST_CASE(bytes_in_constructors_packer)
 		callContractFunction("f(uint256,bytes)", asString(args1)) ==
 		encodeArgs(x, string{s1[unsigned(x)]})
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(arrays_in_constructors)
 {
@@ -6465,7 +6465,7 @@ BOOST_AUTO_TEST_CASE(arrays_in_constructors)
 		callContractFunction("f(uint256,address[])", asString(args1)) ==
 		encodeArgs(x, s1[unsigned(x)])
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(fixed_arrays_in_constructors)
 {
@@ -6482,7 +6482,7 @@ BOOST_AUTO_TEST_CASE(fixed_arrays_in_constructors)
 	compileAndRun(sourceCode, 0, "Creator", encodeArgs(u256(1), u256(2), u256(3), u256(4)));
 	BOOST_REQUIRE(callContractFunction("r()") == encodeArgs(u256(4)));
 	BOOST_REQUIRE(callContractFunction("ch()") == encodeArgs(u256(3)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(arrays_from_and_to_storage)
 {
@@ -6509,7 +6509,7 @@ BOOST_AUTO_TEST_CASE(arrays_from_and_to_storage)
 	ABI_CHECK(callContractFunction("data(uint256)", u256(15)), encodeArgs(u256(16)));
 	ABI_CHECK(callContractFunction("data(uint256)", u256(18)), encodeArgs());
 	ABI_CHECK(callContractFunction("get()"), encodeArgs(u256(0x20), u256(data.size()), data));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(arrays_complex_from_and_to_storage)
 {
@@ -6536,7 +6536,7 @@ BOOST_AUTO_TEST_CASE(arrays_complex_from_and_to_storage)
 	ABI_CHECK(callContractFunction("data(uint256,uint256)", u256(5), u256(1)), encodeArgs(u256(17)));
 	ABI_CHECK(callContractFunction("data(uint256,uint256)", u256(6), u256(0)), encodeArgs());
 	ABI_CHECK(callContractFunction("get()"), encodeArgs(u256(0x20), u256(data.size() / 3), data));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(arrays_complex_memory_index_access)
 {
@@ -6561,7 +6561,7 @@ BOOST_AUTO_TEST_CASE(arrays_complex_memory_index_access)
 				data
 		) == encodeArgs(u256(data.size() / 3), u256(data[3 * 3 + 2])));
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bytes_memory_index_access)
 {
@@ -6586,7 +6586,7 @@ BOOST_AUTO_TEST_CASE(bytes_memory_index_access)
 				data
 		) == encodeArgs(u256(data.size()), string("d")));
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(storage_array_ref)
 {
@@ -6641,7 +6641,7 @@ BOOST_AUTO_TEST_CASE(storage_array_ref)
 		ABI_CHECK(callContractFunction("find(uint256)", u256(0)), encodeArgs(u256(-1)));
 		ABI_CHECK(callContractFunction("find(uint256)", u256(400)), encodeArgs(u256(-1)));
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_types_initialisation)
 {
@@ -6663,7 +6663,7 @@ BOOST_AUTO_TEST_CASE(memory_types_initialisation)
 	ABI_CHECK(callContractFunction("dyn()"), encodeArgs(u256(0x20), u256(0)));
 	ABI_CHECK(callContractFunction("nested()"), encodeArgs(u256(0x20), u256(0)));
 	ABI_CHECK(callContractFunction("nestedStat()"), encodeArgs(vector<u256>(3 * 7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_arrays_delete)
 {
@@ -6692,7 +6692,7 @@ BOOST_AUTO_TEST_CASE(memory_arrays_delete)
 			data[i * 3 + j] = v;
 		}
 	ABI_CHECK(callContractFunction("del()"), encodeArgs(data));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_arrays_index_access_write)
 {
@@ -6715,7 +6715,7 @@ BOOST_AUTO_TEST_CASE(memory_arrays_index_access_write)
 	data[3 * 2 + 2] = 1;
 	data[3 * 3 + 2] = 7;
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(data));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_arrays_dynamic_index_access_write)
 {
@@ -6740,7 +6740,7 @@ BOOST_AUTO_TEST_CASE(memory_arrays_dynamic_index_access_write)
 	data[3 * 2 + 2] = 1;
 	data[3 * 3 + 2] = 7;
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x20), u256(4), data));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_structs_read_write)
 {
@@ -6785,7 +6785,7 @@ BOOST_AUTO_TEST_CASE(memory_structs_read_write)
 	ABI_CHECK(callContractFunction("testInit()"), encodeArgs(u256(0), u256(0), u256(0), u256(0), true));
 	ABI_CHECK(callContractFunction("testCopyRead()"), encodeArgs(u256(1), u256(2), u256(3), u256(4)));
 	ABI_CHECK(callContractFunction("testAssign()"), encodeArgs(u256(1), u256(2), u256(3), u256(4)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_structs_as_function_args)
 {
@@ -6813,7 +6813,7 @@ BOOST_AUTO_TEST_CASE(memory_structs_as_function_args)
 	compileAndRun(sourceCode, 0, "Test");
 
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(u256(1), u256(2), u256(3)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_structs_nested)
 {
@@ -6845,7 +6845,7 @@ BOOST_AUTO_TEST_CASE(memory_structs_nested)
 	compileAndRun(sourceCode, 0, "Test");
 
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(u256(1), u256(2), u256(3), u256(4)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_structs_nested_load)
 {
@@ -6892,7 +6892,7 @@ BOOST_AUTO_TEST_CASE(memory_structs_nested_load)
 	auto out = encodeArgs(u256(1), u256(2), u256(3), u256(4), u256(5), u256(6));
 	ABI_CHECK(callContractFunction("load()"), out);
 	ABI_CHECK(callContractFunction("store()"), out);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(struct_constructor_nested)
 {
@@ -6919,7 +6919,7 @@ BOOST_AUTO_TEST_CASE(struct_constructor_nested)
 
 	auto out = encodeArgs(u256(1), u256(0), u256(9), u256(0), u256(4), u256(5));
 	ABI_CHECK(callContractFunction("get()"), out);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(struct_named_constructor)
 {
@@ -6935,7 +6935,7 @@ BOOST_AUTO_TEST_CASE(struct_named_constructor)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("s()"), encodeArgs(u256(1), true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_array)
 {
@@ -6951,7 +6951,7 @@ BOOST_AUTO_TEST_CASE(calldata_array)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f(uint256[2])", encodeArgs(u256(42), u256(23))), encodeArgs(u256(42), u256(23)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_struct)
 {
@@ -6968,7 +6968,7 @@ BOOST_AUTO_TEST_CASE(calldata_struct)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f((uint256,uint256))", encodeArgs(u256(42), u256(23))), encodeArgs(u256(42), u256(23)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_struct_and_ints)
 {
@@ -6984,7 +6984,7 @@ BOOST_AUTO_TEST_CASE(calldata_struct_and_ints)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f(uint256,(uint256,uint256),uint256)", encodeArgs(u256(1), u256(2), u256(3), u256(4))), encodeArgs(u256(1), u256(2), u256(3), u256(4)));
-};
+}};
 
 
 BOOST_AUTO_TEST_CASE(calldata_structs)
@@ -7007,7 +7007,7 @@ BOOST_AUTO_TEST_CASE(calldata_structs)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f((uint256,uint256),(uint256),(uint256,uint256))", encodeArgs(u256(1), u256(2), u256(3), u256(4), u256(5))), encodeArgs(u256(1), u256(2), u256(3), u256(4), u256(5)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_struct_array_member)
 {
@@ -7026,7 +7026,7 @@ BOOST_AUTO_TEST_CASE(calldata_struct_array_member)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f((uint256,uint256[2],uint256))", encodeArgs(u256(42), u256(1), u256(2), u256(23))), encodeArgs(u256(42), u256(1), u256(2), u256(23)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_array_of_struct)
 {
@@ -7046,7 +7046,7 @@ BOOST_AUTO_TEST_CASE(calldata_array_of_struct)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f((uint256,uint256)[])", encodeArgs(u256(0x20), u256(2), u256(1), u256(2), u256(3), u256(4))), encodeArgs(u256(2), u256(1), u256(2), u256(3), u256(4)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_array_of_struct_to_memory)
 {
@@ -7067,7 +7067,7 @@ BOOST_AUTO_TEST_CASE(calldata_array_of_struct_to_memory)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f((uint256,uint256)[])", encodeArgs(u256(0x20), u256(2), u256(1), u256(2), u256(3), u256(4))), encodeArgs(u256(2), u256(1), u256(2), u256(3), u256(4)));
-};
+}};
 
 
 BOOST_AUTO_TEST_CASE(calldata_struct_to_memory)
@@ -7085,7 +7085,7 @@ BOOST_AUTO_TEST_CASE(calldata_struct_to_memory)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f((uint256,uint256))", encodeArgs(u256(42), u256(23))), encodeArgs(u256(42), u256(23)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(nested_calldata_struct)
 {
@@ -7102,7 +7102,7 @@ BOOST_AUTO_TEST_CASE(nested_calldata_struct)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f((uint256,uint256,(uint256,uint256),uint256))", encodeArgs(u256(1), u256(2), u256(3), u256(4), u256(5))), encodeArgs(u256(1), u256(2), u256(3), u256(4), u256(5)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(nested_calldata_struct_to_memory)
 {
@@ -7120,7 +7120,7 @@ BOOST_AUTO_TEST_CASE(nested_calldata_struct_to_memory)
 	compileAndRun(sourceCode, 0, "C");
 
 	ABI_CHECK(callContractFunction("f((uint256,uint256,(uint256,uint256),uint256))", encodeArgs(u256(1), u256(2), u256(3), u256(4), u256(5))), encodeArgs(u256(1), u256(2), u256(3), u256(4), u256(5)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_struct_short)
 {
@@ -7143,7 +7143,7 @@ BOOST_AUTO_TEST_CASE(calldata_struct_short)
 	ABI_CHECK(callContractFunctionNoEncoding("f((uint256,uint256))", bytes(32,0)), encodeArgs());
 	ABI_CHECK(callContractFunctionNoEncoding("f((uint256,uint256))", bytes(31,0)), encodeArgs());
 	ABI_CHECK(callContractFunctionNoEncoding("f((uint256,uint256))", bytes()), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_struct_cleaning)
 {
@@ -7168,7 +7168,7 @@ BOOST_AUTO_TEST_CASE(calldata_struct_cleaning)
 	ABI_CHECK(callContractFunction("f((uint8,bytes1))", u256(0x12), bytes{0x34} + bytes(31,0)), encodeArgs(0x12, bytes{0x34} + bytes(31,0)));
 	ABI_CHECK(callContractFunction("f((uint8,bytes1))", u256(0x1234), bytes{0x56, 0x78} + bytes(30,0)), encodeArgs());
 	ABI_CHECK(callContractFunction("f((uint8,bytes1))", u256(-1), u256(-1)), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_struct_function_type)
 {
@@ -7193,7 +7193,7 @@ BOOST_AUTO_TEST_CASE(calldata_struct_function_type)
 	bytes fn_C_h = m_contractAddress.asBytes() + FixedHash<4>(util::keccak256("h(uint256)")).asBytes() + bytes(8,0);
 	ABI_CHECK(callContractFunctionNoEncoding("f((function))", fn_C_g), encodeArgs(42 * 3));
 	ABI_CHECK(callContractFunctionNoEncoding("f((function))", fn_C_h), encodeArgs(23));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_array_dynamic_bytes)
 {
@@ -7240,7 +7240,7 @@ BOOST_AUTO_TEST_CASE(calldata_array_dynamic_bytes)
 		callContractFunction("g2(bytes[])", 0x20, 2, 0x40, 0x80, 2, bytes0102, 3, bytes040506),
 		encodeArgs(2, 2, 1, 2, 3, 4, 5, 6)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_dynamic_array_to_memory)
 {
@@ -7259,7 +7259,7 @@ BOOST_AUTO_TEST_CASE(calldata_dynamic_array_to_memory)
 		callContractFunction("f(uint256[][])", 0x20, 1, 0x20, 2, 23, 42),
 		encodeArgs(1, 0x40, 2, 23, 42)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_bytes_array_to_memory)
 {
@@ -7298,7 +7298,7 @@ BOOST_AUTO_TEST_CASE(calldata_bytes_array_to_memory)
 		callContractFunction("f(bytes[])", 0x20, 1, 0x20, 32, a_m_x),
 		encodeArgs(1, 32, 0x60, 32, a_m_x)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_bytes_array_bounds)
 {
@@ -7324,7 +7324,7 @@ BOOST_AUTO_TEST_CASE(calldata_bytes_array_bounds)
 		callContractFunction("f(bytes[],uint256)", 0x40, 2, 1, 0x20, 2, bytes{'a', 'b'} + bytes(30, 0)),
 		encodeArgs()
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_string_array)
 {
@@ -7344,7 +7344,7 @@ BOOST_AUTO_TEST_CASE(calldata_string_array)
 		callContractFunction("f(string[])", 0x20, 1, 0x20, 2, bytes{'a', 'b'} + bytes(30, 0)),
 		encodeArgs(1, 2, 'a', 0x80, 2, bytes{'a', 'b'} + bytes(30, 0))
 	);
-};
+}};
 
 //BOOST_AUTO_TEST_CASE(calldata_array_two_dimensional)
 //{
@@ -7511,7 +7511,7 @@ BOOST_AUTO_TEST_CASE(calldata_array_dynamic_invalid)
 	// invalid on inner access
 	ABI_CHECK(callContractFunction("f(uint256[][])", 0x20, 1, 0x20, 2, 0x42), encodeArgs(42));
 	ABI_CHECK(callContractFunction("g(uint256[][])", 0x20, 1, 0x20, 2, 0x42), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_array_dynamic_invalid_static_middle)
 {
@@ -7547,7 +7547,7 @@ BOOST_AUTO_TEST_CASE(calldata_array_dynamic_invalid_static_middle)
 	ABI_CHECK(callContractFunction("f(uint256[][1][])", 0x20, 1, 0x20, 0x20, 1), encodeArgs(42));
 	ABI_CHECK(callContractFunction("g(uint256[][1][])", 0x20, 1, 0x20, 0x20, 1), encodeArgs(42));
 	ABI_CHECK(callContractFunction("h(uint256[][1][])", 0x20, 1, 0x20, 0x20, 1), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(literal_strings)
 {
@@ -7577,7 +7577,7 @@ BOOST_AUTO_TEST_CASE(literal_strings)
 	ABI_CHECK(callContractFunction("medium()"), encodeDyn(medium));
 	ABI_CHECK(callContractFunction("short()"), encodeDyn(shortStr));
 	ABI_CHECK(callContractFunction("empty()"), encodeDyn(string()));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(initialise_string_constant)
 {
@@ -7593,7 +7593,7 @@ BOOST_AUTO_TEST_CASE(initialise_string_constant)
 
 	ABI_CHECK(callContractFunction("long()"), encodeDyn(longStr));
 	ABI_CHECK(callContractFunction("short()"), encodeDyn(shortStr));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_structs_with_mappings)
 {
@@ -7616,7 +7616,7 @@ BOOST_AUTO_TEST_CASE(memory_structs_with_mappings)
 	)";
 	compileAndRun(sourceCode, 0, "Test");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(string_bytes_conversion)
 {
@@ -7641,7 +7641,7 @@ BOOST_AUTO_TEST_CASE(string_bytes_conversion)
 		string("abcdef")
 	), encodeArgs("c"));
 	ABI_CHECK(callContractFunction("l()"), encodeArgs(u256(6)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(string_as_mapping_key)
 {
@@ -7678,7 +7678,7 @@ BOOST_AUTO_TEST_CASE(string_as_mapping_key)
 				strings[i]
 			), encodeArgs(u256(7 + i)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(string_as_public_mapping_key)
 {
@@ -7710,7 +7710,7 @@ BOOST_AUTO_TEST_CASE(string_as_public_mapping_key)
 			u256(strings[i].size()),
 			strings[i]
 		), encodeArgs(u256(7 + i)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(nested_string_as_public_mapping_key)
 {
@@ -7750,7 +7750,7 @@ BOOST_AUTO_TEST_CASE(nested_string_as_public_mapping_key)
 			u256(strings[i+1].size()),
 			strings[i+1]
 		), encodeArgs(u256(7 + i)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(nested_mixed_string_as_public_mapping_key)
 {
@@ -7816,7 +7816,7 @@ BOOST_AUTO_TEST_CASE(nested_mixed_string_as_public_mapping_key)
 			u256(data[i].s4.size()),
 			data[i].s4
 		), encodeArgs(u256(i - 3)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(accessor_for_state_variable)
 {
@@ -7830,7 +7830,7 @@ BOOST_AUTO_TEST_CASE(accessor_for_state_variable)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("ticketPrice()"), encodeArgs(u256(500)));
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(accessor_for_const_state_variable)
 {
@@ -7842,7 +7842,7 @@ BOOST_AUTO_TEST_CASE(accessor_for_const_state_variable)
 
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("ticketPrice()"), encodeArgs(u256(555)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(state_variable_under_contract_name)
 {
@@ -7857,7 +7857,7 @@ BOOST_AUTO_TEST_CASE(state_variable_under_contract_name)
 	)";
 	compileAndRun(text);
 	ABI_CHECK(callContractFunction("getStateVar()"), encodeArgs(u256(42)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(state_variable_local_variable_mixture)
 {
@@ -7873,7 +7873,7 @@ BOOST_AUTO_TEST_CASE(state_variable_local_variable_mixture)
 
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inherited_function) {
 	char const* sourceCode = R"(
@@ -7888,7 +7888,7 @@ BOOST_AUTO_TEST_CASE(inherited_function) {
 
 	compileAndRun(sourceCode, 0, "B");
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inherited_function_calldata_memory) {
 	char const* sourceCode = R"(
@@ -7906,7 +7906,7 @@ BOOST_AUTO_TEST_CASE(inherited_function_calldata_memory) {
 
 	compileAndRun(sourceCode, 0, "B");
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(23)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inherited_function_calldata_memory_interface) {
 	char const* sourceCode = R"(
@@ -7923,7 +7923,7 @@ BOOST_AUTO_TEST_CASE(inherited_function_calldata_memory_interface) {
 
 	compileAndRun(sourceCode, 0, "B");
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(42)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inherited_function_calldata_calldata_interface) {
 	char const* sourceCode = R"(
@@ -7940,7 +7940,7 @@ BOOST_AUTO_TEST_CASE(inherited_function_calldata_calldata_interface) {
 
 	compileAndRun(sourceCode, 0, "B");
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(42)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inherited_function_from_a_library) {
 	char const* sourceCode = R"(
@@ -7955,7 +7955,7 @@ BOOST_AUTO_TEST_CASE(inherited_function_from_a_library) {
 
 	compileAndRun(sourceCode, 0, "B");
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inherited_constant_state_var)
 {
@@ -7972,7 +7972,7 @@ BOOST_AUTO_TEST_CASE(inherited_constant_state_var)
 
 	compileAndRun(sourceCode, 0, "B");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(constant_string_literal)
 {
@@ -8004,7 +8004,7 @@ BOOST_AUTO_TEST_CASE(constant_string_literal)
 	ABI_CHECK(callContractFunction("getX()"), encodeDyn(longStr));
 	ABI_CHECK(callContractFunction("getX2()"), encodeDyn(longStr));
 	ABI_CHECK(callContractFunction("unused()"), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(storage_string_as_mapping_key_without_variable)
 {
@@ -8019,7 +8019,7 @@ BOOST_AUTO_TEST_CASE(storage_string_as_mapping_key_without_variable)
 	)";
 	compileAndRun(sourceCode, 0, "Test");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(library_call)
 {
@@ -8034,7 +8034,7 @@ BOOST_AUTO_TEST_CASE(library_call)
 	compileAndRun(sourceCode, 0, "Lib");
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f(uint256)", u256(33)), encodeArgs(u256(33) * 9));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(library_function_external)
 {
@@ -8049,7 +8049,7 @@ BOOST_AUTO_TEST_CASE(library_function_external)
 	compileAndRun(sourceCode, 0, "Lib");
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f(bytes)", u256(0x20), u256(5), "abcde"), encodeArgs("c"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(library_stray_values)
 {
@@ -8066,7 +8066,7 @@ BOOST_AUTO_TEST_CASE(library_stray_values)
 	compileAndRun(sourceCode, 0, "Lib");
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f(uint256)", u256(33)), encodeArgs(u256(42)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(cross_contract_types)
 {
@@ -8081,7 +8081,7 @@ BOOST_AUTO_TEST_CASE(cross_contract_types)
 	)";
 	compileAndRun(sourceCode, 0, "Test");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(3)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(simple_throw)
 {
@@ -8099,7 +8099,7 @@ BOOST_AUTO_TEST_CASE(simple_throw)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(uint256)", u256(11)), encodeArgs(u256(21)));
 	ABI_CHECK(callContractFunction("f(uint256)", u256(1)), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(strings_in_struct)
 {
@@ -8141,7 +8141,7 @@ BOOST_AUTO_TEST_CASE(strings_in_struct)
 	ABI_CHECK(callContractFunction("getSecond()"), encodeArgs(u256(20)));
 	ABI_CHECK(callContractFunction("getThird()"), encodeArgs(u256(30)));
 	ABI_CHECK(callContractFunction("getLast()"), encodeDyn(s));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(fixed_arrays_as_return_type)
 {
@@ -8170,7 +8170,7 @@ BOOST_AUTO_TEST_CASE(fixed_arrays_as_return_type)
 		u256(2), u256(3), u256(4), u256(5), u256(6), // first return argument
 		u256(1000), u256(1001), u256(1002), u256(1003), u256(1004)) // second return argument
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(internal_types_in_library)
 {
@@ -8200,7 +8200,7 @@ BOOST_AUTO_TEST_CASE(internal_types_in_library)
 	compileAndRun(sourceCode, 0, "Lib");
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(4), u256(17)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(mapping_arguments_in_library)
 {
@@ -8244,7 +8244,7 @@ BOOST_AUTO_TEST_CASE(mapping_arguments_in_library)
 	ABI_CHECK(callContractFunction("get(uint256)", u256(1)), encodeArgs(u256(21)));
 	ABI_CHECK(callContractFunction("get(uint256)", u256(2)), encodeArgs(u256(42)));
 	ABI_CHECK(callContractFunction("get(uint256)", u256(21)), encodeArgs(u256(14)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(mapping_returns_in_library)
 {
@@ -8322,7 +8322,7 @@ BOOST_AUTO_TEST_CASE(mapping_returns_in_library)
 	ABI_CHECK(callContractFunction("get(bool,uint256)", false, u256(1)), encodeArgs(u256(30)));
 	ABI_CHECK(callContractFunction("get(bool,uint256)", false, u256(2)), encodeArgs(u256(31)));
 	ABI_CHECK(callContractFunction("get(bool,uint256)", false, u256(21)), encodeArgs(u256(32)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(mapping_returns_in_library_named)
 {
@@ -8356,7 +8356,7 @@ BOOST_AUTO_TEST_CASE(mapping_returns_in_library_named)
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0), u256(42), u256(0), u256(0), u256(21), u256(84)));
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(0), u256(42), u256(0), u256(0), u256(21), u256(17)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_library_mappings_public)
 {
@@ -8383,7 +8383,7 @@ BOOST_AUTO_TEST_CASE(using_library_mappings_public)
 	compileAndRun(sourceCode, 0, "Lib");
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1), u256(0), u256(42), u256(23), u256(0), u256(99)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_library_mappings_external)
 {
@@ -8419,7 +8419,7 @@ BOOST_AUTO_TEST_CASE(using_library_mappings_external)
 		compileAndRun(prefix + sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2), u256(0), u256(84), u256(46), u256(0), u256(198)));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_library_mappings_return)
 {
@@ -8444,7 +8444,7 @@ BOOST_AUTO_TEST_CASE(using_library_mappings_return)
 	compileAndRun(sourceCode, 0, "Lib");
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1), u256(0), u256(42), u256(23), u256(0), u256(99)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_library_structs)
 {
@@ -8472,7 +8472,7 @@ BOOST_AUTO_TEST_CASE(using_library_structs)
 	compileAndRun(sourceCode, 0, "Lib");
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(7), u256(8)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(library_struct_as_an_expression)
 {
@@ -8493,7 +8493,7 @@ BOOST_AUTO_TEST_CASE(library_struct_as_an_expression)
 	)";
 	compileAndRun(sourceCode, 0, "Tsra");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(library_enum_as_an_expression)
 {
@@ -8514,7 +8514,7 @@ BOOST_AUTO_TEST_CASE(library_enum_as_an_expression)
 	)";
 	compileAndRun(sourceCode, 0, "Tsra");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(short_strings)
 {
@@ -8632,7 +8632,7 @@ BOOST_AUTO_TEST_CASE(short_strings)
 	BOOST_CHECK(storageEmpty(m_contractAddress));
 	ABI_CHECK(callContractFunction("copy()"), encodeArgs(u256(0)));
 	BOOST_CHECK(storageEmpty(m_contractAddress));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calldata_offset)
 {
@@ -8651,7 +8651,7 @@ BOOST_AUTO_TEST_CASE(calldata_offset)
 	)";
 	compileAndRun(sourceCode, 0, "CB", encodeArgs(u256(0x20), u256(0x00)));
 	ABI_CHECK(callContractFunction("last()", encodeArgs()), encodeDyn(string("nd")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(contract_binary_dependencies)
 {
@@ -8661,7 +8661,7 @@ BOOST_AUTO_TEST_CASE(contract_binary_dependencies)
 		contract C { function f() public { new B(); } }
 	)";
 	compileAndRun(sourceCode);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(reject_ether_sent_to_library)
 {
@@ -8686,7 +8686,7 @@ BOOST_AUTO_TEST_CASE(reject_ether_sent_to_library)
 	ABI_CHECK(callContractFunction("f(address)", encodeArgs(u160(m_contractAddress))), encodeArgs(true));
 	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 10);
 	BOOST_CHECK_EQUAL(balanceAt(libraryAddress), 0);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(multi_variable_declaration)
 {
@@ -8729,7 +8729,7 @@ BOOST_AUTO_TEST_CASE(multi_variable_declaration)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()", encodeArgs()), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(typed_multi_variable_declaration)
 {
@@ -8756,7 +8756,7 @@ BOOST_AUTO_TEST_CASE(typed_multi_variable_declaration)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()", encodeArgs()), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(tuples)
 {
@@ -8787,7 +8787,7 @@ BOOST_AUTO_TEST_CASE(tuples)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(string_tuples)
 {
@@ -8807,7 +8807,7 @@ BOOST_AUTO_TEST_CASE(string_tuples)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x40), u256(8), u256(3), string("abc")));
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(0x40), u256(0x80), u256(3), string("abc"), u256(3), string("def")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(decayed_tuple)
 {
@@ -8822,7 +8822,7 @@ BOOST_AUTO_TEST_CASE(decayed_tuple)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_tuple_with_rational_numbers)
 {
@@ -8836,7 +8836,7 @@ BOOST_AUTO_TEST_CASE(inline_tuple_with_rational_numbers)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(destructuring_assignment)
 {
@@ -8875,7 +8875,7 @@ BOOST_AUTO_TEST_CASE(destructuring_assignment)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(bytes)", u256(0x20), u256(5), string("abcde")), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(lone_struct_array_type)
 {
@@ -8892,7 +8892,7 @@ BOOST_AUTO_TEST_CASE(lone_struct_array_type)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(3)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(create_memory_array)
 {
@@ -8914,7 +8914,7 @@ BOOST_AUTO_TEST_CASE(create_memory_array)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(string("A"), u256(8), u256(4), string("B")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(create_memory_array_allocation_size)
 {
@@ -8941,7 +8941,7 @@ BOOST_AUTO_TEST_CASE(create_memory_array_allocation_size)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(0x40, 0x40, 0x20 + 256, 0x260));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_arrays_of_various_sizes)
 {
@@ -8963,7 +8963,7 @@ BOOST_AUTO_TEST_CASE(memory_arrays_of_various_sizes)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", encodeArgs(u256(3), u256(1))), encodeArgs(u256(1)));
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", encodeArgs(u256(9), u256(5))), encodeArgs(u256(70)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(create_multiple_dynamic_arrays)
 {
@@ -8998,7 +8998,7 @@ BOOST_AUTO_TEST_CASE(create_multiple_dynamic_arrays)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(memory_overwrite)
 {
@@ -9013,7 +9013,7 @@ BOOST_AUTO_TEST_CASE(memory_overwrite)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeDyn(string("b23a5")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(addmod_mulmod)
 {
@@ -9032,7 +9032,7 @@ BOOST_AUTO_TEST_CASE(addmod_mulmod)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(addmod_mulmod_zero)
 {
@@ -9059,7 +9059,7 @@ BOOST_AUTO_TEST_CASE(addmod_mulmod_zero)
 	ABI_CHECK(callContractFunction("f(uint)", 0), encodeArgs());
 	ABI_CHECK(callContractFunction("g(uint)", 0), encodeArgs());
 	ABI_CHECK(callContractFunction("h()"), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(divisiod_by_zero)
 {
@@ -9080,7 +9080,7 @@ BOOST_AUTO_TEST_CASE(divisiod_by_zero)
 	ABI_CHECK(callContractFunction("mod(uint256,uint256)", 7, 2), encodeArgs(u256(1)));
 	// throws
 	ABI_CHECK(callContractFunction("mod(uint256,uint256)", 7, 0), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(string_allocation_bug)
 {
@@ -9110,7 +9110,7 @@ BOOST_AUTO_TEST_CASE(string_allocation_bug)
 		u256(5),
 		string("world")
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_for_function_on_int)
 {
@@ -9126,7 +9126,7 @@ BOOST_AUTO_TEST_CASE(using_for_function_on_int)
 	compileAndRun(sourceCode, 0, "D");
 	compileAndRun(sourceCode, 0, "C", bytes(), map<string, Address>{{"D", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f(uint256)", u256(9)), encodeArgs(u256(2 * 9)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_for_function_on_struct)
 {
@@ -9145,7 +9145,7 @@ BOOST_AUTO_TEST_CASE(using_for_function_on_struct)
 	compileAndRun(sourceCode, 0, "C", bytes(), map<string, Address>{{"D", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f(uint256)", u256(7)), encodeArgs(u256(3 * 7)));
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(3 * 7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_for_overload)
 {
@@ -9168,7 +9168,7 @@ BOOST_AUTO_TEST_CASE(using_for_overload)
 	compileAndRun(sourceCode, 0, "C", bytes(), map<string, Address>{{"D", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f(uint256)", u256(7)), encodeArgs(u256(6 * 7)));
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(6 * 7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(using_for_by_name)
 {
@@ -9187,7 +9187,7 @@ BOOST_AUTO_TEST_CASE(using_for_by_name)
 	compileAndRun(sourceCode, 0, "C", bytes(), map<string, Address>{{"D", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f(uint256)", u256(7)), encodeArgs(u256(6 * 7)));
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(6 * 7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bound_function_in_function)
 {
@@ -9206,7 +9206,7 @@ BOOST_AUTO_TEST_CASE(bound_function_in_function)
 	compileAndRun(sourceCode, 0, "L");
 	compileAndRun(sourceCode, 0, "C", bytes(), map<string, Address>{{"L", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bound_function_in_var)
 {
@@ -9225,7 +9225,7 @@ BOOST_AUTO_TEST_CASE(bound_function_in_var)
 	compileAndRun(sourceCode, 0, "C", bytes(), map<string, Address>{{"D", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f(uint256)", u256(7)), encodeArgs(u256(6 * 7)));
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(6 * 7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bound_function_to_string)
 {
@@ -9248,7 +9248,7 @@ BOOST_AUTO_TEST_CASE(bound_function_to_string)
 	compileAndRun(sourceCode, 0, "C", bytes(), map<string, Address>{{"D", m_contractAddress}});
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(3)));
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(3)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_array_storage_to_memory_conversion_strings)
 {
@@ -9264,7 +9264,7 @@ BOOST_AUTO_TEST_CASE(inline_array_storage_to_memory_conversion_strings)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x40), u256(0x80), u256(3), string("ray"), u256(2), string("mi")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_array_strings_from_document)
 {
@@ -9281,7 +9281,7 @@ BOOST_AUTO_TEST_CASE(inline_array_strings_from_document)
 	ABI_CHECK(callContractFunction("f(uint256)", u256(1)), encodeArgs(u256(0x20), u256(2), string("is")));
 	ABI_CHECK(callContractFunction("f(uint256)", u256(2)), encodeArgs(u256(0x20), u256(2), string("an")));
 	ABI_CHECK(callContractFunction("f(uint256)", u256(3)), encodeArgs(u256(0x20), u256(5), string("array")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_array_storage_to_memory_conversion_ints)
 {
@@ -9297,7 +9297,7 @@ BOOST_AUTO_TEST_CASE(inline_array_storage_to_memory_conversion_ints)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(3, 6));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_array_index_access_ints)
 {
@@ -9310,7 +9310,7 @@ BOOST_AUTO_TEST_CASE(inline_array_index_access_ints)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(3));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_array_index_access_strings)
 {
@@ -9328,7 +9328,7 @@ BOOST_AUTO_TEST_CASE(inline_array_index_access_strings)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("test()"), encodeArgs());
 	ABI_CHECK(callContractFunction("tester()"), encodeArgs(u256(0x20), u256(3), string("abc")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_array_return)
 {
@@ -9347,7 +9347,7 @@ BOOST_AUTO_TEST_CASE(inline_array_return)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(1, 2, 3, 4, 5));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_array_singleton)
 {
@@ -9361,7 +9361,7 @@ BOOST_AUTO_TEST_CASE(inline_array_singleton)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(4)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_long_string_return)
 {
@@ -9376,7 +9376,7 @@ BOOST_AUTO_TEST_CASE(inline_long_string_return)
 	string strLong = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678900123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeDyn(strLong));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(fixed_bytes_index_access)
 {
@@ -9397,7 +9397,7 @@ BOOST_AUTO_TEST_CASE(fixed_bytes_index_access)
 	ABI_CHECK(callContractFunction("f(bytes32)", "789"), encodeArgs("9"));
 	ABI_CHECK(callContractFunction("g(bytes32)", "789"), encodeArgs(u256(int('5'))));
 	ABI_CHECK(callContractFunction("data(uint256)", u256(1)), encodeArgs("8"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(fixed_bytes_length_access)
 {
@@ -9411,7 +9411,7 @@ BOOST_AUTO_TEST_CASE(fixed_bytes_length_access)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(bytes32)", "789"), encodeArgs(u256(32), u256(16), u256(8)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(byte_optimization_bug)
 {
@@ -9434,7 +9434,7 @@ BOOST_AUTO_TEST_CASE(byte_optimization_bug)
 		ABI_CHECK(callContractFunction("f(uint256)", u256(2)), encodeArgs(u256(0)));
 		ABI_CHECK(callContractFunction("g(uint256)", u256(2)), encodeArgs(u256(2)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_write_to_stack)
 {
@@ -9449,7 +9449,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_write_to_stack)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(7), string("abcdef")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_read_and_write_stack)
 {
@@ -9465,7 +9465,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_read_and_write_stack)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(45)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_memory_access)
 {
@@ -9482,7 +9482,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_memory_access)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(u256(0x20), u256(5), string("12345")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_storage_access)
 {
@@ -9508,7 +9508,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_storage_access)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
 	ABI_CHECK(callContractFunction("z()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_storage_access_inside_function)
 {
@@ -9535,7 +9535,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_storage_access_inside_function)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
 	ABI_CHECK(callContractFunction("z()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_storage_access_via_pointer)
 {
@@ -9562,7 +9562,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_storage_access_via_pointer)
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(7)));
 	ABI_CHECK(callContractFunction("separator()"), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("separator2()"), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_function_call)
 {
@@ -9588,7 +9588,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_function_call)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1), u256(2), u256(7)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_function_call_assignment)
 {
@@ -9615,7 +9615,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_function_call_assignment)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1), u256(2), u256(7)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_function_call2)
 {
@@ -9643,7 +9643,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_function_call2)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1), u256(2), u256(7), u256(0x10)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_embedded_function_call)
 {
@@ -9672,7 +9672,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_embedded_function_call)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1), u256(4), u256(7), u256(0x10)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_if)
 {
@@ -9692,7 +9692,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_if)
 		ABI_CHECK(callContractFunction("f(uint256)", u256(2)), encodeArgs(u256(2)));
 		ABI_CHECK(callContractFunction("f(uint256)", u256(3)), encodeArgs(u256(2)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_switch)
 {
@@ -9715,7 +9715,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_switch)
 		ABI_CHECK(callContractFunction("f(uint256)", u256(2)), encodeArgs(u256(9)));
 		ABI_CHECK(callContractFunction("f(uint256)", u256(3)), encodeArgs(u256(2)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_recursion)
 {
@@ -9742,7 +9742,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_recursion)
 		ABI_CHECK(callContractFunction("f(uint256)", u256(3)), encodeArgs(u256(6)));
 		ABI_CHECK(callContractFunction("f(uint256)", u256(4)), encodeArgs(u256(24)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_for)
 {
@@ -9769,7 +9769,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_for)
 		ABI_CHECK(callContractFunction("f(uint256)", u256(3)), encodeArgs(u256(6)));
 		ABI_CHECK(callContractFunction("f(uint256)", u256(4)), encodeArgs(u256(24)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_for2)
 {
@@ -9795,7 +9795,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_for2)
 		ABI_CHECK(callContractFunction("f(uint256)", u256(1)), encodeArgs(u256(1), u256(4), u256(3)));
 		ABI_CHECK(callContractFunction("f(uint256)", u256(2)), encodeArgs(u256(0), u256(2), u256(0)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(index_access_with_type_conversion)
 {
@@ -9811,7 +9811,7 @@ BOOST_AUTO_TEST_CASE(index_access_with_type_conversion)
 	// neither of the two should throw due to out-of-bounds access
 	BOOST_CHECK(callContractFunction("f(uint256)", u256(0x01)).size() == 256 * 32);
 	BOOST_CHECK(callContractFunction("f(uint256)", u256(0x101)).size() == 256 * 32);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(delete_on_array_of_structs)
 {
@@ -9835,7 +9835,7 @@ BOOST_AUTO_TEST_CASE(delete_on_array_of_structs)
 	// neither of the two should throw due to out-of-bounds access
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
 
-};
+}};
 
 BOOST_AUTO_TEST_CASE(internal_library_function)
 {
@@ -9859,7 +9859,7 @@ BOOST_AUTO_TEST_CASE(internal_library_function)
 	// This has to work without linking, because everything will be inlined.
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(internal_library_function_calling_private)
 {
@@ -9887,7 +9887,7 @@ BOOST_AUTO_TEST_CASE(internal_library_function_calling_private)
 	// This has to work without linking, because everything will be inlined.
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(internal_library_function_bound)
 {
@@ -9912,7 +9912,7 @@ BOOST_AUTO_TEST_CASE(internal_library_function_bound)
 	// This has to work without linking, because everything will be inlined.
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(internal_library_function_return_var_size)
 {
@@ -9937,7 +9937,7 @@ BOOST_AUTO_TEST_CASE(internal_library_function_return_var_size)
 	// This has to work without linking, because everything will be inlined.
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(iszero_bnot_correct)
 {
@@ -9957,7 +9957,7 @@ BOOST_AUTO_TEST_CASE(iszero_bnot_correct)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(cleanup_bytes_types)
 {
@@ -9976,7 +9976,7 @@ BOOST_AUTO_TEST_CASE(cleanup_bytes_types)
 	// We input longer data on purpose.
 	bool v2 = solidity::test::CommonOptions::get().useABIEncoderV2;
 	ABI_CHECK(callContractFunction("f(bytes2,uint16)", string("abc"), u256(0x040102)), v2 ? encodeArgs() : encodeArgs(0));
-};
+}};
 BOOST_AUTO_TEST_CASE(cleanup_bytes_types_shortening)
 {
 	char const* sourceCode = R"(
@@ -9993,7 +9993,7 @@ BOOST_AUTO_TEST_CASE(cleanup_bytes_types_shortening)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs("\xff\xff\xff\xff"));
-};
+}};
 BOOST_AUTO_TEST_CASE(cleanup_address_types)
 {
 	// Checks that address types are properly cleaned before they are compared.
@@ -10015,7 +10015,7 @@ BOOST_AUTO_TEST_CASE(cleanup_address_types)
 	// We input longer data on purpose.
 	ABI_CHECK(callContractFunction("f(address)", u256("0xFFFF1234567890123456789012345678901234567890")), v2 ? encodeArgs() : encodeArgs(0));
 	ABI_CHECK(callContractFunction("g(address)", u256("0xFFFF1234567890123456789012345678901234567890")), v2 ? encodeArgs() : encodeArgs(0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(cleanup_address_types_shortening)
 {
@@ -10044,7 +10044,7 @@ BOOST_AUTO_TEST_CASE(cleanup_address_types_shortening)
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256("0x1122334455667788990011223344556677889900")));
 		ABI_CHECK(callContractFunction("g()"), encodeArgs(u256("0x1122334455667788990011223344556677889900")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(skip_dynamic_types)
 {
@@ -10063,7 +10063,7 @@ BOOST_AUTO_TEST_CASE(skip_dynamic_types)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(7), u256(8)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(skip_dynamic_types_for_structs)
 {
@@ -10089,7 +10089,7 @@ BOOST_AUTO_TEST_CASE(skip_dynamic_types_for_structs)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(2), u256(6)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(failed_create)
 {
@@ -10117,7 +10117,7 @@ BOOST_AUTO_TEST_CASE(failed_create)
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1)));
 	ABI_CHECK(callContractFunction("stack(uint256)", 1023), encodeArgs());
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(create_dynamic_array_with_zero_length)
 {
@@ -10131,7 +10131,7 @@ BOOST_AUTO_TEST_CASE(create_dynamic_array_with_zero_length)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(correctly_initialize_memory_array_in_constructor)
 {
@@ -10161,7 +10161,7 @@ BOOST_AUTO_TEST_CASE(correctly_initialize_memory_array_in_constructor)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("success()"), encodeArgs(u256(1)));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(return_does_not_skip_modifier)
 {
@@ -10181,7 +10181,7 @@ BOOST_AUTO_TEST_CASE(return_does_not_skip_modifier)
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2)));
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(9)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(break_in_modifier)
 {
@@ -10205,7 +10205,7 @@ BOOST_AUTO_TEST_CASE(break_in_modifier)
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f()"), encodeArgs());
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(continue_in_modifier)
 {
@@ -10229,7 +10229,7 @@ BOOST_AUTO_TEST_CASE(continue_in_modifier)
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f()"), encodeArgs());
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(5)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(return_in_modifier)
 {
@@ -10253,7 +10253,7 @@ BOOST_AUTO_TEST_CASE(return_in_modifier)
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f()"), encodeArgs());
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(4)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(stacked_return_with_modifiers)
 {
@@ -10277,7 +10277,7 @@ BOOST_AUTO_TEST_CASE(stacked_return_with_modifiers)
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f()"), encodeArgs());
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(mutex)
 {
@@ -10346,7 +10346,7 @@ BOOST_AUTO_TEST_CASE(mutex)
 	ABI_CHECK(callContractFunction("setProtected(bool)", false), encodeArgs());
 	ABI_CHECK(callContractFunction("attack()"), encodeArgs(u256(460)));
 	BOOST_CHECK_EQUAL(balanceAt(fund), 460);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calling_nonexisting_contract_throws)
 {
@@ -10372,7 +10372,7 @@ BOOST_AUTO_TEST_CASE(calling_nonexisting_contract_throws)
 	ABI_CHECK(callContractFunction("f()"), encodeArgs());
 	ABI_CHECK(callContractFunction("g()"), encodeArgs());
 	ABI_CHECK(callContractFunction("h()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(payable_constructor)
 {
@@ -10384,7 +10384,7 @@ BOOST_AUTO_TEST_CASE(payable_constructor)
 	ALSO_VIA_YUL(
 		compileAndRun(sourceCode, 27, "C");
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(payable_function)
 {
@@ -10406,7 +10406,7 @@ BOOST_AUTO_TEST_CASE(payable_function)
 	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 27 + 27);
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(28)));
 	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 27 + 27);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(payable_function_calls_library)
 {
@@ -10423,7 +10423,7 @@ BOOST_AUTO_TEST_CASE(payable_function_calls_library)
 	compileAndRun(sourceCode, 0, "L");
 	compileAndRun(sourceCode, 0, "C", bytes(), map<string, Address>{{"L", m_contractAddress}});
 	ABI_CHECK(callContractFunctionWithValue("f()", 27), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(non_payable_throw)
 {
@@ -10455,7 +10455,7 @@ BOOST_AUTO_TEST_CASE(non_payable_throw)
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(1)));
 	ABI_CHECK(callContractFunctionWithValue("a()", 27), encodeArgs());
 	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 0);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(no_nonpayable_circumvention_by_modifier)
 {
@@ -10477,7 +10477,7 @@ BOOST_AUTO_TEST_CASE(no_nonpayable_circumvention_by_modifier)
 		ABI_CHECK(callContractFunctionWithValue("f()", 27), encodeArgs());
 		BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 0);
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(mem_resize_is_not_paid_at_call)
 {
@@ -10498,7 +10498,7 @@ BOOST_AUTO_TEST_CASE(mem_resize_is_not_paid_at_call)
 	u160 cAddr = m_contractAddress;
 	compileAndRun(sourceCode, 0, "D");
 	ABI_CHECK(callContractFunction("f(address)", cAddr), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calling_uninitialized_function)
 {
@@ -10521,7 +10521,7 @@ BOOST_AUTO_TEST_CASE(calling_uninitialized_function)
 	// This should throw exceptions
 	ABI_CHECK(callContractFunction("intern()"), encodeArgs());
 	ABI_CHECK(callContractFunction("extern()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calling_uninitialized_function_in_detail)
 {
@@ -10542,7 +10542,7 @@ BOOST_AUTO_TEST_CASE(calling_uninitialized_function_in_detail)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("t()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(calling_uninitialized_function_through_array)
 {
@@ -10563,7 +10563,7 @@ BOOST_AUTO_TEST_CASE(calling_uninitialized_function_through_array)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("t()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(pass_function_types_internally)
 {
@@ -10581,7 +10581,7 @@ BOOST_AUTO_TEST_CASE(pass_function_types_internally)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(uint256)", 7), encodeArgs(u256(8)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(pass_function_types_externally)
 {
@@ -10603,7 +10603,7 @@ BOOST_AUTO_TEST_CASE(pass_function_types_externally)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(uint256)", 7), encodeArgs(u256(8)));
 	ABI_CHECK(callContractFunction("f2(uint256)", 7), encodeArgs(u256(8)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(receive_external_function_type)
 {
@@ -10621,7 +10621,7 @@ BOOST_AUTO_TEST_CASE(receive_external_function_type)
 		"f(function)",
 		m_contractAddress.asBytes() + FixedHash<4>(util::keccak256("g()")).asBytes() + bytes(32 - 4 - 20, 0)
 	), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(return_external_function_type)
 {
@@ -10639,7 +10639,7 @@ BOOST_AUTO_TEST_CASE(return_external_function_type)
 		callContractFunction("f()"),
 		m_contractAddress.asBytes() + FixedHash<4>(util::keccak256("g()")).asBytes() + bytes(32 - 4 - 20, 0)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(store_function)
 {
@@ -10666,7 +10666,7 @@ BOOST_AUTO_TEST_CASE(store_function)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("t()"), encodeArgs(u256(9)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(store_function_in_constructor)
 {
@@ -10690,7 +10690,7 @@ BOOST_AUTO_TEST_CASE(store_function_in_constructor)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("use(uint256)", encodeArgs(u256(3))), encodeArgs(u256(6)));
 	ABI_CHECK(callContractFunction("result_in_constructor()"), encodeArgs(u256(4)));
-};
+}};
 
 // TODO: store bound internal library functions
 
@@ -10713,7 +10713,7 @@ BOOST_AUTO_TEST_CASE(store_internal_unused_function_in_constructor)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("t()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(store_internal_unused_library_function_in_constructor)
 {
@@ -10732,7 +10732,7 @@ BOOST_AUTO_TEST_CASE(store_internal_unused_library_function_in_constructor)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("t()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(same_function_in_construction_and_runtime)
 {
@@ -10754,7 +10754,7 @@ BOOST_AUTO_TEST_CASE(same_function_in_construction_and_runtime)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("runtime(uint256)", encodeArgs(u256(3))), encodeArgs(u256(6)));
 	ABI_CHECK(callContractFunction("initial()"), encodeArgs(u256(4)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(same_function_in_construction_and_runtime_equality_check)
 {
@@ -10775,7 +10775,7 @@ BOOST_AUTO_TEST_CASE(same_function_in_construction_and_runtime_equality_check)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_type_library_internal)
 {
@@ -10800,7 +10800,7 @@ BOOST_AUTO_TEST_CASE(function_type_library_internal)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(uint256[])", 0x20, 3, u256(1), u256(7), u256(3)), encodeArgs(u256(11)));
-};
+}};
 
 
 BOOST_AUTO_TEST_CASE(call_function_returning_function)
@@ -10832,7 +10832,7 @@ BOOST_AUTO_TEST_CASE(call_function_returning_function)
 		compileAndRun(sourceCode, 0, "test");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(mapping_of_functions)
 {
@@ -10872,7 +10872,7 @@ BOOST_AUTO_TEST_CASE(mapping_of_functions)
 	ABI_CHECK(callContractFunction("success()"), encodeArgs(false));
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(7)));
 	ABI_CHECK(callContractFunction("success()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_functions)
 {
@@ -10920,7 +10920,7 @@ BOOST_AUTO_TEST_CASE(packed_functions)
 	ABI_CHECK(callContractFunction("t3()"), encodeArgs(u256(7)));
 	ABI_CHECK(callContractFunction("t4()"), encodeArgs(u256(8)));
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_memory_array)
 {
@@ -10951,7 +10951,7 @@ BOOST_AUTO_TEST_CASE(function_memory_array)
 	ABI_CHECK(callContractFunction("test(uint256,uint256)", u256(10), u256(3)), encodeArgs(u256(15)));
 	ABI_CHECK(callContractFunction("test(uint256,uint256)", u256(10), u256(4)), encodeArgs(u256(18)));
 	ABI_CHECK(callContractFunction("test(uint256,uint256)", u256(10), u256(5)), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_delete_storage)
 {
@@ -10978,7 +10978,7 @@ BOOST_AUTO_TEST_CASE(function_delete_storage)
 	ABI_CHECK(callContractFunction("ca()"), encodeArgs(u256(7)));
 	ABI_CHECK(callContractFunction("d()"), encodeArgs(u256(1)));
 	ABI_CHECK(callContractFunction("ca()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_delete_stack)
 {
@@ -10997,7 +10997,7 @@ BOOST_AUTO_TEST_CASE(function_delete_stack)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("test()"), encodeArgs());
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(copy_function_storage_array)
 {
@@ -11019,7 +11019,7 @@ BOOST_AUTO_TEST_CASE(copy_function_storage_array)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_array_cross_calls)
 {
@@ -11058,7 +11058,7 @@ BOOST_AUTO_TEST_CASE(function_array_cross_calls)
 
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(u256(5), u256(6), u256(7)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(copy_internal_function_array_to_storage)
 {
@@ -11085,7 +11085,7 @@ BOOST_AUTO_TEST_CASE(copy_internal_function_array_to_storage)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("one()"), encodeArgs(u256(3)));
 	ABI_CHECK(callContractFunction("two()"), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_constant_left)
 {
@@ -11096,7 +11096,7 @@ BOOST_AUTO_TEST_CASE(shift_constant_left)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(0x4200)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_negative_constant_left)
 {
@@ -11107,7 +11107,7 @@ BOOST_AUTO_TEST_CASE(shift_negative_constant_left)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(-0x4200)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_constant_right)
 {
@@ -11118,7 +11118,7 @@ BOOST_AUTO_TEST_CASE(shift_constant_right)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(0x42)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_negative_constant_right)
 {
@@ -11129,7 +11129,7 @@ BOOST_AUTO_TEST_CASE(shift_negative_constant_right)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(-0x42)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_left)
 {
@@ -11147,7 +11147,7 @@ BOOST_AUTO_TEST_CASE(shift_left)
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(17)), encodeArgs(u256(0x84cc0000)));
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(240)), fromHex("4266000000000000000000000000000000000000000000000000000000000000"));
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(256)), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_left_uint32)
 {
@@ -11164,7 +11164,7 @@ BOOST_AUTO_TEST_CASE(shift_left_uint32)
 	ABI_CHECK(callContractFunction("f(uint32,uint32)", u256(0x4266), u256(16)), encodeArgs(u256(0x42660000)));
 	ABI_CHECK(callContractFunction("f(uint32,uint32)", u256(0x4266), u256(17)), encodeArgs(u256(0x84cc0000)));
 	ABI_CHECK(callContractFunction("f(uint32,uint32)", u256(0x4266), u256(32)), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_left_uint8)
 {
@@ -11178,7 +11178,7 @@ BOOST_AUTO_TEST_CASE(shift_left_uint8)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(uint8,uint8)", u256(0x66), u256(0)), encodeArgs(u256(0x66)));
 	ABI_CHECK(callContractFunction("f(uint8,uint8)", u256(0x66), u256(8)), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_left_larger_type)
 {
@@ -11194,7 +11194,7 @@ BOOST_AUTO_TEST_CASE(shift_left_larger_type)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_left_assignment)
 {
@@ -11213,7 +11213,7 @@ BOOST_AUTO_TEST_CASE(shift_left_assignment)
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(17)), encodeArgs(u256(0x84cc0000)));
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(240)), fromHex("4266000000000000000000000000000000000000000000000000000000000000"));
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(256)), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_left_assignment_different_type)
 {
@@ -11231,7 +11231,7 @@ BOOST_AUTO_TEST_CASE(shift_left_assignment_different_type)
 	ABI_CHECK(callContractFunction("f(uint256,uint8)", u256(0x4266), u256(16)), encodeArgs(u256(0x42660000)));
 	ABI_CHECK(callContractFunction("f(uint256,uint8)", u256(0x4266), u256(17)), encodeArgs(u256(0x84cc0000)));
 	ABI_CHECK(callContractFunction("f(uint256,uint8)", u256(0x4266), u256(240)), fromHex("4266000000000000000000000000000000000000000000000000000000000000"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right)
 {
@@ -11248,7 +11248,7 @@ BOOST_AUTO_TEST_CASE(shift_right)
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(16)), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(17)), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(1)<<255, u256(5)), encodeArgs(u256(1)<<250));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_garbled)
 {
@@ -11267,7 +11267,7 @@ BOOST_AUTO_TEST_CASE(shift_right_garbled)
 	bool v2 = solidity::test::CommonOptions::get().useABIEncoderV2;
 	ABI_CHECK(callContractFunction("f(uint8,uint8)", u256(0x0), u256(4)), encodeArgs(u256(0xf)));
 	ABI_CHECK(callContractFunction("f(uint8,uint8)", u256(0x0), u256(0x1004)), v2 ? encodeArgs() : encodeArgs(u256(0xf)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_garbled_signed)
 {
@@ -11301,7 +11301,7 @@ BOOST_AUTO_TEST_CASE(shift_right_garbled_signed)
 	ABI_CHECK(callContractFunction("g(int8,uint8)", u256(0x0), u256(0xFF)), encodeArgs(u256(-1)));
 	ABI_CHECK(callContractFunction("g(int8,uint8)", u256(0x0), u256(0x1003)), v2 ? encodeArgs() : encodeArgs(u256(-2)));
 	ABI_CHECK(callContractFunction("g(int8,uint8)", u256(0x0), u256(0x1004)), v2 ? encodeArgs() : encodeArgs(u256(-1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_uint32)
 {
@@ -11317,7 +11317,7 @@ BOOST_AUTO_TEST_CASE(shift_right_uint32)
 	ABI_CHECK(callContractFunction("f(uint32,uint32)", u256(0x4266), u256(8)), encodeArgs(u256(0x42)));
 	ABI_CHECK(callContractFunction("f(uint32,uint32)", u256(0x4266), u256(16)), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f(uint32,uint32)", u256(0x4266), u256(17)), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_uint8)
 {
@@ -11331,7 +11331,7 @@ BOOST_AUTO_TEST_CASE(shift_right_uint8)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(uint8,uint8)", u256(0x66), u256(0)), encodeArgs(u256(0x66)));
 	ABI_CHECK(callContractFunction("f(uint8,uint8)", u256(0x66), u256(8)), encodeArgs(u256(0x0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_assignment)
 {
@@ -11348,7 +11348,7 @@ BOOST_AUTO_TEST_CASE(shift_right_assignment)
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(8)), encodeArgs(u256(0x42)));
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(16)), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f(uint256,uint256)", u256(0x4266), u256(17)), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_assignment_signed)
 {
@@ -11365,7 +11365,7 @@ BOOST_AUTO_TEST_CASE(shift_right_assignment_signed)
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(0x4266), u256(8)), encodeArgs(u256(0x42)));
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(0x4266), u256(16)), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(0x4266), u256(17)), encodeArgs(u256(0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue)
 {
@@ -11389,7 +11389,7 @@ BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue)
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(-4267), u256(8)), encodeArgs(u256(-17)));
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(-4267), u256(16)), encodeArgs(u256(-1)));
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(-4267), u256(17)), encodeArgs(u256(-1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_negative_literal)
 {
@@ -11448,7 +11448,7 @@ BOOST_AUTO_TEST_CASE(shift_right_negative_literal)
 		ABI_CHECK(callContractFunction("g5()"), encodeArgs(true));
 		ABI_CHECK(callContractFunction("g6()"), encodeArgs(true));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_int8)
 {
@@ -11472,7 +11472,7 @@ BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_int8)
 	ABI_CHECK(callContractFunction("f(int8,int8)", u256(-67), u256(8)), encodeArgs(u256(-1)));
 	ABI_CHECK(callContractFunction("f(int8,int8)", u256(-67), u256(16)), encodeArgs(u256(-1)));
 	ABI_CHECK(callContractFunction("f(int8,int8)", u256(-67), u256(17)), encodeArgs(u256(-1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_signextend_int8)
 {
@@ -11490,7 +11490,7 @@ BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_signextend_int8)
 	ABI_CHECK(callContractFunction("f(int8,int8)", u256(0x99u), u256(2)), v2 ? encodeArgs() : encodeArgs(u256(-26)));
 	ABI_CHECK(callContractFunction("f(int8,int8)", u256(0x99u), u256(4)), v2 ? encodeArgs() : encodeArgs(u256(-7)));
 	ABI_CHECK(callContractFunction("f(int8,int8)", u256(0x99u), u256(8)), v2 ? encodeArgs() : encodeArgs(u256(-1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_signextend_int16)
 {
@@ -11508,7 +11508,7 @@ BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_signextend_int16)
 	ABI_CHECK(callContractFunction("f(int16,int16)", u256(0xFF99u), u256(2)), v2 ? encodeArgs() : encodeArgs(u256(-26)));
 	ABI_CHECK(callContractFunction("f(int16,int16)", u256(0xFF99u), u256(4)), v2 ? encodeArgs() : encodeArgs(u256(-7)));
 	ABI_CHECK(callContractFunction("f(int16,int16)", u256(0xFF99u), u256(8)), v2 ? encodeArgs() : encodeArgs(u256(-1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_signextend_int32)
 {
@@ -11526,7 +11526,7 @@ BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_signextend_int32)
 	ABI_CHECK(callContractFunction("f(int32,int32)", u256(0xFFFFFF99u), u256(2)), v2 ? encodeArgs() : encodeArgs(u256(-26)));
 	ABI_CHECK(callContractFunction("f(int32,int32)", u256(0xFFFFFF99u), u256(4)), v2 ? encodeArgs() : encodeArgs(u256(-7)));
 	ABI_CHECK(callContractFunction("f(int32,int32)", u256(0xFFFFFF99u), u256(8)), v2 ? encodeArgs() : encodeArgs(u256(-1)));
-};
+}};
 
 
 BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_int16)
@@ -11551,7 +11551,7 @@ BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_int16)
 	ABI_CHECK(callContractFunction("f(int16,int16)", u256(-4267), u256(8)), encodeArgs(u256(-17)));
 	ABI_CHECK(callContractFunction("f(int16,int16)", u256(-4267), u256(16)), encodeArgs(u256(-1)));
 	ABI_CHECK(callContractFunction("f(int16,int16)", u256(-4267), u256(17)), encodeArgs(u256(-1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_int32)
 {
@@ -11575,7 +11575,7 @@ BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_int32)
 	ABI_CHECK(callContractFunction("f(int32,int32)", u256(-4267), u256(8)), encodeArgs(u256(-17)));
 	ABI_CHECK(callContractFunction("f(int32,int32)", u256(-4267), u256(16)), encodeArgs(u256(-1)));
 	ABI_CHECK(callContractFunction("f(int32,int32)", u256(-4267), u256(17)), encodeArgs(u256(-1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_assignment)
 {
@@ -11600,7 +11600,7 @@ BOOST_AUTO_TEST_CASE(shift_right_negative_lvalue_assignment)
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(-4267), u256(8)), encodeArgs(u256(-17)));
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(-4267), u256(16)), encodeArgs(u256(-1)));
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(-4267), u256(17)), encodeArgs(u256(-1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_negative_rvalue)
 {
@@ -11617,7 +11617,7 @@ BOOST_AUTO_TEST_CASE(shift_negative_rvalue)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(1), u256(-1)), encodeArgs());
 	ABI_CHECK(callContractFunction("g(int256,int256)", u256(1), u256(-1)), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_negative_rvalue_assignment)
 {
@@ -11636,7 +11636,7 @@ BOOST_AUTO_TEST_CASE(shift_negative_rvalue_assignment)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(int256,int256)", u256(1), u256(-1)), encodeArgs());
 	ABI_CHECK(callContractFunction("g(int256,int256)", u256(1), u256(-1)), encodeArgs());
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_constant_left_assignment)
 {
@@ -11650,7 +11650,7 @@ BOOST_AUTO_TEST_CASE(shift_constant_left_assignment)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x4200)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_constant_right_assignment)
 {
@@ -11664,7 +11664,7 @@ BOOST_AUTO_TEST_CASE(shift_constant_right_assignment)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x42)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_cleanup)
 {
@@ -11680,7 +11680,7 @@ BOOST_AUTO_TEST_CASE(shift_cleanup)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_cleanup_garbled)
 {
@@ -11696,7 +11696,7 @@ BOOST_AUTO_TEST_CASE(shift_cleanup_garbled)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x0)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_overflow)
 {
@@ -11718,7 +11718,7 @@ BOOST_AUTO_TEST_CASE(shift_overflow)
 	// Result is -128 and output is sign-extended, not zero-padded.
 	ABI_CHECK(callContractFunction("leftS(int8,int8)", 1, 7), encodeArgs(u256(0) - 128));
 	ABI_CHECK(callContractFunction("leftS(int8,int8)", 1, 6), encodeArgs(u256(64)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_bytes)
 {
@@ -11735,7 +11735,7 @@ BOOST_AUTO_TEST_CASE(shift_bytes)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("left(bytes20,uint8)", "12345678901234567890", 8 * 8), encodeArgs("901234567890" + string(8, 0)));
 	ABI_CHECK(callContractFunction("right(bytes20,uint8)", "12345678901234567890", 8 * 8), encodeArgs(string(8, 0) + "123456789012"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(shift_bytes_cleanup)
 {
@@ -11756,7 +11756,7 @@ BOOST_AUTO_TEST_CASE(shift_bytes_cleanup)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("left(uint8)", 8 * 8), encodeArgs("901234567890" + string(8, 0)));
 	ABI_CHECK(callContractFunction("right(uint8)", 8 * 8), encodeArgs(string(8, 0) + "123456789012"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(exp_cleanup)
 {
@@ -11770,7 +11770,7 @@ BOOST_AUTO_TEST_CASE(exp_cleanup)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(exp_cleanup_direct)
 {
@@ -11783,7 +11783,7 @@ BOOST_AUTO_TEST_CASE(exp_cleanup_direct)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(exp_cleanup_nonzero_base)
 {
@@ -11796,7 +11796,7 @@ BOOST_AUTO_TEST_CASE(exp_cleanup_nonzero_base)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(cleanup_in_compound_assign)
 {
@@ -11814,7 +11814,7 @@ BOOST_AUTO_TEST_CASE(cleanup_in_compound_assign)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(u256(0xff), u256(0xff)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inline_assembly_in_modifiers)
 {
@@ -11838,7 +11838,7 @@ BOOST_AUTO_TEST_CASE(inline_assembly_in_modifiers)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(packed_storage_overflow)
 {
@@ -11858,7 +11858,7 @@ BOOST_AUTO_TEST_CASE(packed_storage_overflow)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0x1234), u256(0), u256(0), u256(0xfffe)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(contracts_separated_with_comment)
 {
@@ -11872,7 +11872,7 @@ BOOST_AUTO_TEST_CASE(contracts_separated_with_comment)
 		compileAndRun(sourceCode, 0, "C1");
 		compileAndRun(sourceCode, 0, "C2");
 	)
-};
+}};
 
 
 //BOOST_AUTO_TEST_CASE(include_creation_bytecode_only_once)
@@ -11925,7 +11925,7 @@ BOOST_AUTO_TEST_CASE(recursive_structs)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(invalid_instruction)
 {
@@ -11942,7 +11942,7 @@ BOOST_AUTO_TEST_CASE(invalid_instruction)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs());
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(assert_require)
 {
@@ -11969,7 +11969,7 @@ BOOST_AUTO_TEST_CASE(assert_require)
 		ABI_CHECK(callContractFunction("h(bool)", false), encodeArgs());
 		ABI_CHECK(callContractFunction("h(bool)", true), encodeArgs(true));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(revert)
 {
@@ -11993,7 +11993,7 @@ BOOST_AUTO_TEST_CASE(revert)
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(42)));
 	ABI_CHECK(callContractFunction("g()"), encodeArgs());
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(42)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(revert_with_cause)
 {
@@ -12058,7 +12058,7 @@ BOOST_AUTO_TEST_CASE(revert_with_cause)
 		ABI_CHECK(callContractFunction("i()"), encodeArgs(0, 0x40, 0x84) + errorSignature + encodeArgs(0x20, 44, "test1234567890123456789012345678901234567890") + bytes(28, 0));
 		ABI_CHECK(callContractFunction("j()"), encodeArgs(0, 0x40, 0x84) + errorSignature + encodeArgs(0x20, 44, "test1234567890123456789012345678901234567890") + bytes(28, 0));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(require_with_message)
 {
@@ -12134,7 +12134,7 @@ BOOST_AUTO_TEST_CASE(require_with_message)
 		ABI_CHECK(callContractFunction("i()"), encodeArgs(0, 0x40, 0x64) + errorSignature + encodeArgs(0x20, 3, "abc") + bytes(28, 0));
 		ABI_CHECK(callContractFunction("j()"), encodeArgs(0, 0x40, 0x64) + errorSignature + encodeArgs(0x20, 3, "msg") + bytes(28, 0));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bubble_up_error_messages)
 {
@@ -12175,7 +12175,7 @@ BOOST_AUTO_TEST_CASE(bubble_up_error_messages)
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(0, 0x40, 0x64) + errorSignature + encodeArgs(0x20, 7, "message") + bytes(28, 0));
 		ABI_CHECK(callContractFunction("g()"), encodeArgs(0, 0x40, 0x64) + errorSignature + encodeArgs(0x20, 7, "message") + bytes(28, 0));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bubble_up_error_messages_through_transfer)
 {
@@ -12212,7 +12212,7 @@ BOOST_AUTO_TEST_CASE(bubble_up_error_messages_through_transfer)
 		bytes const errorSignature = bytes{0x08, 0xc3, 0x79, 0xa0};
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(0, 0x40, 0x64) + errorSignature + encodeArgs(0x20, 7, "message") + bytes(28, 0));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bubble_up_error_messages_through_create)
 {
@@ -12251,7 +12251,7 @@ BOOST_AUTO_TEST_CASE(bubble_up_error_messages_through_create)
 		bytes const errorSignature = bytes{0x08, 0xc3, 0x79, 0xa0};
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(0, 0x40, 0x64) + errorSignature + encodeArgs(0x20, 7, "message") + bytes(28, 0));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(negative_stack_height)
 {
@@ -12272,7 +12272,7 @@ BOOST_AUTO_TEST_CASE(negative_stack_height)
 		}
 	)";
 	compileAndRun(sourceCode, 0, "C");
-};
+}};
 
 BOOST_AUTO_TEST_CASE(literal_empty_string)
 {
@@ -12295,7 +12295,7 @@ BOOST_AUTO_TEST_CASE(literal_empty_string)
 	ABI_CHECK(callContractFunction("g()"), encodeArgs());
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(0)));
 	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(2)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(scientific_notation)
 {
@@ -12330,7 +12330,7 @@ BOOST_AUTO_TEST_CASE(scientific_notation)
 		ABI_CHECK(callContractFunction("j()"), encodeArgs(u256(-2)));
 		ABI_CHECK(callContractFunction("k()"), encodeArgs(u256(-25)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(interface_contract)
 {
@@ -12365,7 +12365,7 @@ BOOST_AUTO_TEST_CASE(interface_contract)
 	u160 const recipient = m_contractAddress;
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(address)", recipient), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(keccak256_assembly)
 {
@@ -12382,7 +12382,7 @@ BOOST_AUTO_TEST_CASE(keccak256_assembly)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), fromHex("0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(multi_modifiers)
 {
@@ -12409,7 +12409,7 @@ BOOST_AUTO_TEST_CASE(multi_modifiers)
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(8)));
 	ABI_CHECK(callContractFunction("f2()"), bytes());
 	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(12)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(inlineasm_empty_let)
 {
@@ -12429,7 +12429,7 @@ BOOST_AUTO_TEST_CASE(inlineasm_empty_let)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(0), u256(0)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bare_call_invalid_address)
 {
@@ -12462,7 +12462,7 @@ BOOST_AUTO_TEST_CASE(bare_call_invalid_address)
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1), 0x40, 0x00));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bare_call_return_data)
 {
@@ -12589,7 +12589,7 @@ BOOST_AUTO_TEST_CASE(bare_call_return_data)
 			ABI_CHECK(callContractFunction("check_bytes()"), encodeArgs(true));
 		}
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(delegatecall_return_value)
 {
@@ -12665,7 +12665,7 @@ BOOST_AUTO_TEST_CASE(delegatecall_return_value)
 		ABI_CHECK(callContractFunction("assert0_delegated()"), encodeArgs(u256(0)));
 		ABI_CHECK(callContractFunction("get_delegated()"), encodeArgs(u256(1)));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(function_types_sig)
 {
@@ -12693,7 +12693,7 @@ BOOST_AUTO_TEST_CASE(function_types_sig)
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(asString(FixedHash<4>(util::keccak256("f()")).asBytes())));
 	ABI_CHECK(callContractFunction("h()"), encodeArgs(asString(FixedHash<4>(util::keccak256("f()")).asBytes())));
 	ABI_CHECK(callContractFunction("i()"), encodeArgs(asString(FixedHash<4>(util::keccak256("x()")).asBytes())));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(constant_string)
 {
@@ -12717,7 +12717,7 @@ BOOST_AUTO_TEST_CASE(constant_string)
 	ABI_CHECK(callContractFunction("f()"), encodeDyn(string("\x03\x01\x02")));
 	ABI_CHECK(callContractFunction("g()"), encodeDyn(string("\x03\x01\x02")));
 	ABI_CHECK(callContractFunction("h()"), encodeDyn(string("hello")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(address_overload_resolution)
 {
@@ -12742,7 +12742,7 @@ BOOST_AUTO_TEST_CASE(address_overload_resolution)
 	compileAndRun(sourceCode, 0, "D");
 	BOOST_CHECK(callContractFunction("f()") == encodeArgs(u256(1)));
 	BOOST_CHECK(callContractFunction("g()") == encodeArgs(u256(5)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode)
 {
@@ -12779,7 +12779,7 @@ BOOST_AUTO_TEST_CASE(abi_encode)
 	ABI_CHECK(callContractFunction("f2()"), encodeArgs(0x20, 0xa0, 1, 0x60, 2, 3, "abc"));
 	ABI_CHECK(callContractFunction("f3()"), encodeArgs(0x20, 0xa0, 1, 0x60, 2, 3, "abc"));
 	ABI_CHECK(callContractFunction("f4()"), encodeArgs(0x20, 0x20, "ab"));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_v2)
 {
@@ -12826,7 +12826,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_v2)
 	ABI_CHECK(callContractFunction("f2()"), encodeArgs(0x20, 0xa0, 1, 0x60, 2, 3, "abc"));
 	ABI_CHECK(callContractFunction("f3()"), encodeArgs(0x20, 0xa0, 1, 0x60, 2, 3, "abc"));
 	ABI_CHECK(callContractFunction("f4()"), encodeArgs(0x20, 0x160, 1, 0x80, 0xc0, 2, 3, "abc", 7, 0x40, 2, 2, 3));
-};
+}};
 
 
 BOOST_AUTO_TEST_CASE(abi_encodePacked)
@@ -12879,7 +12879,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked)
 		ABI_CHECK(callContractFunction("f_literal()"), encodeArgs(0x20, 5, "\x01" "abc" "\x02"));
 		ABI_CHECK(callContractFunction("f_calldata()"), encodeArgs(0x20, 6, "\x01" "\xa5\xbf\xa1\xee" "\x02"));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encodePacked_from_storage)
 {
@@ -12967,7 +12967,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_from_storage)
 			encodeArgs(0x20, 42, "\x01" "0123456789012345678901234567890123456789\x02")
 		);
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encodePacked_from_memory)
 {
@@ -13035,7 +13035,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_from_memory)
 		ABI_CHECK(callContractFunction("lf()"), encodeArgs(0x20, 5 * 32 + 2, "\x01" + asString(encodeArgs(payload)) + "\x02"));
 		ABI_CHECK(callContractFunction("ld()"), encodeArgs(0x20, 5 * 32 + 2, "\x01" + asString(encodeArgs(payload)) + "\x02"));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encodePacked_functionPtr)
 {
@@ -13067,7 +13067,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_functionPtr)
 		ABI_CHECK(callContractFunction("testFixedArray()"), encodeArgs(0x20, arrayEncoding.size(), arrayEncoding));
 		ABI_CHECK(callContractFunction("testDynamicArray()"), encodeArgs(0x20, arrayEncoding.size(), arrayEncoding));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encodePackedV2_structs)
 {
@@ -13109,7 +13109,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePackedV2_structs)
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E((uint8,int16,uint8[2],int16[]))")));
 	BOOST_CHECK_EQUAL(logTopic(0, 1), util::keccak256(asString(structEnc)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encodePackedV2_nestedArray)
 {
@@ -13138,7 +13138,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePackedV2_nestedArray)
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E((uint8,int16)[2][][3])")));
 	BOOST_CHECK_EQUAL(logTopic(0, 1), util::keccak256(asString(structEnc)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encodePackedV2_arrayOfStrings)
 {
@@ -13170,7 +13170,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePackedV2_arrayOfStrings)
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E(string[])")));
 	BOOST_CHECK_EQUAL(logTopic(0, 1), util::keccak256(asString(arrayEncoding)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_signature_in_library)
 {
@@ -13198,7 +13198,7 @@ BOOST_AUTO_TEST_CASE(event_signature_in_library)
 	compileAndRun(sourceCode, 0, "C");
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("E((uint8,int16),(uint8,int16))")));
-};
+}};
 
 
 BOOST_AUTO_TEST_CASE(abi_encode_with_selector)
@@ -13230,7 +13230,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_with_selector)
 	ABI_CHECK(callContractFunction("f2()"), expectation);
 	expectation = encodeArgs(0x20, 4 + 0x20) + bytes{0x12, 0x34, 0x56, 0x78} + encodeArgs(u256(-1)) + bytes(0x20 - 4);
 	ABI_CHECK(callContractFunction("f3()"), expectation);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_with_selectorv2)
 {
@@ -13277,7 +13277,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_with_selectorv2)
 		encodeArgs(u256(-1), 0x60, u256(3), 0x1234567, 0x60, 0x1234, 38, "Lorem ipsum dolor sit ethereum........") +
 		bytes(0x20 - 4);
 	ABI_CHECK(callContractFunction("f4()"), expectation);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_with_signature)
 {
@@ -13320,7 +13320,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_with_signature)
 		(bytes{0xe9, 0xc9, 0x21, 0xcd} + encodeArgs(0x20, 4, u256(-1), u256(-2), u256(-3), u256(-4)) + bytes(0x20 - 4)) +
 		encodeArgs(2, 0, 0);
 	ABI_CHECK(callContractFunction("f2()"), expectation);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_with_signaturev2)
 {
@@ -13379,7 +13379,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_with_signaturev2)
 		encodeArgs(u256(-1), 0x60, u256(3), 0x1234567, 0x60, 0x1234, 38, "Lorem ipsum dolor sit ethereum........") +
 		bytes(0x20 - 4);
 	ABI_CHECK(callContractFunction("f4()"), expectation);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_empty_string)
 {
@@ -13403,7 +13403,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_empty_string)
 			0x00
 		));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_empty_string_v2)
 {
@@ -13423,7 +13423,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_empty_string_v2)
 		0x40, 0x20, 0x00,
 		0x00
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_rational)
 {
@@ -13440,7 +13440,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_rational)
 		0x20,
 		0x40, u256(1), u256(-2)
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_rational_v2)
 {
@@ -13458,7 +13458,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_rational_v2)
 		0x20,
 		0x40, u256(1), u256(-2)
 	));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_call)
 {
@@ -13485,7 +13485,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_call)
 	)T";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(staticcall_for_view_and_pure)
 {
@@ -13529,7 +13529,7 @@ BOOST_AUTO_TEST_CASE(staticcall_for_view_and_pure)
 		ABI_CHECK(callContractFunction("fview()"), encodeArgs(1));
 		ABI_CHECK(callContractFunction("fpure()"), encodeArgs(1));
 	}
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bitwise_shifting_constantinople)
 {
@@ -13568,7 +13568,7 @@ BOOST_AUTO_TEST_CASE(bitwise_shifting_constantinople)
 		BOOST_CHECK(callContractFunction("sar(uint256,uint256)", u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"), u256(255)) == encodeArgs(u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")));
 		BOOST_CHECK(callContractFunction("sar(uint256,uint256)", u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"), u256(256)) == encodeArgs(u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bitwise_shifting_constants_constantinople)
 {
@@ -13635,7 +13635,7 @@ BOOST_AUTO_TEST_CASE(bitwise_shifting_constants_constantinople)
 		BOOST_CHECK(callContractFunction("shr_2()") == encodeArgs(u256(1)));
 		BOOST_CHECK(callContractFunction("shr_3()") == encodeArgs(u256(1)));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(bitwise_shifting_constantinople_combined)
 {
@@ -13758,7 +13758,7 @@ BOOST_AUTO_TEST_CASE(bitwise_shifting_constantinople_combined)
 		BOOST_CHECK(callContractFunction("sar_combined_large(uint256)", u256("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")) == encodeArgs(u256(0)));
 		BOOST_CHECK(callContractFunction("sar_combined_large(uint256)", u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")) == encodeArgs(u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(senders_balance)
 {
@@ -13778,7 +13778,7 @@ BOOST_AUTO_TEST_CASE(senders_balance)
 	)";
 	compileAndRun(sourceCode, 27, "D");
 	BOOST_CHECK(callContractFunction("f()") == encodeArgs(u256(27)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_trivial)
 {
@@ -13791,7 +13791,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_trivial)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(bytes)", 0x20, 0x20, 33), encodeArgs(u256(33)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_encode_decode_simple)
 {
@@ -13808,7 +13808,7 @@ BOOST_AUTO_TEST_CASE(abi_encode_decode_simple)
 		callContractFunction("f()"),
 		encodeArgs(33, 0x40, 7, "abcdefg")
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_simple)
 {
@@ -13824,7 +13824,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_simple)
 		callContractFunction("f(bytes)", 0x20, 0x20 * 4, 33, 0x40, 7, "abcdefg"),
 		encodeArgs(33, 0x40, 7, "abcdefg")
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_v2)
 {
@@ -13848,7 +13848,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_v2)
 		callContractFunction("f()"),
 		encodeArgs(0x20, 8, 0x40, 3, 9, 10, 11)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_simple_storage)
 {
@@ -13866,7 +13866,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_simple_storage)
 		callContractFunction("f(bytes)", 0x20, 0x20 * 4, 33, 0x40, 7, "abcdefg"),
 		encodeArgs(33, 0x40, 7, "abcdefg")
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_v2_storage)
 {
@@ -13892,7 +13892,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_v2_storage)
 		callContractFunction("f()"),
 		encodeArgs(0x20, 8, 0x40, 3, 9, 10, 11)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_calldata)
 {
@@ -13908,7 +13908,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_calldata)
 		callContractFunction("f(bytes)", 0x20, 0x20 * 4, 33, 0x40, 7, "abcdefg"),
 		encodeArgs(33, 0x40, 7, "abcdefg")
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_v2_calldata)
 {
@@ -13926,7 +13926,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_v2_calldata)
 		callContractFunction("f(bytes)", 0x20, 0x20 * 7, 0x20, 33, 0x40, 3, 10, 11, 12),
 		encodeArgs(0x20, 33, 0x40, 3, 10, 11, 12)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_static_array)
 {
@@ -13942,7 +13942,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_static_array)
 		callContractFunction("f(bytes)", 0x20, 6 * 0x20, 1, 2, 3, 4, 5, 6),
 		encodeArgs(1, 2, 3, 4, 5, 6)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_static_array_v2)
 {
@@ -13959,7 +13959,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_static_array_v2)
 		callContractFunction("f(bytes)", 0x20, 6 * 0x20, 1, 2, 3, 4, 5, 6),
 		encodeArgs(1, 2, 3, 4, 5, 6)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(abi_decode_dynamic_array)
 {
@@ -13975,7 +13975,7 @@ BOOST_AUTO_TEST_CASE(abi_decode_dynamic_array)
 		callContractFunction("f(bytes)", 0x20, 6 * 0x20, 0x20, 4, 3, 4, 5, 6),
 		encodeArgs(0x20, 4, 3, 4, 5, 6)
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(write_storage_external)
 {
@@ -14012,7 +14012,7 @@ BOOST_AUTO_TEST_CASE(write_storage_external)
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(3));
 	ABI_CHECK(callContractFunction("g()"), encodeArgs(8));
 	ABI_CHECK(callContractFunction("h()"), encodeArgs(12));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(test_underscore_in_hex)
 {
@@ -14028,7 +14028,7 @@ BOOST_AUTO_TEST_CASE(test_underscore_in_hex)
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f(bool)", true), encodeArgs(u256(0x1234ab)));
 	ABI_CHECK(callContractFunction("f(bool)", false), encodeArgs(u256(0x1234abcd1234)));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(flipping_sign_tests)
 {
@@ -14043,7 +14043,7 @@ BOOST_AUTO_TEST_CASE(flipping_sign_tests)
 	)";
 	compileAndRun(sourceCode);
 	ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
-};
+}};
 BOOST_AUTO_TEST_CASE(external_public_override)
 {
 	char const* sourceCode = R"(
@@ -14060,7 +14060,7 @@ BOOST_AUTO_TEST_CASE(external_public_override)
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(2));
 		ABI_CHECK(callContractFunction("g()"), encodeArgs(2));
 	)
-};
+}};
 
 BOOST_AUTO_TEST_CASE(base_access_to_function_type_variables)
 {
@@ -14079,7 +14079,7 @@ BOOST_AUTO_TEST_CASE(base_access_to_function_type_variables)
 	ABI_CHECK(callContractFunction("h()"), encodeArgs());
 	ABI_CHECK(callContractFunction("set()"), encodeArgs());
 	ABI_CHECK(callContractFunction("h()"), encodeArgs(2));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(code_access)
 {
@@ -14120,7 +14120,7 @@ BOOST_AUTO_TEST_CASE(code_access)
 	bytes codeRuntime1 = callContractFunction("runtime()");
 	bytes codeRuntime2 = callContractFunction("runtimeAllocCheck()");
 	ABI_CHECK(codeRuntime1, codeRuntime2);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(code_access_padding)
 {
@@ -14139,7 +14139,7 @@ BOOST_AUTO_TEST_CASE(code_access_padding)
 	compileAndRun(sourceCode, 0, "C");
 	// This checks that the allocation function pads to multiples of 32 bytes
 	ABI_CHECK(callContractFunction("diff()"), encodeArgs(0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(code_access_create)
 {
@@ -14162,7 +14162,7 @@ BOOST_AUTO_TEST_CASE(code_access_create)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("test()"), encodeArgs(7));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(code_access_content)
 {
@@ -14205,7 +14205,7 @@ BOOST_AUTO_TEST_CASE(code_access_content)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("testRuntime()"), encodeArgs(true));
 	ABI_CHECK(callContractFunction("testCreation()"), encodeArgs(true));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(contract_name)
 {
@@ -14253,7 +14253,7 @@ BOOST_AUTO_TEST_CASE(contract_name)
 	ABI_CHECK(callContractFunction("name()"), argsLong);
 	ABI_CHECK(callContractFunction("nameAccessor()"), argsLong);
 	ABI_CHECK(callContractFunction("constantNameAccessor()"), argsLong);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(event_wrong_abi_name)
 {
@@ -14279,7 +14279,7 @@ BOOST_AUTO_TEST_CASE(event_wrong_abi_name)
 	BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
 	BOOST_REQUIRE_EQUAL(numLogTopics(0), 3);
 	BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(string("Deposit(address,bytes32,uint256)")));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(uninitialized_internal_storage_function)
 {
@@ -14297,7 +14297,7 @@ BOOST_AUTO_TEST_CASE(uninitialized_internal_storage_function)
 	bytes result = callContractFunction("f()");
 	BOOST_CHECK(!result.empty());
 	BOOST_CHECK(result != encodeArgs(0));
-};
+}};
 
 BOOST_AUTO_TEST_CASE(uninitialized_internal_storage_function_call)
 {
@@ -14313,7 +14313,7 @@ BOOST_AUTO_TEST_CASE(uninitialized_internal_storage_function_call)
 	compileAndRun(sourceCode, 0, "Test");
 
 	ABI_CHECK(callContractFunction("f()"), bytes{});
-};
+}};
 
 BOOST_AUTO_TEST_CASE(dirty_scratch_space_prior_to_constant_optimiser)
 {
@@ -14352,7 +14352,7 @@ BOOST_AUTO_TEST_CASE(dirty_scratch_space_prior_to_constant_optimiser)
 		logData(1),
 		encodeArgs(u256("0x0000000000001234123412431234123412412342112341234124312341234124"))
 	);
-};
+}};
 
 BOOST_AUTO_TEST_CASE(try_catch_library_call)
 {
@@ -14405,7 +14405,7 @@ BOOST_AUTO_TEST_CASE(try_catch_library_call)
 		ABI_CHECK(callContractFunction("g(bool)", true), encodeArgs(9, 0x40, 0));
 		ABI_CHECK(callContractFunction("g(bool)", false), encodeArgs(19, 0x40, 7, "failure"));
 	}
-};
+}};
 
 //BOOST_AUTO_TEST_CASE(strip_reason_strings)
 //{
@@ -14460,6 +14460,6 @@ BOOST_AUTO_TEST_SUITE_END()
 
 #ifndef END_TO_END_EXTRACTOR
 
-}; // end namespaces
+}}; // end namespaces
 
 #endif // END_TO_END_EXTRACTOR

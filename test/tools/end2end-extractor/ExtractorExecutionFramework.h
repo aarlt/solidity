@@ -32,7 +32,11 @@
 #include <libsolutil/FixedHash.h>
 #include <libsolutil/Keccak256.h>
 
+#include <any>
 #include <functional>
+
+#include <fstream>
+#include <sstream>
 
 namespace solidity::test
 {
@@ -62,13 +66,20 @@ class ExtractorExecutionFramework
 	                                       std::map<std::string, Address> const &_libraryAddresses
 	                                       = std::map<std::string, Address>())
 	{
-		(void)_value;
-		(void)_contractName;
-		(void)_arguments;
-		(void)_libraryAddresses;
+		(void) _value;
+		(void) _contractName;
+		(void) _arguments;
+		(void) _libraryAddresses;
 
-		std::cout << _sourceCode << std::endl;
-		std::cout << "// ====" << std::endl;
+		m_testContentStream << "// start" << std::endl;
+		m_testContentStream << _sourceCode << std::endl;
+		m_testContentStream << "// ====" << std::endl;
+		if (m_alsoViaYul)
+		{
+			m_testContentStream << "// compileViaYul: also" << std::endl;
+			m_testContentStream << "// ---" << std::endl;
+			m_alsoViaYul = false;
+		}
 		return m_output;
 	}
 
@@ -101,8 +112,11 @@ class ExtractorExecutionFramework
 
 	bytes const &callContractFunctionWithValueNoEncoding(std::string _sig, u256 const &_value, bytes const &_arguments)
 	{
-		util::FixedHash<4> hash(util::keccak256(_sig));
-		sendMessage(hash.asBytes() + _arguments, false, _value);
+		(void)_value;
+//		util::FixedHash<4> hash(util::keccak256(_sig));
+//		sendMessage(hash.asBytes() + _arguments, false, _value);
+		m_testContentStream << _sig << ":";
+		Arguments(m_testContentStream, _arguments);
 		return m_output;
 	}
 
@@ -125,18 +139,11 @@ class ExtractorExecutionFramework
 	template <class CppFunction, class... Args>
 	void testContractAgainstCpp(std::string _sig, CppFunction const &_cppFunction, Args const &... _arguments)
 	{
-		bytes contractResult = callContractFunction(_sig, _arguments...);
-		bytes cppResult = callCppAndEncodeResult(_cppFunction, _arguments...);
-		//		BOOST_CHECK_MESSAGE(
-		//			contractResult == cppResult,
-		//			"Computed values do not match.\nContract: " +
-		//				util::toHex(contractResult) +
-		//				"\nC++:      " +
-		//				util::toHex(cppResult)
-		//		);
+		m_testContentStream << "// " << _sig << ": ";
+		Arguments(m_testContentStream, _arguments...);
+		m_testContentStream << " -> " << callCpp(_cppFunction, _arguments...)
+		                                                 << std::endl;
 	}
-
-	int m_calls{0};
 
 	template <class CppFunction, class... Args>
 	void testContractAgainstCppOnRange(std::string _sig,
@@ -145,21 +152,7 @@ class ExtractorExecutionFramework
 	                                   u256 const &_rangeEnd)
 	{
 		for (u256 argument = _rangeStart; argument < _rangeEnd; ++argument)
-		{
-//			bytes contractResult = callContractFunction(_sig, argument);
-//			bytes cppResult = callCppAndEncodeResult(_cppFunction, argument);
-			std::cout << "// " << _sig << ": " << argument << " -> " << _cppFunction(argument) << std::endl;
-			//			BOOST_CHECK_MESSAGE(
-			//				contractResult == cppResult,
-			//				"Computed values do not match.\nContract: " +
-			//					util::toHex(contractResult) +
-			//					"\nC++:      " +
-			//					util::toHex(cppResult) +
-			//					"\nArgument: " +
-			//					util::toHex(encode(argument))
-			//			);
-		}
-		std::cout << "calls: " << ++m_calls << std::endl;
+			m_testContentStream << "// " << _sig << ": " << argument << " -> " << _cppFunction(argument) << std::endl;
 	}
 
 	static std::pair<bool, std::string> compareAndCreateMessage(bytes const &_result, bytes const &_expectation);
@@ -237,18 +230,31 @@ class ExtractorExecutionFramework
 	}
 
   private:
+	template <class FirstArg, class... Args>
+	static std::ostream &  Arguments(std::ostream & o, FirstArg const &_firstArg, Args const &... _followingArgs)
+	{
+		o << std::hex << "0x" << u256(_firstArg);
+		if (sizeof...(_followingArgs))
+			o << ", ";
+		return Arguments(o, _followingArgs...);
+	}
+	static std::ostream & Arguments(std::ostream & o) { return o; }
+
 	template <class CppFunction, class... Args>
-	auto callCppAndEncodeResult(CppFunction const &_cppFunction, Args const &... _arguments) ->
-	    typename std::enable_if<std::is_void<decltype(_cppFunction(_arguments...))>::value, bytes>::type
+	auto callCpp(CppFunction const &_cppFunction, Args const &... _arguments) ->
+	    typename std::enable_if<std::is_void<decltype(_cppFunction(_arguments...))>::value, std::string>::type
 	{
 		_cppFunction(_arguments...);
-		return bytes();
+		return "";
 	}
 	template <class CppFunction, class... Args>
-	auto callCppAndEncodeResult(CppFunction const &_cppFunction, Args const &... _arguments) ->
-	    typename std::enable_if<!std::is_void<decltype(_cppFunction(_arguments...))>::value, bytes>::type
+	auto callCpp(CppFunction const &_cppFunction, Args const &... _arguments) ->
+	    typename std::enable_if<!std::is_void<decltype(_cppFunction(_arguments...))>::value, std::string>::type
+
 	{
-		return encode(_cppFunction(_arguments...));
+		std::stringstream str;
+		str << std::hex << "0x" << u256(_cppFunction(_arguments...));
+		return str.str();
 	}
 
   protected:
@@ -283,6 +289,19 @@ class ExtractorExecutionFramework
 	bytes m_output;
 	u256 m_gasUsed;
 	size_t m_blockNumber;
+
+	std::ofstream m_testContentStream;
+	bool m_alsoViaYul{false};
+
+	void prepareTest(std::string const &name)
+	{
+		if (m_testContentStream.is_open())
+			m_testContentStream.close();
+
+		m_testContentStream = std::ofstream("/tmp/e2e/" + name + ".sol", std::ofstream::out | std::ofstream::trunc);
+	}
+
+	void setAlsoViaYul() { m_alsoViaYul = true; }
 };
 
 //#define ABI_CHECK(result, expectation) do { \
