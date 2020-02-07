@@ -63,9 +63,11 @@ typedef std::map<std::string, std::function<void(void)>> TestSuite;
 		CODE               \
 	}
 
-#define ABI_CHECK(result, expectation)                                                            \
-	do                                                                                            \
-	{                                                                                             \
-		auto abiCheckResult = End2EndExtractor::compareAndCreateMessage((result), (expectation)); \
-		std::cout << #result << ": " << #expectation << " (" << std::hex << bytes((expectation)) << ")" << std::endl;       \
+#define ABI_CHECK(result, expectation)                                                                  \
+	do                                                                                                  \
+	{                                                                                                   \
+		m_testContentStream << "//// " << #result << ": " << #expectation << std::endl;                 \
+		m_testContentStream << "// ";                                                                   \
+		auto abiCheckResult = End2EndExtractor::compareAndCreateMessage((result), (expectation));       \
+		m_testContentStream << " -> " << frontend::test::BytesUtils::formatString((string_ ## expectation)) << std::endl; \
 	} while (0)

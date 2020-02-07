@@ -168,36 +168,6 @@ bool ExtractorExecutionFramework::addressHasCode(Address const& _addr)
 	return 0;
 }
 
-size_t ExtractorExecutionFramework::numLogs() const
-{
-	return 0;
-}
-
-size_t ExtractorExecutionFramework::numLogTopics(size_t _logIdx) const
-{
-	(void)_logIdx;
-	return 0;
-}
-
-h256 ExtractorExecutionFramework::logTopic(size_t _logIdx, size_t _topicIdx) const
-{
-	(void)_logIdx;
-	(void)_topicIdx;
-	return h256();
-}
-
-Address ExtractorExecutionFramework::logAddress(size_t _logIdx) const
-{
-	(void)_logIdx;
-	return Address();
-}
-
-bytes ExtractorExecutionFramework::logData(size_t _logIdx) const
-{
-	(void)_logIdx;
-	return bytes();
-}
-
 u256 ExtractorExecutionFramework::balanceAt(Address const& _addr)
 {
 	(void)_addr;

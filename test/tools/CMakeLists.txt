@@ -18,6 +18,8 @@ add_executable(end2end-extractor
 	end2end-extractor/ExtractorExecutionFramework.h
 	end2end-extractor/ExtractorExecutionFramework.cpp
 	../Common.cpp
+	../libsolidity/util/BytesUtils.cpp
+	../libsolidity/util/ContractABIUtils.cpp
 )
 target_link_libraries(end2end-extractor PRIVATE libsolc evmc solidity Boost::boost Boost::program_options Boost::system)
 

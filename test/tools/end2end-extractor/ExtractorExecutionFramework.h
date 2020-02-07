@@ -31,7 +31,7 @@
 
 #include <libsolutil/FixedHash.h>
 #include <libsolutil/Keccak256.h>
-
+#include <test/libsolidity/util/BytesUtils.h>
 #include <any>
 #include <functional>
 
@@ -113,10 +113,8 @@ class ExtractorExecutionFramework
 	bytes const &callContractFunctionWithValueNoEncoding(std::string _sig, u256 const &_value, bytes const &_arguments)
 	{
 		(void)_value;
-//		util::FixedHash<4> hash(util::keccak256(_sig));
-//		sendMessage(hash.asBytes() + _arguments, false, _value);
 		m_testContentStream << _sig << ":";
-		Arguments(m_testContentStream, _arguments);
+		m_testContentStream << frontend::test::BytesUtils::formatString(_arguments) << std::endl;
 		return m_output;
 	}
 
@@ -128,7 +126,7 @@ class ExtractorExecutionFramework
 	template <class... Args>
 	bytes const &callContractFunctionWithValue(std::string _sig, u256 const &_value, Args const &... _arguments)
 	{
-		return callContractFunctionWithValueNoEncoding(_sig, _value, encodeArgs(_arguments...));
+		return callContractFunctionWithValueNoEncoding(_sig, _value, string_encodeArgs(_arguments...));
 	}
 
 	template <class... Args> bytes const &callContractFunction(std::string _sig, Args const &... _arguments)
@@ -198,6 +196,53 @@ class ExtractorExecutionFramework
 	{
 		return encodeArgs(u256(0x20), u256(_arg.size()), _arg);
 	}
+
+	template <class FirstArg, class... Args>
+	static bytes string_encodeDyn(FirstArg const &_firstArg, Args const &... _followingArgs)
+	{
+		std::stringstream o;
+		o << _firstArg;
+		if (sizeof...(_followingArgs))
+			o << ", ";
+		return frontend::test::BytesUtils::convertString(o.str()) + string_encodeDyn(_followingArgs...);
+	}
+	static bytes string_encodeDyn() { return bytes(); }
+
+	bytes string_bytes() {
+		return bytes();
+	}
+
+	bytes string_bytes(bytes b) {
+		return b;
+	}
+
+	bytes string_fromHex(std::string _hex) {
+		return frontend::test::BytesUtils::convertString(_hex);
+	}
+
+	template <class... Args>
+	static bytes string_encodeArgs(std::vector<u256> const &_firstArg, Args const &... _followingArgs)
+	{
+		(void)_firstArg;
+		std::stringstream o;
+//		o << _firstArg;
+		o << "?";
+		if (sizeof...(_followingArgs))
+			o << ", ";
+		return frontend::test::BytesUtils::convertString(o.str()) + string_encodeArgs(_followingArgs...);
+	}
+
+	template <class FirstArg, class... Args>
+	static bytes string_encodeArgs(FirstArg const &_firstArg, Args const &... _followingArgs)
+	{
+		std::stringstream o;
+		o << _firstArg;
+		if (sizeof...(_followingArgs))
+			o << ", ";
+		return frontend::test::BytesUtils::convertString(o.str()) + string_encodeArgs(_followingArgs...);
+	}
+	static bytes string_encodeArgs() { return bytes(); }
+
 
 	u256 gasLimit() const;
 	u256 gasPrice() const;
@@ -269,12 +314,6 @@ class ExtractorExecutionFramework
 	u256 balanceAt(Address const &_addr);
 	bool storageEmpty(Address const &_addr);
 	bool addressHasCode(Address const &_addr);
-
-	size_t numLogs() const;
-	size_t numLogTopics(size_t _logIdx) const;
-	util::h256 logTopic(size_t _logIdx, size_t _topicIdx) const;
-	Address logAddress(size_t _logIdx) const;
-	bytes logData(size_t _logIdx) const;
 
 	langutil::EVMVersion m_evmVersion;
 	solidity::frontend::RevertStrings m_revertStrings = solidity::frontend::RevertStrings::Default;
