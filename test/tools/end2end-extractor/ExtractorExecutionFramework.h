@@ -114,7 +114,7 @@ class ExtractorExecutionFramework
 	{
 		(void)_value;
 		m_testContentStream << _sig << ":";
-		m_testContentStream << frontend::test::BytesUtils::formatString(_arguments) << std::endl;
+		m_testContentStream << frontend::test::BytesUtils::formatString(_arguments);
 		return m_output;
 	}
 
