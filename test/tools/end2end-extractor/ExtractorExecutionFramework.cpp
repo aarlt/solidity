@@ -44,6 +44,20 @@ ExtractorExecutionFramework::ExtractorExecutionFramework(langutil::EVMVersion _e
 {
 }
 
+std::string ExtractorExecutionFramework::createIsoltestCall(std::string expectation, std::string result) {
+	boost::replace_all(expectation, "callContractFunction(\"", "");
+	boost::replace_all(expectation, "u256(", "");
+	boost::replace_first(expectation, "\",", ":");
+	boost::replace_first(expectation, ")\"", ")");
+	boost::replace_last(expectation, ")", " -> ");
+	boost::replace_all(expectation, "asString(fromHex(", "hex");
+	boost::replace_all(result, "encodeArgs(", "");
+	boost::replace_all(result, "u256(", "");
+	boost::replace_all(result, ")", "");
+	boost::replace_all(result, "asString(fromHex(", "hex");
+	return expectation + result;
+}
+
 std::pair<bool, string> ExtractorExecutionFramework::compareAndCreateMessage(
 	bytes const& _result,
 	bytes const& _expectation

@@ -71,13 +71,15 @@ class ExtractorExecutionFramework
 		(void) _arguments;
 		(void) _libraryAddresses;
 
-		m_testContentStream << "// start" << std::endl;
 		m_testContentStream << _sourceCode << std::endl;
-		m_testContentStream << "// ====" << std::endl;
+		if (!m_alsoViaYul)
+			m_testContentStream << "// ----" << std::endl;
+		else
+			m_testContentStream << "// ====" << std::endl;
 		if (m_alsoViaYul)
 		{
 			m_testContentStream << "// compileViaYul: also" << std::endl;
-			m_testContentStream << "// ---" << std::endl;
+			m_testContentStream << "// ----" << std::endl;
 			m_alsoViaYul = false;
 		}
 		return m_output;
@@ -112,7 +114,9 @@ class ExtractorExecutionFramework
 
 	bytes const &callContractFunctionWithValueNoEncoding(std::string _sig, u256 const &_value, bytes const &_arguments)
 	{
+		(void)_sig;
 		(void)_value;
+		(void)_arguments;
 		m_testContentStream << _sig << ":";
 		m_testContentStream << frontend::test::BytesUtils::formatString(_arguments);
 		return m_output;
@@ -153,6 +157,7 @@ class ExtractorExecutionFramework
 			m_testContentStream << "// " << _sig << ": " << argument << " -> " << _cppFunction(argument) << std::endl;
 	}
 
+	static std::string createIsoltestCall(std::string expectation, std::string result);
 	static std::pair<bool, std::string> compareAndCreateMessage(bytes const &_result, bytes const &_expectation);
 
 	static bytes encode(bool _value) { return encode(uint8_t(_value)); }
