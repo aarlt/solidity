@@ -31,15 +31,19 @@
 
 #include <libsolutil/FixedHash.h>
 #include <libsolutil/Keccak256.h>
+
 #include <test/libsolidity/util/BytesUtils.h>
-#include <any>
+
 #include <functional>
 
-#include <fstream>
-#include <sstream>
+#include "ExtractionTask.h"
+
+bool operator==(solidity::bytes const &_left, solidity::bytes const &_right);
 
 namespace solidity::test
 {
+typedef std::map<std::string, ExtractionTask> TestSuite;
+
 using rational = boost::rational<bigint>;
 /// An Ethereum address: 20 bytes.
 /// @NOTE This is not endian-specific; it's just a bunch of bytes.
@@ -59,81 +63,61 @@ class ExtractorExecutionFramework
 	explicit ExtractorExecutionFramework(langutil::EVMVersion _evmVersion);
 	virtual ~ExtractorExecutionFramework() = default;
 
-	bytes const &compileAndRunWithoutCheck(std::string const &_sourceCode,
-	                                       u256 const &_value = 0,
-	                                       std::string const &_contractName = "",
-	                                       bytes const &_arguments = bytes(),
-	                                       std::map<std::string, Address> const &_libraryAddresses
-	                                       = std::map<std::string, Address>())
+	bytes const compileAndRunWithoutCheck(std::string const &_sourceCode,
+	                                      u256 const &_value = 0,
+	                                      std::string const &_contractName = "",
+	                                      bytes const &_arguments = bytes(),
+	                                      std::map<std::string, Address> const &_libraryAddresses= std::map<std::string, Address>())
 	{
-		(void) _value;
-		(void) _contractName;
-		(void) _arguments;
-		(void) _libraryAddresses;
-
-		m_testContentStream << _sourceCode << std::endl;
-		if (!m_alsoViaYul)
-			m_testContentStream << "// ----" << std::endl;
-		else
-			m_testContentStream << "// ====" << std::endl;
-		if (m_alsoViaYul)
-		{
-			m_testContentStream << "// compileViaYul: also" << std::endl;
-			m_testContentStream << "// ----" << std::endl;
-			m_alsoViaYul = false;
-		}
-		return m_output;
+		m_current->compileAndRunWithoutCheck(_sourceCode, _value, _contractName, _arguments, _libraryAddresses);
+		return bytes();
 	}
 
-	bytes const &compileAndRun(std::string const &_sourceCode,
-	                           u256 const &_value = 0,
-	                           std::string const &_contractName = "",
-	                           bytes const &_arguments = bytes(),
-	                           std::map<std::string, Address> const &_libraryAddresses
-	                           = std::map<std::string, Address>())
+	bytes const compileAndRun(std::string const &_sourceCode,
+	                          u256 const &_value = 0,
+	                          std::string const &_contractName = "",
+	                          bytes const &_arguments = bytes(),
+	                          std::map<std::string, Address> const &_libraryAddresses
+	                          = std::map<std::string, Address>())
 	{
-		compileAndRunWithoutCheck(_sourceCode, _value, _contractName, _arguments, _libraryAddresses);
-		//		BOOST_REQUIRE(m_transactionSuccessful);
-		//		BOOST_REQUIRE(!m_output.empty());
-		return m_output;
+		return compileAndRunWithoutCheck(_sourceCode, _value, _contractName, _arguments, _libraryAddresses);
 	}
 
-	bytes const &callFallbackWithValue(u256 const &_value)
+	bytes const callFallbackWithValue(u256 const &_value)
 	{
 		sendMessage(bytes(), false, _value);
-		return m_output;
+		return bytes();
 	}
 
-	bytes const &callFallback() { return callFallbackWithValue(0); }
+	bytes const callFallback() { return callFallbackWithValue(0); }
 
-	bytes const &callLowLevel(bytes const &_data, u256 const &_value)
+	bytes const callLowLevel(bytes const &_data, u256 const &_value)
 	{
 		sendMessage(_data, false, _value);
-		return m_output;
+		return bytes();
 	}
 
-	bytes const &callContractFunctionWithValueNoEncoding(std::string _sig, u256 const &_value, bytes const &_arguments)
+	bytes const callContractFunctionWithValueNoEncoding(std::string _sig, u256 const &_value, bytes const &_arguments)
 	{
-		(void)_sig;
-		(void)_value;
-		(void)_arguments;
-		m_testContentStream << _sig << ":";
-		m_testContentStream << frontend::test::BytesUtils::formatString(_arguments);
-		return m_output;
+		(void) _sig;
+		(void) _value;
+		(void) _arguments;
+
+		return frontend::test::BytesUtils::convertString(_sig + "{" + formatString(_arguments) + "}");
 	}
 
-	bytes const &callContractFunctionNoEncoding(std::string _sig, bytes const &_arguments)
+	bytes const callContractFunctionNoEncoding(std::string _sig, bytes const &_arguments)
 	{
 		return callContractFunctionWithValueNoEncoding(_sig, 0, _arguments);
 	}
 
 	template <class... Args>
-	bytes const &callContractFunctionWithValue(std::string _sig, u256 const &_value, Args const &... _arguments)
+	bytes const callContractFunctionWithValue(std::string _sig, u256 const &_value, Args const &... _arguments)
 	{
-		return callContractFunctionWithValueNoEncoding(_sig, _value, string_encodeArgs(_arguments...));
+		return callContractFunctionWithValueNoEncoding(_sig, _value, extractor_encodeArgs(_arguments...));
 	}
 
-	template <class... Args> bytes const &callContractFunction(std::string _sig, Args const &... _arguments)
+	template <class... Args> bytes const callContractFunction(std::string _sig, Args const &... _arguments)
 	{
 		return callContractFunctionWithValue(_sig, 0, _arguments...);
 	}
@@ -141,10 +125,15 @@ class ExtractorExecutionFramework
 	template <class CppFunction, class... Args>
 	void testContractAgainstCpp(std::string _sig, CppFunction const &_cppFunction, Args const &... _arguments)
 	{
-		m_testContentStream << "// " << _sig << ": ";
-		Arguments(m_testContentStream, _arguments...);
-		m_testContentStream << " -> " << callCpp(_cppFunction, _arguments...)
-		                                                 << std::endl;
+		bytes contractResult = callContractFunction(_sig, _arguments...);
+		bytes cppResult = callCppAndEncodeResult(_cppFunction, _arguments...);
+		//		BOOST_CHECK_MESSAGE(
+		//			contractResult == cppResult,
+		//			"Computed values do not match.\nContract: " +
+		//				util::toHex(contractResult) +
+		//				"\nC++:      " +
+		//				util::toHex(cppResult)
+		//		);
 	}
 
 	template <class CppFunction, class... Args>
@@ -154,10 +143,21 @@ class ExtractorExecutionFramework
 	                                   u256 const &_rangeEnd)
 	{
 		for (u256 argument = _rangeStart; argument < _rangeEnd; ++argument)
-			m_testContentStream << "// " << _sig << ": " << argument << " -> " << _cppFunction(argument) << std::endl;
+		{
+			bytes contractResult = callContractFunction(_sig, argument);
+			bytes cppResult = callCppAndEncodeResult(_cppFunction, argument);
+			//			BOOST_CHECK_MESSAGE(
+			//				contractResult == cppResult,
+			//				"Computed values do not match.\nContract: " +
+			//					util::toHex(contractResult) +
+			//					"\nC++:      " +
+			//					util::toHex(cppResult) +
+			//					"\nArgument: " +
+			//					util::toHex(encode(argument))
+			//			);
+		}
 	}
 
-	static std::string createIsoltestCall(std::string expectation, std::string result);
 	static std::pair<bool, std::string> compareAndCreateMessage(bytes const &_result, bytes const &_expectation);
 
 	static bytes encode(bool _value) { return encode(uint8_t(_value)); }
@@ -202,53 +202,6 @@ class ExtractorExecutionFramework
 		return encodeArgs(u256(0x20), u256(_arg.size()), _arg);
 	}
 
-	template <class FirstArg, class... Args>
-	static bytes string_encodeDyn(FirstArg const &_firstArg, Args const &... _followingArgs)
-	{
-		std::stringstream o;
-		o << _firstArg;
-		if (sizeof...(_followingArgs))
-			o << ", ";
-		return frontend::test::BytesUtils::convertString(o.str()) + string_encodeDyn(_followingArgs...);
-	}
-	static bytes string_encodeDyn() { return bytes(); }
-
-	bytes string_bytes() {
-		return bytes();
-	}
-
-	bytes string_bytes(bytes b) {
-		return b;
-	}
-
-	bytes string_fromHex(std::string _hex) {
-		return frontend::test::BytesUtils::convertString(_hex);
-	}
-
-	template <class... Args>
-	static bytes string_encodeArgs(std::vector<u256> const &_firstArg, Args const &... _followingArgs)
-	{
-		(void)_firstArg;
-		std::stringstream o;
-//		o << _firstArg;
-		o << "?";
-		if (sizeof...(_followingArgs))
-			o << ", ";
-		return frontend::test::BytesUtils::convertString(o.str()) + string_encodeArgs(_followingArgs...);
-	}
-
-	template <class FirstArg, class... Args>
-	static bytes string_encodeArgs(FirstArg const &_firstArg, Args const &... _followingArgs)
-	{
-		std::stringstream o;
-		o << _firstArg;
-		if (sizeof...(_followingArgs))
-			o << ", ";
-		return frontend::test::BytesUtils::convertString(o.str()) + string_encodeArgs(_followingArgs...);
-	}
-	static bytes string_encodeArgs() { return bytes(); }
-
-
 	u256 gasLimit() const;
 	u256 gasPrice() const;
 	u256 blockHash(u256 const &_blockNumber) const;
@@ -279,32 +232,149 @@ class ExtractorExecutionFramework
 		return result;
 	}
 
-  private:
-	template <class FirstArg, class... Args>
-	static std::ostream &  Arguments(std::ostream & o, FirstArg const &_firstArg, Args const &... _followingArgs)
+	// preserve original type
+	template <class T> inline T extractor_asString(T _b) { return _b; }
+
+	template <class... Args>
+	static bytes extractor_encodeArgs(std::string const &_firstArg, Args const &... _followingArgs)
 	{
-		o << std::hex << "0x" << u256(_firstArg);
+		std::stringstream o;
+		o << "\"" << formatString(frontend::test::BytesUtils::convertString(_firstArg)) << "\"";
 		if (sizeof...(_followingArgs))
 			o << ", ";
-		return Arguments(o, _followingArgs...);
+		bytes result = frontend::test::BytesUtils::convertString(o.str()) + extractor_encodeArgs(_followingArgs...);
+		return result;
 	}
-	static std::ostream & Arguments(std::ostream & o) { return o; }
 
+	template <class... Args> static bytes extractor_encodeArgs(const char *_firstArg, Args const &... _followingArgs)
+	{
+		return extractor_encodeArgs(std::string(_firstArg)) + extractor_encodeArgs(_followingArgs...);
+	}
+
+	template <class... Args> static bytes extractor_encodeArgs(u256 const &_firstArg, Args const &... _followingArgs)
+	{
+		std::stringstream o;
+		o << "0x";
+		o << std::setw(2) << std::setfill('0') << std::hex << _firstArg;
+		if (sizeof...(_followingArgs))
+			o << ", ";
+		bytes result = frontend::test::BytesUtils::convertString(o.str()) + extractor_encodeArgs(_followingArgs...);
+		return result;
+	}
+
+	template <class... Args> static bytes extractor_encodeArgs(bytes const &_firstArg, Args const &... _followingArgs)
+	{
+		std::stringstream o;
+		o << "0x";
+		for (auto const &a : _firstArg)
+			o << std::setw(2) << std::setfill('0') << std::hex << (int) a;
+		if (sizeof...(_followingArgs))
+			o << ", ";
+		bytes result = frontend::test::BytesUtils::convertString(o.str()) + extractor_encodeArgs(_followingArgs...);
+		return result;
+	}
+
+	template <class T, class... Args>
+	static bytes extractor_encodeArgs(std::vector<T> const &_firstArg, Args const &... _followingArgs)
+	{
+		std::stringstream o;
+		o << "0x";
+		for (auto const &a : _firstArg)
+			o << std::setw(2) << std::setfill('0') << std::hex << u256(a);
+		if (sizeof...(_followingArgs))
+			o << ", ";
+		bytes result = frontend::test::BytesUtils::convertString(o.str()) + extractor_encodeArgs(_followingArgs...);
+		return result;
+	}
+
+	template <class FirstArg, class... Args>
+	static bytes extractor_encodeArgs(FirstArg const &_firstArg, Args const &... _followingArgs)
+	{
+		std::stringstream o;
+		o << _firstArg;
+		if (sizeof...(_followingArgs))
+			o << ", ";
+		bytes result = frontend::test::BytesUtils::convertString(o.str()) + extractor_encodeArgs(_followingArgs...);
+		return result;
+	}
+
+	static bytes extractor_encodeArgs() { return bytes(); }
+
+	static std::string formatString(bytes const &_bytes)
+	{
+		std::vector<std::string> parameters;
+		bool wasPrintable{false};
+
+		std::string current;
+		for (size_t i = 0; i < _bytes.size(); ++i)
+		{
+			auto const v = _bytes[i];
+			if (isprint(v))
+			{
+				wasPrintable = true;
+				current += (char) v;
+			}
+			else
+			{
+				if (!current.empty())
+					parameters.push_back(current);
+
+				current.clear();
+				wasPrintable = false;
+				std::stringstream os;
+				os << "0x" << std::setw(2) << std::setfill('0') << std::hex << (int) v;
+				parameters.emplace_back(os.str());
+			}
+		}
+		if (!current.empty())
+			parameters.push_back(current);
+
+		std::string result;
+		for (auto const &item : parameters)
+		{
+			result += item;
+			if (item != *parameters.rbegin())
+				result += ", ";
+		}
+		return result;
+	}
+
+	static ExtractionTask *m_current;
+
+	void prepareTest(std::string const &name, TestSuite &suite) { m_current = &suite[name]; }
+
+	void ABI_CHECK(bytes const &_result, bytes const &_expectation)
+	{
+		std::string sig(formatString(_result));
+		sig = sig.substr(0, sig.find('{'));
+
+		std::string parameters(formatString(_result));
+		parameters = parameters.substr(parameters.find('{') + 1, parameters.find('}') - parameters.find('{') - 1);
+
+		std::string result(formatString(_expectation));
+
+		m_current->addExpectation(sig, parameters, result);
+	}
+
+	Address extractor_m_contractAddress()
+	{
+		m_current->extractionNotPossible("Accessing m_contractAddress");
+		return m_contractAddress;
+	}
+
+  private:
 	template <class CppFunction, class... Args>
-	auto callCpp(CppFunction const &_cppFunction, Args const &... _arguments) ->
-	    typename std::enable_if<std::is_void<decltype(_cppFunction(_arguments...))>::value, std::string>::type
+	auto callCppAndEncodeResult(CppFunction const &_cppFunction, Args const &... _arguments) ->
+	    typename std::enable_if<std::is_void<decltype(_cppFunction(_arguments...))>::value, bytes>::type
 	{
 		_cppFunction(_arguments...);
-		return "";
+		return bytes();
 	}
 	template <class CppFunction, class... Args>
-	auto callCpp(CppFunction const &_cppFunction, Args const &... _arguments) ->
-	    typename std::enable_if<!std::is_void<decltype(_cppFunction(_arguments...))>::value, std::string>::type
-
+	auto callCppAndEncodeResult(CppFunction const &_cppFunction, Args const &... _arguments) ->
+	    typename std::enable_if<!std::is_void<decltype(_cppFunction(_arguments...))>::value, bytes>::type
 	{
-		std::stringstream str;
-		str << std::hex << "0x" << u256(_cppFunction(_arguments...));
-		return str.str();
+		return encode(_cppFunction(_arguments...));
 	}
 
   protected:
@@ -320,6 +390,12 @@ class ExtractorExecutionFramework
 	bool storageEmpty(Address const &_addr);
 	bool addressHasCode(Address const &_addr);
 
+	size_t numLogs() const;
+	size_t numLogTopics(size_t _logIdx) const;
+	util::h256 logTopic(size_t _logIdx, size_t _topicIdx) const;
+	Address logAddress(size_t _logIdx) const;
+	bytes logData(size_t _logIdx) const;
+
 	langutil::EVMVersion m_evmVersion;
 	solidity::frontend::RevertStrings m_revertStrings = solidity::frontend::RevertStrings::Default;
 	solidity::frontend::OptimiserSettings m_optimiserSettings = solidity::frontend::OptimiserSettings::minimal();
@@ -330,28 +406,7 @@ class ExtractorExecutionFramework
 	Address m_contractAddress;
 	u256 const m_gasPrice = 100 * szabo;
 	u256 const m_gas = 100000000;
-	bytes m_output;
 	u256 m_gasUsed;
-	size_t m_blockNumber;
-
-	std::ofstream m_testContentStream;
-	bool m_alsoViaYul{false};
-
-	void prepareTest(std::string const &name)
-	{
-		if (m_testContentStream.is_open())
-			m_testContentStream.close();
-
-		m_testContentStream = std::ofstream("/tmp/e2e/" + name + ".sol", std::ofstream::out | std::ofstream::trunc);
-	}
-
-	void setAlsoViaYul() { m_alsoViaYul = true; }
 };
-
-//#define ABI_CHECK(result, expectation) do { \
-//	auto abiCheckResult = ExtractorExecutionFramework::compareAndCreateMessage((result), (expectation)); \
-//	BOOST_CHECK_MESSAGE(abiCheckResult.first, abiCheckResult.second); \
-//} while (0)
-//
 
 } // namespace solidity::test

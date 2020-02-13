@@ -13,15 +13,15 @@ target_link_libraries(yulopti PRIVATE solidity Boost::boost Boost::program_optio
 add_executable(end2end-extractor
 	end2end-extractor/main.cpp
 	end2end-extractor/End2EndTests.h
-	end2end-extractor/End2EndExtractor.hpp
-	end2end-extractor/End2EndExtractor.cpp
+	end2end-extractor/End2EndTests.cpp
 	end2end-extractor/ExtractorExecutionFramework.h
 	end2end-extractor/ExtractorExecutionFramework.cpp
+	end2end-extractor/ExtractionTask.h
+	end2end-extractor/ExtractionTask.cpp
 	../Common.cpp
 	../libsolidity/util/BytesUtils.cpp
-	../libsolidity/util/ContractABIUtils.cpp
-)
-target_link_libraries(end2end-extractor PRIVATE libsolc evmc solidity Boost::boost Boost::program_options Boost::system)
+	../libsolidity/util/ContractABIUtils.cpp)
+target_link_libraries(end2end-extractor PRIVATE evmc libsolc solidity yulInterpreter evmasm  Boost::boost Boost::program_options Boost::system)
 
 add_executable(isoltest
 	isoltest.cpp
