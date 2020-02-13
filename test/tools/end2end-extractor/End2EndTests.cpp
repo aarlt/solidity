@@ -7,11 +7,16 @@ using namespace solidity::util;
 using namespace solidity::test;
 using namespace solidity::frontend;
 
-// #define END_TO_END_EXTRACTOR
+ #define END_TO_END_EXTRACTOR
+
 #define encodeArgs extractor_encodeArgs
 #define encodeDyn extractor_encodeArgs
 #define asString extractor_asString
 #define m_contractAddress extractor_m_contractAddress()
+#define m_evmHost extractor_m_evmHost()
+#define m_output extractor_m_output()
+#define m_compiler extractor_m_compiler()
+#define EVMHost FakeEVMHost
 
 #define SolidityExecutionFramework solidity::test::ExtractorExecutionFramework
 
@@ -24,6 +29,12 @@ using namespace solidity::frontend;
 	if (A == B)                   \
 	{                             \
 	}
+
+#define BOOST_CHECK_LE(A, B) \
+	if (A == B)                   \
+	{                             \
+	}
+
 #define BOOST_REQUIRE(A) \
 	if (A)               \
 	{                    \
@@ -47,13 +58,11 @@ using namespace solidity::frontend;
 
 #define BOOST_AUTO_TEST_CASE(X) m_tests[#X] = ExtractionTask(#X, [this]() { \
 	    prepareTest(#X, m_tests);
+
 #ifdef END_TO_END_EXTRACTOR
-using namespace std;
-using namespace std::placeholders;
-using namespace solidity::util;
-using namespace solidity::test;
-using namespace solidity::frontend;
+
 #include "test/libsolidity/SolidityEndToEndTest.cpp"
+
 #else
 
 BOOST_FIXTURE_TEST_SUITE(SolidityEndToEndTest, SolidityExecutionFramework)

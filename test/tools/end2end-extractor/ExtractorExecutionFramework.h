@@ -23,7 +23,9 @@
 #pragma once
 
 #include <test/Common.h>
+#include <test/EVMHost.h>
 
+#include <libsolidity/interface/CompilerStack.h>
 #include <libsolidity/interface/DebugSettings.h>
 #include <libsolidity/interface/OptimiserSettings.h>
 
@@ -56,6 +58,37 @@ static const u256 szabo = shannon * 1000;
 static const u256 finney = szabo * 1000;
 static const u256 ether = finney * 1000;
 
+class FakeEVMHost : public evmc::MockedHost
+{
+  public:
+	void reset() {}
+	void newBlock() {}
+
+	static Address convertFromEVMC(evmc::address const &_addr)
+	{
+		(void) _addr;
+		return Address();
+	}
+
+	static evmc::address convertToEVMC(Address const &_addr)
+	{
+		(void) _addr;
+		return evmc::address();
+	}
+
+	static util::h256 convertFromEVMC(evmc::bytes32 const &_data)
+	{
+		(void) _data;
+		return util::h256();
+	}
+
+	static evmc::bytes32 convertToEVMC(util::h256 const &_data)
+	{
+		(void) _data;
+		return evmc::bytes32();
+	}
+};
+
 class ExtractorExecutionFramework
 {
   public:
@@ -67,9 +100,18 @@ class ExtractorExecutionFramework
 	                                      u256 const &_value = 0,
 	                                      std::string const &_contractName = "",
 	                                      bytes const &_arguments = bytes(),
-	                                      std::map<std::string, Address> const &_libraryAddresses= std::map<std::string, Address>())
+	                                      std::map<std::string, Address> const &_libraryAddresses
+	                                      = std::map<std::string, Address>())
 	{
 		m_current->compileAndRunWithoutCheck(_sourceCode, _value, _contractName, _arguments, _libraryAddresses);
+
+		m_compiler.reset();
+		m_compiler.setSources({{"", _sourceCode}});
+		m_compiler.setLibraries(_libraryAddresses);
+		m_compiler.setEVMVersion(m_evmVersion);
+		m_compiler.setOptimiserSettings(m_optimiserSettings);
+		m_compiler.compile();
+
 		return bytes();
 	}
 
@@ -356,10 +398,28 @@ class ExtractorExecutionFramework
 		m_current->addExpectation(sig, parameters, result);
 	}
 
+	std::shared_ptr<FakeEVMHost> extractor_m_evmHost()
+	{
+		m_current->extractionNotPossible("Accessing m_evmHost");
+		return m_evmHost;
+	}
+
+	bytes extractor_m_output()
+	{
+		m_current->extractionNotPossible("Accessing m_output");
+		return m_output;
+	}
+
 	Address extractor_m_contractAddress()
 	{
 		m_current->extractionNotPossible("Accessing m_contractAddress");
 		return m_contractAddress;
+	}
+
+	solidity::frontend::CompilerStack &extractor_m_compiler()
+	{
+		m_current->extractionNotPossible("Accessing m_compiler");
+		return m_compiler;
 	}
 
   private:
@@ -400,6 +460,7 @@ class ExtractorExecutionFramework
 	solidity::frontend::RevertStrings m_revertStrings = solidity::frontend::RevertStrings::Default;
 	solidity::frontend::OptimiserSettings m_optimiserSettings = solidity::frontend::OptimiserSettings::minimal();
 	bool m_showMessages = false;
+	std::shared_ptr<FakeEVMHost> m_evmHost;
 
 	bool m_transactionSuccessful = true;
 	Address m_sender = account(0);
@@ -407,6 +468,9 @@ class ExtractorExecutionFramework
 	u256 const m_gasPrice = 100 * szabo;
 	u256 const m_gas = 100000000;
 	u256 m_gasUsed;
+	bytes m_output;
+
+	solidity::frontend::CompilerStack m_compiler;
 };
 
 } // namespace solidity::test

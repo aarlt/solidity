@@ -40,8 +40,6 @@ using namespace solidity::test;
 
 bool operator==(solidity::bytes const &_left, solidity::bytes const &_right)
 {
-	(void)_left;
-	(void)_right;
 	std::string sig(ExtractorExecutionFramework::formatString(_left));
 	sig = sig.substr(0, sig.find('{'));
 
@@ -52,7 +50,6 @@ bool operator==(solidity::bytes const &_left, solidity::bytes const &_right)
 
 	ExtractorExecutionFramework::m_current->addExpectation(sig, parameters, result);
 
-	std::cout << "_left" << std::endl;
 	return true;
 };
 
@@ -65,7 +62,8 @@ ExtractorExecutionFramework::ExtractorExecutionFramework()
 
 ExtractorExecutionFramework::ExtractorExecutionFramework(langutil::EVMVersion _evmVersion)
     : m_evmVersion(_evmVersion), m_optimiserSettings(solidity::frontend::OptimiserSettings::minimal()),
-      m_showMessages(solidity::test::CommonOptions::get().showMessages)
+      m_showMessages(solidity::test::CommonOptions::get().showMessages),
+	  m_evmHost(std::make_shared<FakeEVMHost>())
 {
 	if (solidity::test::CommonOptions::get().optimizeYul)
 		m_optimiserSettings = solidity::frontend::OptimiserSettings::full();
@@ -116,7 +114,7 @@ u256 ExtractorExecutionFramework::blockNumber() const
 {
 	m_current->extractionNotPossible("Use of m_evmHost");
 	static u256 block{0};
-	return ++block;
+	return (++block) % 1024;
 }
 
 void ExtractorExecutionFramework::sendMessage(bytes const &_data, bool _isCreation, u256 const &_value)
