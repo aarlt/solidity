@@ -20,7 +20,7 @@ add_executable(end2end-extractor
 	end2end-extractor/ExtractionTask.cpp
 	../Common.cpp
 	../libsolidity/util/BytesUtils.cpp
-	../libsolidity/util/ContractABIUtils.cpp)
+	../libsolidity/util/ContractABIUtils.cpp end2end-extractor/FakeEvmHost.hpp end2end-extractor/FakeCompilerStack.hpp)
 target_link_libraries(end2end-extractor PRIVATE evmc libsolc solidity yulInterpreter evmasm  Boost::boost Boost::program_options Boost::system)
 
 add_executable(isoltest

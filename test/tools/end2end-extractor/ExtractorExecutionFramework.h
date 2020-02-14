@@ -23,7 +23,6 @@
 #pragma once
 
 #include <test/Common.h>
-#include <test/EVMHost.h>
 
 #include <libsolidity/interface/CompilerStack.h>
 #include <libsolidity/interface/DebugSettings.h>
@@ -39,8 +38,13 @@
 #include <functional>
 
 #include "ExtractionTask.h"
+#include "FakeCompilerStack.hpp"
+#include "FakeEvmHost.hpp"
 
 bool operator==(solidity::bytes const &_left, solidity::bytes const &_right);
+solidity::bytes operator+(solidity::bytes const &_left, solidity::bytes const &_right);
+solidity::bytes operator+(const char *_left, solidity::bytes const &_right);
+solidity::bytes operator+(solidity::bytes const &_left, const char *_right);
 
 namespace solidity::test
 {
@@ -58,37 +62,6 @@ static const u256 szabo = shannon * 1000;
 static const u256 finney = szabo * 1000;
 static const u256 ether = finney * 1000;
 
-class FakeEVMHost : public evmc::MockedHost
-{
-  public:
-	void reset() {}
-	void newBlock() {}
-
-	static Address convertFromEVMC(evmc::address const &_addr)
-	{
-		(void) _addr;
-		return Address();
-	}
-
-	static evmc::address convertToEVMC(Address const &_addr)
-	{
-		(void) _addr;
-		return evmc::address();
-	}
-
-	static util::h256 convertFromEVMC(evmc::bytes32 const &_data)
-	{
-		(void) _data;
-		return util::h256();
-	}
-
-	static evmc::bytes32 convertToEVMC(util::h256 const &_data)
-	{
-		(void) _data;
-		return evmc::bytes32();
-	}
-};
-
 class ExtractorExecutionFramework
 {
   public:
@@ -104,14 +77,6 @@ class ExtractorExecutionFramework
 	                                      = std::map<std::string, Address>())
 	{
 		m_current->compileAndRunWithoutCheck(_sourceCode, _value, _contractName, _arguments, _libraryAddresses);
-
-		m_compiler.reset();
-		m_compiler.setSources({{"", _sourceCode}});
-		m_compiler.setLibraries(_libraryAddresses);
-		m_compiler.setEVMVersion(m_evmVersion);
-		m_compiler.setOptimiserSettings(m_optimiserSettings);
-		m_compiler.compile();
-
 		return bytes();
 	}
 
@@ -127,7 +92,8 @@ class ExtractorExecutionFramework
 
 	bytes const callFallbackWithValue(u256 const &_value)
 	{
-		sendMessage(bytes(), false, _value);
+		if (_value > 0)
+			m_current->extractionNotPossible("sending value is not supported");
 		return bytes();
 	}
 
@@ -135,15 +101,20 @@ class ExtractorExecutionFramework
 
 	bytes const callLowLevel(bytes const &_data, u256 const &_value)
 	{
-		sendMessage(_data, false, _value);
+		(void) _data;
+
+		if (_value > 0)
+			m_current->extractionNotPossible("sending value is not supported");
+
 		return bytes();
 	}
 
 	bytes const callContractFunctionWithValueNoEncoding(std::string _sig, u256 const &_value, bytes const &_arguments)
 	{
-		(void) _sig;
 		(void) _value;
-		(void) _arguments;
+
+		if (_value > 0)
+			m_current->extractionNotPossible("sending value is not supported");
 
 		return frontend::test::BytesUtils::convertString(_sig + "{" + formatString(_arguments) + "}");
 	}
@@ -169,13 +140,18 @@ class ExtractorExecutionFramework
 	{
 		bytes contractResult = callContractFunction(_sig, _arguments...);
 		bytes cppResult = callCppAndEncodeResult(_cppFunction, _arguments...);
-		//		BOOST_CHECK_MESSAGE(
-		//			contractResult == cppResult,
-		//			"Computed values do not match.\nContract: " +
-		//				util::toHex(contractResult) +
-		//				"\nC++:      " +
-		//				util::toHex(cppResult)
-		//		);
+
+		std::string sig(formatString(contractResult));
+		sig = sig.substr(0, sig.find('{'));
+
+		std::string parameters(formatString(contractResult));
+		parameters = parameters.substr(parameters.find('{') + 1, parameters.find('}') - parameters.find('{') - 1);
+
+		std::string result(formatString(cppResult));
+
+		m_current->addExpectation(sig, parameters, result);
+
+		m_current->extractionNotPossible("testing against c++ function");
 	}
 
 	template <class CppFunction, class... Args>
@@ -188,19 +164,19 @@ class ExtractorExecutionFramework
 		{
 			bytes contractResult = callContractFunction(_sig, argument);
 			bytes cppResult = callCppAndEncodeResult(_cppFunction, argument);
-			//			BOOST_CHECK_MESSAGE(
-			//				contractResult == cppResult,
-			//				"Computed values do not match.\nContract: " +
-			//					util::toHex(contractResult) +
-			//					"\nC++:      " +
-			//					util::toHex(cppResult) +
-			//					"\nArgument: " +
-			//					util::toHex(encode(argument))
-			//			);
-		}
-	}
 
-	static std::pair<bool, std::string> compareAndCreateMessage(bytes const &_result, bytes const &_expectation);
+			std::string sig(formatString(contractResult));
+			sig = sig.substr(0, sig.find('{'));
+
+			std::string parameters(formatString(contractResult));
+			parameters = parameters.substr(parameters.find('{') + 1, parameters.find('}') - parameters.find('{') - 1);
+
+			std::string result(formatString(cppResult));
+
+			m_current->addExpectation(sig, parameters, result);
+		}
+		m_current->extractionNotPossible("testing against c++ function");
+	}
 
 	static bytes encode(bool _value) { return encode(uint8_t(_value)); }
 	static bytes encode(int _value) { return encode(u256(_value)); }
@@ -275,7 +251,22 @@ class ExtractorExecutionFramework
 	}
 
 	// preserve original type
-	template <class T> inline T extractor_asString(T _b) { return _b; }
+	template <class T> T extractor_asString(T _b) {
+		return _b;
+	}
+
+	static bytes extractor_fromHex(std::string const& _hex) {
+		std::string prefix{"0x"};
+		if (_hex.size() >= 2 && _hex[0] == '0' && _hex[1] == 'x')
+			prefix.clear();
+		return frontend::test::BytesUtils::convertString(prefix + _hex);
+	}
+
+	//@todo might be extended in the future
+	template <class Arg> static bytes extractor_encodeDyn(Arg const &_arg)
+	{
+		return extractor_encodeArgs(u256(0x20), u256(_arg.size()), _arg);
+	}
 
 	template <class... Args>
 	static bytes extractor_encodeArgs(std::string const &_firstArg, Args const &... _followingArgs)
@@ -293,6 +284,18 @@ class ExtractorExecutionFramework
 		return extractor_encodeArgs(std::string(_firstArg)) + extractor_encodeArgs(_followingArgs...);
 	}
 
+	template <class... Args>
+	static bytes extractor_encodeArgs(util::h256 const &_firstArg, Args const &... _followingArgs)
+	{
+		std::stringstream o;
+		o << "0x";
+		o << std::setw(2) << std::setfill('0') << std::hex << _firstArg;
+		if (sizeof...(_followingArgs))
+			o << ", ";
+		bytes result = frontend::test::BytesUtils::convertString(o.str()) + extractor_encodeArgs(_followingArgs...);
+		return result;
+	}
+
 	template <class... Args> static bytes extractor_encodeArgs(u256 const &_firstArg, Args const &... _followingArgs)
 	{
 		std::stringstream o;
@@ -307,9 +310,7 @@ class ExtractorExecutionFramework
 	template <class... Args> static bytes extractor_encodeArgs(bytes const &_firstArg, Args const &... _followingArgs)
 	{
 		std::stringstream o;
-		o << "0x";
-		for (auto const &a : _firstArg)
-			o << std::setw(2) << std::setfill('0') << std::hex << (int) a;
+		o << frontend::test::BytesUtils::formatHexString(_firstArg);
 		if (sizeof...(_followingArgs))
 			o << ", ";
 		bytes result = frontend::test::BytesUtils::convertString(o.str()) + extractor_encodeArgs(_followingArgs...);
@@ -320,11 +321,17 @@ class ExtractorExecutionFramework
 	static bytes extractor_encodeArgs(std::vector<T> const &_firstArg, Args const &... _followingArgs)
 	{
 		std::stringstream o;
-		o << "0x";
-		for (auto const &a : _firstArg)
-			o << std::setw(2) << std::setfill('0') << std::hex << u256(a);
-		if (sizeof...(_followingArgs))
-			o << ", ";
+		if (!_firstArg.empty())
+		{
+			for (auto const &a : _firstArg)
+			{
+				o << "0x" << std::setw(2) << std::setfill('0') << std::hex << a;
+				if (a != *_firstArg.rbegin())
+					o << ", ";
+			}
+			if (sizeof...(_followingArgs))
+				o << ", ";
+		}
 		bytes result = frontend::test::BytesUtils::convertString(o.str()) + extractor_encodeArgs(_followingArgs...);
 		return result;
 	}
@@ -333,7 +340,7 @@ class ExtractorExecutionFramework
 	static bytes extractor_encodeArgs(FirstArg const &_firstArg, Args const &... _followingArgs)
 	{
 		std::stringstream o;
-		o << _firstArg;
+		o << "0x" << std::hex << _firstArg;
 		if (sizeof...(_followingArgs))
 			o << ", ";
 		bytes result = frontend::test::BytesUtils::convertString(o.str()) + extractor_encodeArgs(_followingArgs...);
@@ -381,24 +388,7 @@ class ExtractorExecutionFramework
 		return result;
 	}
 
-	static ExtractionTask *m_current;
-
-	void prepareTest(std::string const &name, TestSuite &suite) { m_current = &suite[name]; }
-
-	void ABI_CHECK(bytes const &_result, bytes const &_expectation)
-	{
-		std::string sig(formatString(_result));
-		sig = sig.substr(0, sig.find('{'));
-
-		std::string parameters(formatString(_result));
-		parameters = parameters.substr(parameters.find('{') + 1, parameters.find('}') - parameters.find('{') - 1);
-
-		std::string result(formatString(_expectation));
-
-		m_current->addExpectation(sig, parameters, result);
-	}
-
-	std::shared_ptr<FakeEVMHost> extractor_m_evmHost()
+	std::shared_ptr<FakeEvmHost> extractor_m_evmHost()
 	{
 		m_current->extractionNotPossible("Accessing m_evmHost");
 		return m_evmHost;
@@ -416,10 +406,27 @@ class ExtractorExecutionFramework
 		return m_contractAddress;
 	}
 
-	solidity::frontend::CompilerStack &extractor_m_compiler()
+	FakeCompilerStack &extractor_m_compiler()
 	{
 		m_current->extractionNotPossible("Accessing m_compiler");
 		return m_compiler;
+	}
+
+	static ExtractionTask *m_current;
+
+	void prepareTest(std::string const &name, TestSuite &suite) { m_current = &suite[name]; }
+
+	void ABI_CHECK(bytes const &_result, bytes const &_expectation)
+	{
+		std::string sig(formatString(_result));
+		sig = sig.substr(0, sig.find('{'));
+
+		std::string parameters(formatString(_result));
+		parameters = parameters.substr(parameters.find('{') + 1, parameters.find('}') - parameters.find('{') - 1);
+
+		std::string result(formatString(_expectation));
+
+		m_current->addExpectation(sig, parameters, result);
 	}
 
   private:
@@ -434,7 +441,7 @@ class ExtractorExecutionFramework
 	auto callCppAndEncodeResult(CppFunction const &_cppFunction, Args const &... _arguments) ->
 	    typename std::enable_if<!std::is_void<decltype(_cppFunction(_arguments...))>::value, bytes>::type
 	{
-		return encode(_cppFunction(_arguments...));
+		return extractor_encodeArgs(_cppFunction(_arguments...));
 	}
 
   protected:
@@ -460,7 +467,7 @@ class ExtractorExecutionFramework
 	solidity::frontend::RevertStrings m_revertStrings = solidity::frontend::RevertStrings::Default;
 	solidity::frontend::OptimiserSettings m_optimiserSettings = solidity::frontend::OptimiserSettings::minimal();
 	bool m_showMessages = false;
-	std::shared_ptr<FakeEVMHost> m_evmHost;
+	std::shared_ptr<FakeEvmHost> m_evmHost;
 
 	bool m_transactionSuccessful = true;
 	Address m_sender = account(0);
@@ -470,7 +477,7 @@ class ExtractorExecutionFramework
 	u256 m_gasUsed;
 	bytes m_output;
 
-	solidity::frontend::CompilerStack m_compiler;
+	FakeCompilerStack m_compiler;
 };
 
 } // namespace solidity::test

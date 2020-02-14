@@ -10,13 +10,15 @@ using namespace solidity::frontend;
  #define END_TO_END_EXTRACTOR
 
 #define encodeArgs extractor_encodeArgs
-#define encodeDyn extractor_encodeArgs
+#define encode extractor_encodeArgs
+#define encodeDyn extractor_encodeDyn
 #define asString extractor_asString
+#define fromHex extractor_fromHex
 #define m_contractAddress extractor_m_contractAddress()
 #define m_evmHost extractor_m_evmHost()
 #define m_output extractor_m_output()
 #define m_compiler extractor_m_compiler()
-#define EVMHost FakeEVMHost
+#define EVMHost FakeEvmHost
 
 #define SolidityExecutionFramework solidity::test::ExtractorExecutionFramework
 
@@ -39,6 +41,7 @@ using namespace solidity::frontend;
 	if (A)               \
 	{                    \
 	}
+
 #define BOOST_CHECK_EQUAL(A, B) \
 	if (A == B)                 \
 	{                           \

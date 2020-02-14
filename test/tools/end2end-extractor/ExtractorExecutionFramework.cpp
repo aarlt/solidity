@@ -53,6 +53,24 @@ bool operator==(solidity::bytes const &_left, solidity::bytes const &_right)
 	return true;
 };
 
+solidity::bytes operator+(solidity::bytes const &_left, solidity::bytes const &_right)
+{
+	std::string left(ExtractorExecutionFramework::formatString(_left));
+	std::string right(ExtractorExecutionFramework::formatString(_right));
+	if (!right.empty())
+		right = ", " + right;
+	return frontend::test::BytesUtils::convertString(left + right);
+}
+solidity::bytes operator+(const char *_left, solidity::bytes const &_right)
+{
+	return operator+(frontend::test::BytesUtils::convertString(_left), _right);
+}
+
+solidity::bytes operator+(solidity::bytes const &_left, const char *_right)
+{
+	return operator+(_left, frontend::test::BytesUtils::convertString(_right));
+}
+
 ExtractionTask *ExtractorExecutionFramework::m_current{nullptr};
 
 ExtractorExecutionFramework::ExtractorExecutionFramework()
@@ -62,32 +80,12 @@ ExtractorExecutionFramework::ExtractorExecutionFramework()
 
 ExtractorExecutionFramework::ExtractorExecutionFramework(langutil::EVMVersion _evmVersion)
     : m_evmVersion(_evmVersion), m_optimiserSettings(solidity::frontend::OptimiserSettings::minimal()),
-      m_showMessages(solidity::test::CommonOptions::get().showMessages),
-	  m_evmHost(std::make_shared<FakeEVMHost>())
+      m_showMessages(solidity::test::CommonOptions::get().showMessages), m_evmHost(std::make_shared<FakeEvmHost>())
 {
 	if (solidity::test::CommonOptions::get().optimizeYul)
 		m_optimiserSettings = solidity::frontend::OptimiserSettings::full();
 	else if (solidity::test::CommonOptions::get().optimize)
 		m_optimiserSettings = solidity::frontend::OptimiserSettings::standard();
-}
-
-std::pair<bool, string> ExtractorExecutionFramework::compareAndCreateMessage(bytes const &_result,
-                                                                             bytes const &_expectation)
-{
-	if (_result == _expectation)
-		return std::make_pair(true, std::string{});
-	std::string message = "Invalid encoded data\n"
-	                      "   Result                                                           Expectation\n";
-	auto resultHex = boost::replace_all_copy(toHex(_result), "0", ".");
-	auto expectedHex = boost::replace_all_copy(toHex(_expectation), "0", ".");
-	for (size_t i = 0; i < std::max(resultHex.size(), expectedHex.size()); i += 0x40)
-	{
-		std::string result{i >= resultHex.size() ? string{} : resultHex.substr(i, 0x40)};
-		std::string expected{i > expectedHex.size() ? string{} : expectedHex.substr(i, 0x40)};
-		message
-		    += (result == expected ? "   " : " X ") + result + std::string(0x41 - result.size(), ' ') + expected + "\n";
-	}
-	return make_pair(false, message);
 }
 
 u256 ExtractorExecutionFramework::gasLimit() const
@@ -168,6 +166,7 @@ void ExtractorExecutionFramework::sendMessage(bytes const &_data, bool _isCreati
 	//		cout << " result: " << size_t(result.status_code) << endl;
 	//		cout << " gas used: " << m_gasUsed.str() << endl;
 	//	}
+	m_current->extractionNotPossible("send used");
 }
 
 void ExtractorExecutionFramework::sendEther(Address const &_addr, u256 const &_amount)
@@ -212,6 +211,8 @@ Address ExtractorExecutionFramework::account(size_t _idx)
 {
 	(void) _idx;
 
+	if (m_current)
+		m_current->extractionNotPossible("Use of m_evmHost");
 	return Address(h256(u256{"0x1212121212121212121212121212120000000012"} + _idx * 0x1000), Address::AlignRight);
 }
 

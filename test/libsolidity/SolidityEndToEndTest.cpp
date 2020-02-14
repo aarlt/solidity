@@ -13452,12 +13452,12 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_from_storage)
 	{
 		compileAndRun(string(v2 ? "pragma experimental ABIEncoderV2;\n" : "") + sourceCode, 0, "C");
 		bytes payload = encodeArgs(0xfffff1, 0, 0xfffff2, 0, 0, 0xfffff3, 0, 0, 0xfffff4);
-		bytes encoded = encodeArgs(0x20, 0x122, "\x01", asString(payload), "\x02");
+		bytes encoded = encodeArgs(0x20, 0x122, "\x01" + asString(payload) + "\x02");
 		ABI_CHECK(callContractFunction("sf()"), encoded);
 		ABI_CHECK(callContractFunction("sd()"), encoded);
-		ABI_CHECK(callContractFunction("sfs()"), encodeArgs(0x20, 0x122, "\x01", asString(encodeArgs(
+		ABI_CHECK(callContractFunction("sfs()"), encodeArgs(0x20, 0x122, "\x01" + asString(encodeArgs(
 			u256(-2), 0, 0xffff2, 0, 0, u256(-200), 0, 0, 0xffff4
-		)), "\x02"));
+		)) + "\x02"));
 		payload = encodeArgs(
 			u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 			0xfffff2,
@@ -13465,8 +13465,8 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_from_storage)
 			0,
 			0xfffff4
 		);
-		ABI_CHECK(callContractFunction("lf()"), encodeArgs(0x20, 5 * 32 + 2, "\x01", asString(encodeArgs(payload)), "\x02"));
-		ABI_CHECK(callContractFunction("ld()"), encodeArgs(0x20, 5 * 32 + 2, "\x01", asString(encodeArgs(payload)), "\x02"));
+		ABI_CHECK(callContractFunction("lf()"), encodeArgs(0x20, 5 * 32 + 2, "\x01" + asString(encodeArgs(payload)) + "\x02"));
+		ABI_CHECK(callContractFunction("ld()"), encodeArgs(0x20, 5 * 32 + 2, "\x01" + asString(encodeArgs(payload)) + "\x02"));
 		ABI_CHECK(callContractFunction("bytes_short()"), encodeArgs(0x20, 6, "\x01" "abcd\x02"));
 		ABI_CHECK(
 			callContractFunction("bytes_long()"),
@@ -13526,12 +13526,12 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_from_memory)
 	{
 		compileAndRun(string(v2 ? "pragma experimental ABIEncoderV2;\n" : "") + sourceCode, 0, "C");
 		bytes payload = encodeArgs(0xfffff1, 0, 0xfffff2, 0, 0, 0xfffff3, 0, 0, 0xfffff4);
-		bytes encoded = encodeArgs(0x20, 0x122, "\x01", asString(payload), "\x02");
+		bytes encoded = encodeArgs(0x20, 0x122, "\x01" + asString(payload) + "\x02");
 		ABI_CHECK(callContractFunction("sf()"), encoded);
 		ABI_CHECK(callContractFunction("sd()"), encoded);
-		ABI_CHECK(callContractFunction("sfs()"), encodeArgs(0x20, 0x122, "\x01", asString(encodeArgs(
+		ABI_CHECK(callContractFunction("sfs()"), encodeArgs(0x20, 0x122, "\x01" + asString(encodeArgs(
 			u256(-2), 0, 0xffff2, 0, 0, u256(-200), 0, 0, 0xffff4
-		)), "\x02"));
+		)) + "\x02"));
 		payload = encodeArgs(
 			u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 			0xfffff2,
@@ -13539,8 +13539,8 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_from_memory)
 			0,
 			0xfffff4
 		);
-		ABI_CHECK(callContractFunction("lf()"), encodeArgs(0x20, 5 * 32 + 2, "\x01", asString(encodeArgs(payload)), "\x02"));
-		ABI_CHECK(callContractFunction("ld()"), encodeArgs(0x20, 5 * 32 + 2, "\x01", asString(encodeArgs(payload)), "\x02"));
+		ABI_CHECK(callContractFunction("lf()"), encodeArgs(0x20, 5 * 32 + 2, "\x01" + asString(encodeArgs(payload)) + "\x02"));
+		ABI_CHECK(callContractFunction("ld()"), encodeArgs(0x20, 5 * 32 + 2, "\x01" + asString(encodeArgs(payload)) + "\x02"));
 	}
 }
 END_OF_TEST_CASE

@@ -39,27 +39,24 @@ class ExtractionTask
 	                                std::map<std::string, Address> const &_libraryAddresses
 	                                = std::map<std::string, Address>())
 	{
-		(void) _sourceCode;
-		(void) _value;
 		(void) _contractName;
-		(void) _arguments;
 		(void) _libraryAddresses;
 
-		m_sources.emplace_back(_sourceCode);
+		if (_value > 0)
+			extractionNotPossible("sending value");
+
+		if (!_arguments.empty() > 0)
+			extractionNotPossible("constructor called");
+
+		m_sources.insert(_sourceCode);
+		if (m_sources.size() > 1)
+			extractionNotPossible("multiple source-code");
 		return bytes();
 	}
 
 	void alsoViaYul() { m_alsoViaYul = true; }
 
-	void extract()
-	{
-		std::cout << m_name << ".sol" << std::endl;
-		for (auto &source : m_sources)
-			std::cout << source << std::endl;
-		for (auto &expectation : m_expectations)
-			std::cout << expectation << std::endl;
-		std::cout << std::endl << std::endl;
-	}
+	void extract();
 
 	void extractionNotPossible(const std::string &_reason)
 	{
@@ -67,7 +64,7 @@ class ExtractionTask
 		m_reasons.insert(_reason);
 	}
 
-	bool extractable() { return m_extractable; }
+	bool extractable() { return m_extractable && !m_expectations.empty(); }
 
 	[[nodiscard]] std::set<std::string> reasons() const { return m_reasons; }
 
@@ -85,7 +82,7 @@ class ExtractionTask
   private:
 	std::string m_name;
 	std::function<void(void)> m_task;
-	std::vector<std::string> m_sources;
+	std::set<std::string> m_sources;
 	bool m_extractable{true};
 	bool m_alsoViaYul{false};
 	std::set<std::string> m_reasons;
