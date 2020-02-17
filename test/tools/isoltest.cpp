@@ -53,20 +53,7 @@ namespace fs = boost::filesystem;
 using TestCreator = TestCase::TestCaseCreator;
 using TestOptions = solidity::test::IsolTestOptions;
 
-struct TestStats
-{
-	int successCount = 0;
-	int testCount = 0;
-	int skippedCount = 0;
-	operator bool() const noexcept { return successCount + skippedCount == testCount; }
-	TestStats& operator+=(TestStats const& _other) noexcept
-	{
-		successCount += _other.successCount;
-		testCount += _other.testCount;
-		skippedCount += _other.skippedCount;
-		return *this;
-	}
-};
+struct TestStats; // forward declaration
 
 class TestFilter
 {
@@ -144,6 +131,70 @@ private:
 	unique_ptr<TestCase> m_test;
 
 	static bool m_exitRequested;
+};
+
+struct TestStats
+{
+	std::map<TestTool::Result, std::set<fs::path>> results;
+	size_t testCount{0};
+
+	std::set<fs::path> failed()
+	{
+		std::set<fs::path> result;
+		if (results.find(TestTool::Result::Failure) != results.end())
+		{
+			auto failures{results.find(TestTool::Result::Failure)->second};
+			result.insert(failures.begin(), failures.end());
+		}
+		if (results.find(TestTool::Result::Exception) != results.end())
+		{
+			auto exceptions{results.find(TestTool::Result::Exception)->second};
+			result.insert(exceptions.begin(), exceptions.end());
+		}
+		if (results.find(TestTool::Result::Skipped) != results.end())
+		{
+			auto skipped{results.find(TestTool::Result::Skipped)->second};
+			result.insert(skipped.begin(), skipped.end());
+		}
+		return result;
+	}
+
+	std::set<fs::path> successful()
+	{
+		std::set<fs::path> result;
+		if (results.find(TestTool::Result::Success) != results.end())
+		{
+			auto successful{results.find(TestTool::Result::Success)->second};
+			result.insert(successful.begin(), successful.end());
+		}
+		return result;
+	}
+
+	[[nodiscard]] size_t successCount() const {
+		size_t successCount{0};
+		if (results.find(TestTool::Result::Success) != results.end())
+			successCount = results.find(TestTool::Result::Success)->second.size();
+		return successCount;
+	}
+
+	[[nodiscard]] size_t skippedCount() const {
+		size_t skippedCount{0};
+		if (results.find(TestTool::Result::Skipped) != results.end())
+			skippedCount = results.find(TestTool::Result::Skipped)->second.size();
+		return skippedCount;
+	}
+
+	explicit operator bool() const {
+		return successCount() + skippedCount() == testCount;
+	}
+
+	TestStats& operator+=(TestStats const& _other) noexcept
+	{
+		for(auto& it : _other.results)
+			results[it.first].insert(it.second.begin(), it.second.end());
+		testCount += _other.testCount;
+		return *this;
+	}
 };
 
 string TestTool::editor;
@@ -258,10 +309,8 @@ TestStats TestTool::processPath(
 )
 {
 	std::queue<fs::path> paths;
+	TestStats stats;
 	paths.push(_path);
-	int successCount = 0;
-	int testCount = 0;
-	int skippedCount = 0;
 
 	while (!paths.empty())
 	{
@@ -280,12 +329,12 @@ TestStats TestTool::processPath(
 		}
 		else if (m_exitRequested)
 		{
-			++testCount;
+			++stats.testCount;
 			paths.pop();
 		}
 		else
 		{
-			++testCount;
+			++stats.testCount;
 			TestTool testTool(
 				_testCaseCreator,
 				_options,
@@ -297,7 +346,11 @@ TestStats TestTool::processPath(
 			switch(result)
 			{
 			case Result::Failure:
+				stats.results[Result::Failure].insert(paths.front());
+				paths.pop();
+				break;
 			case Result::Exception:
+				stats.results[Result::Exception].insert(paths.front());
 				switch(testTool.handleResponse(result == Result::Exception))
 				{
 				case Request::Quit:
@@ -306,27 +359,27 @@ TestStats TestTool::processPath(
 					break;
 				case Request::Rerun:
 					cout << "Re-running test case..." << endl;
-					--testCount;
+					--stats.testCount;
 					break;
 				case Request::Skip:
+					stats.results[Result::Skipped].insert(paths.front());
 					paths.pop();
-					++skippedCount;
 					break;
 				}
 				break;
 			case Result::Success:
+				stats.results[Result::Success].insert(paths.front());
 				paths.pop();
-				++successCount;
 				break;
 			case Result::Skipped:
+				stats.results[Result::Skipped].insert(paths.front());
 				paths.pop();
-				++skippedCount;
 				break;
 			}
 		}
 	}
 
-	return { successCount, testCount, skippedCount };
+	return stats;
 
 }
 
@@ -377,18 +430,21 @@ std::optional<TestStats> runTestSuite(
 		_subdirectory
 	);
 
-	if (stats.skippedCount != stats.testCount)
+	size_t skippedCount{stats.results[TestTool::Result::Skipped].size()};
+	size_t successCount{stats.results[TestTool::Result::Success].size()};
+
+	if (stats.results[TestTool::Result::Skipped].size() != stats.testCount)
 	{
 		cout << endl << _name << " Test Summary: ";
 		AnsiColorized(cout, formatted, {BOLD, stats ? GREEN : RED}) <<
-			stats.successCount <<
+			successCount <<
 			"/" <<
 			stats.testCount;
 		cout << " tests successful";
-		if (stats.skippedCount > 0)
+		if (skippedCount > 0)
 		{
 			cout << " (";
-			AnsiColorized(cout, formatted, {BOLD, YELLOW}) << stats.skippedCount;
+			AnsiColorized(cout, formatted, {BOLD, YELLOW}) << skippedCount;
 			cout<< " tests skipped)";
 		}
 		cout << "." << endl << endl;
@@ -431,7 +487,7 @@ int main(int argc, char const *argv[])
 		cout << endl << "--- SKIPPING ALL SEMANTICS TESTS ---" << endl << endl;
 	}
 
-	TestStats global_stats{0, 0};
+	TestStats global_stats;
 	cout << "Running tests..." << endl << endl;
 
 	// Actually run the tests.
@@ -459,18 +515,26 @@ int main(int argc, char const *argv[])
 
 	cout << endl << "Summary: ";
 	AnsiColorized(cout, !options.noColor, {BOLD, global_stats ? GREEN : RED}) <<
-		 global_stats.successCount << "/" << global_stats.testCount;
+		 global_stats.successCount() << "/" << global_stats.testCount;
 	cout << " tests successful";
-	if (global_stats.skippedCount > 0)
+	if (global_stats.skippedCount() > 0)
 	{
 		cout << " (";
-		AnsiColorized(cout, !options.noColor, {BOLD, YELLOW}) << global_stats.skippedCount;
+		AnsiColorized(cout, !options.noColor, {BOLD, YELLOW}) << global_stats.skippedCount();
 		cout << " tests skipped)";
 	}
 	cout << "." << endl;
 
 	if (disableSemantics)
 		cout << "\nNOTE: Skipped semantics tests because " << solidity::test::evmoneFilename << " could not be found.\n" << endl;
+
+	if (options.showFailed)
+		for (auto const& path : global_stats.failed())
+			cerr << path.string() << std::endl;
+
+	if (options.showSuccess)
+		for (auto const& path : global_stats.successful())
+			cerr << path.string() << std::endl;
 
 	return global_stats ? 0 : 1;
 }
