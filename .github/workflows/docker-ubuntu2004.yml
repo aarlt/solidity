@@ -27,10 +27,7 @@ jobs:
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
           VERSION=$(docker inspect --format="{{.Config.Labels.version}}" $IMAGE_NAME)
 
-          pwd
-          ls
-          docker pull $IMAGE_NAME
-          docker run $IMAGE_NAME ls -lah
+          docker run $IMAGE_NAME scripts/build.sh
 
           docker logout
 
