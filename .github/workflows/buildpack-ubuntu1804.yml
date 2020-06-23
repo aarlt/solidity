@@ -1,0 +1,47 @@
+name: buildpack:ubuntu1804
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/buildpack-ubuntu1804.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1804'
+
+jobs:
+  build:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
+      IMAGE_NAME: buildpack
+      IMAGE_VARIANT: ubuntu1804
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check version
+        run: .github/workflows/buildpack/check-version.sh
+
+      - name: Build image
+        run: docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
+
+      - name: Test image
+        run: .github/workflows/buildpack/test-image.sh
+
+      - name: Push image
+        run: .github/workflows/buildpack/push-image.sh
+
+      - name: Prepare action
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - name: Build action
+        run: npm i && npm run build
+        working-directory: ./.github/actions/pr-comment
+
+      - name: Create PR comment
+        uses: ./.github/actions/pr-comment
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment: "Successfully pushed `${{ env.DOCKER_IMAGE }}` @ `${{ env.DOCKER_REPO_DIGEST }}`."
