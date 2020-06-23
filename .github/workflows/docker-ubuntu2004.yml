@@ -33,7 +33,6 @@ jobs:
           docker run $IMAGE_NAME ls -lah
 
           docker logout
-          docker build scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_NAME --tag $IMAGE_NAME
 
       - name: Push image
         run: |
