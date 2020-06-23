@@ -1,17 +1,16 @@
-name: Docker Image [ubuntu1804]
+name: Docker Image [ubuntu2004]
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/docker-ubuntu2004.yml'
-      - 'scripts/docker/buildpack-deps/Dockerfile.ubuntu1804'
+      - 'scripts/docker/buildpack-deps/Dockerfile.ubuntu2004'
 
 jobs:
   build:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
-      IMAGE_NAME: ubuntu1804
+      IMAGE_NAME: ubuntu2004
 
     runs-on: ubuntu-latest
 
@@ -20,7 +19,20 @@ jobs:
 
       - name: Build image
         run: |
+<<<<<<< Updated upstream
           docker build ./docker --file docker/Dockerfile.$IMAGE_NAME --tag $IMAGE_NAME
+=======
+          docker build scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_NAME --tag $IMAGE_NAME
+
+      - name: Test image
+        run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+          VERSION=$(docker inspect --format="{{.Config.Labels.version}}" $IMAGE_NAME)
+
+          docker run -v ${PWD}:/tmp $IMAGE_NAME /bin/bash -c "/tmp/solidity/scripts/build.sh && /tmp/solidity/build/test/soltest"
+
+          docker logout
+>>>>>>> Stashed changes
 
       - name: Push image
         run: |

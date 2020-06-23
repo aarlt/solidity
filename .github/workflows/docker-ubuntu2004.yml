@@ -3,8 +3,8 @@ name: Docker Image [ubuntu2004]
 on:
   pull_request:
     paths:
+      - '.github/workflows/docker-ubuntu2004.yml'
       - 'scripts/docker/buildpack-deps/Dockerfile.ubuntu2004'
-
 jobs:
   build:
     env:
