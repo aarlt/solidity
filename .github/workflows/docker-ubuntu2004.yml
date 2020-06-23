@@ -19,7 +19,7 @@ jobs:
 
       - name: Build image
         run: |
-          docker scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_NAME --tag $IMAGE_NAME
+          docker build scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_NAME --tag $IMAGE_NAME
 
       - name: Push image
         run: |
