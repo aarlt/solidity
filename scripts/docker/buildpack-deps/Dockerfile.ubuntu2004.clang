@@ -24,6 +24,7 @@
 FROM buildpack-deps:focal AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
+LABEL version="0.0.1"
 
 RUN set -ex; \
 	dist=$(grep DISTRIB_CODENAME /etc/lsb-release | cut -d= -f2); \
