@@ -19,7 +19,13 @@ jobs:
 
       - name: Build image
         run: |
-          docker build ./docker --file docker/Dockerfile.$IMAGE_NAME --tag $IMAGE_NAME
+          docker build scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_NAME --tag $IMAGE_NAME
+
+      - name: Test image
+        run: |
+          docker run -v ${PWD}:/tmp $IMAGE_NAME /bin/bash -c "/tmp/solidity/scripts/build.sh && /tmp/solidity/build/test/soltest"
+
+          docker logout
 
       - name: Push image
         run: |
