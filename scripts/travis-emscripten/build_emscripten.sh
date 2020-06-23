@@ -53,7 +53,10 @@ cmake \
   -DBoost_USE_STATIC_RUNTIME=1 \
   -DTESTS=0 \
   ..
-make -j 4 soljson
+
+[[ "${MAKE_JOBS}" != "" ]] || MAKE_JOBS=4
+make -j ${MAKE_JOBS} soljson
+
 # Patch soljson.js for backwards compatibility.
 # TODO: remove this with 0.7.
 # "viiiii" encodes the signature of the callback function.
