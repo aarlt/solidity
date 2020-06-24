@@ -32,9 +32,9 @@ jobs:
 
       - name: Push image
         run: |
-          INSPECT="docker inspect --format='{{.Config.Labels.version}}' $IMAGE_NAME"
-          echo "INSPECT: $INSPECT"
-          VERSION=$(${INSPECT})
+          INSPECT_VERSION="docker inspect --format='{{.Config.Labels.version}}' $IMAGE_NAME"
+          ${INSPECT_VERSION}
+          VERSION=$(${INSPECT_VERSION})
           echo "VERSION: $VERSION"
           echo "docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME:$VERSION"
           docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME:$VERSION
