@@ -3,8 +3,8 @@ name: create buildpack:ubuntu1804
 on:
   pull_request:
     paths:
-      - '.github/workflows/docker-ubuntu1804.yml'
-      - 'scripts/docker/buildpack-deps/Dockerfile.ubuntu1804'
+      - '.github/workflows/create-buildpack/docker-ubuntu1804.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1804'
 
 jobs:
   build:

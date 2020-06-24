@@ -3,8 +3,8 @@ name: create buildpack:emscripten
 on:
   pull_request:
     paths:
-      - '.github/workflows/docker-emscripten.yml'
-      - 'scripts/docker/buildpack-deps/Dockerfile.emscripten'
+      - '.github/workflows/create-buildpack/emscripten.yml'
+      - 'scripts/docker/buildpack/Dockerfile.emscripten'
 
 jobs:
   build:

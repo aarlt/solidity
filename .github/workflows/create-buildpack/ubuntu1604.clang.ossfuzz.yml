@@ -3,8 +3,8 @@ name: create buildpack:ubuntu1604.clang.ossfuzz
 on:
   pull_request:
     paths:
-      - '.github/workflows/docker-ubuntu1604.clang.ossfuzz.yml'
-      - 'scripts/docker/buildpack-deps/Dockerfile.ubuntu1604.clang.ossfuzz'
+      - '.github/workflows/create-buildpack/docker-ubuntu1604.clang.ossfuzz.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1604.clang.ossfuzz'
 
 jobs:
   build:

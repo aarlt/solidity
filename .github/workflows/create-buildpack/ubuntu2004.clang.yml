@@ -3,8 +3,8 @@ name: create buildpack:ubuntu2004.clang
 on:
   pull_request:
     paths:
-      - '.github/workflows/docker-ubuntu2004.clang.yml'
-      - 'scripts/docker/buildpack-deps/Dockerfile.ubuntu2004.clang'
+      - '.github/workflows/create-buildpack/docker-ubuntu2004.clang.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu2004.clang'
 
 jobs:
   build:
