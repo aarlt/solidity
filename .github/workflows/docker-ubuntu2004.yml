@@ -31,7 +31,7 @@ jobs:
 
       - name: Push image
         run: |
-          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME:0.0.0
+          docker tag $IMAGE_NAME $IMAGE_NAME:0.0.0
           VERSION=$(docker inspect --format="{{.Config.Labels.version}}" $IMAGE_NAME:0.0.0)
           docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME:$VERSION
           docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME:$VERSION
