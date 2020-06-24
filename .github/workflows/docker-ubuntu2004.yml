@@ -23,7 +23,7 @@ jobs:
 
       - name: Test image
         run: |
-          docker run -v ${PWD}:/tmp $IMAGE_NAME /bin/bash -c "/tmp/solidity/scripts/build.sh && /tmp/solidity/build/test/soltest"
+          docker run -v ${PWD}:/tmp $IMAGE_NAME /bin/bash -c "/tmp/scripts/build.sh && /tmp/build/test/soltest"
 
           docker logout
 
