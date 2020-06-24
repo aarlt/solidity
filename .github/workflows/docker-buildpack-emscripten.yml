@@ -1,4 +1,4 @@
-name: create buildpack:emscripten
+name: buildpack:emscripten
 
 on:
   pull_request:
@@ -25,7 +25,7 @@ jobs:
 
       - name: Build image
         run: |
-          docker build scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
+          docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
 
       - name: Test image
         run: |

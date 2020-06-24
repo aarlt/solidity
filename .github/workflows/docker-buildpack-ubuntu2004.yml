@@ -1,4 +1,4 @@
-name: create buildpack:ubuntu2004
+name: buildpack:ubuntu2004
 
 on:
   pull_request:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Build image
         run: |
-          docker build scripts/docker/buildpack-deps --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
+          docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
 
       - name: Test image
         run: |
