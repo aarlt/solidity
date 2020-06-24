@@ -30,7 +30,6 @@ jobs:
       - name: Test image
         run: |
           scripts/build_emscripten.sh emscripten_build $IMAGE_NAME
-          docker run -v ${PWD}:/tmp -e CI=1 $IMAGE_NAME /tmp/scripts/build.sh
 
       - name: Push image
         run: |
