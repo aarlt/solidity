@@ -13,6 +13,8 @@ jobs:
       GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
       IMAGE_NAME: buildpack
       IMAGE_VARIANT: ubuntu2004.clang
+      CC: clang
+      CXX: clang++
 
     runs-on: ubuntu-latest
 
@@ -29,7 +31,7 @@ jobs:
 
       - name: Test image
         run: |
-          docker run -v ${PWD}:/tmp -e CI=1 $IMAGE_NAME /tmp/scripts/build.sh
+          docker run -v ${PWD}:/tmp -e CI=1 -e CC=$CC -e CXX=$CXX $IMAGE_NAME /tmp/scripts/build.sh
 
       - name: Push image
         run: |

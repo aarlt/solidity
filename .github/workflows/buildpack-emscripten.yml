@@ -33,12 +33,13 @@ jobs:
 
       - name: Push image
         run: |
+          EMSDK_VERSION=$(grep "emscripten/emsdk" scripts/docker/buildpack/Dockerfile.emscripten | cut -f 2 -d ' ' | cut -f 2 -d ':')
           VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
-          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
-          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
+          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:$VERSION
+          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:$VERSION
 
-          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
-          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
+          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:latest
+          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:latest
 
       - name: Logout
         run: |
