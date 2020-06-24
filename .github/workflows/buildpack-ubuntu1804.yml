@@ -1,17 +1,18 @@
-name: buildpack:ubuntu2004
+name: buildpack:ubuntu1804
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/docker-buildpack-ubuntu2004.yml'
-      - 'scripts/docker/buildpack/Dockerfile.ubuntu2004'
+      - '.github/workflows/buildpack-ubuntu1804.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1804'
+
 jobs:
   build:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
       IMAGE_NAME: buildpack
-      IMAGE_VARIANT: ubuntu2004
+      IMAGE_VARIANT: ubuntu1804
 
     runs-on: ubuntu-latest
 
