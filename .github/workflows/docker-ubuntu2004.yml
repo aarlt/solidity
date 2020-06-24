@@ -29,8 +29,6 @@ jobs:
         run: |
           docker run -v ${PWD}:/tmp $IMAGE_NAME /bin/bash -c "/tmp/scripts/build.sh && /tmp/build/test/soltest"
 
-          docker logout
-
       - name: Push image
         run: |
           VERSION=$(docker inspect --format="{{.Config.Labels.version}}" $IMAGE_NAME)
