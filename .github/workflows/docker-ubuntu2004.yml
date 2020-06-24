@@ -24,7 +24,7 @@ jobs:
 
       - name: Build image
         run: |
-          docker build scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_NAME --tag $IMAGE_NAME
+          docker build scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
 
       - name: Test image
         run: |
