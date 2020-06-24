@@ -18,10 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Login
-        run: |
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
-
       - name: Build image
         run: |
           docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
@@ -32,6 +28,8 @@ jobs:
 
       - name: Push image
         run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+
           VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
           docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
           docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
@@ -39,6 +37,4 @@ jobs:
           docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
           docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
 
-      - name: Logout
-        run: |
           docker logout
