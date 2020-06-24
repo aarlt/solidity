@@ -1,10 +1,10 @@
-name: create buildpack:ubuntu2004.clang
+name: create buildpack:ubuntu1604.clang.ossfuzz
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/create-buildpack/docker-ubuntu2004.clang.yml'
-      - 'scripts/docker/buildpack/Dockerfile.ubuntu2004.clang'
+      - '.github/workflows/docker-buildpack-ubuntu1604.clang.ossfuzz.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1604.clang.ossfuzz'
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
       IMAGE_NAME: buildpack
-      IMAGE_VARIANT: ubuntu2004.clang
+      IMAGE_VARIANT: ubuntu1604.clang.ossfuzz
 
     runs-on: ubuntu-latest
 
@@ -25,7 +25,7 @@ jobs:
 
       - name: Build image
         run: |
-          docker build scripts/docker/buildpack-deps --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
+          docker build scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
 
       - name: Test image
         run: |

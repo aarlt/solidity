@@ -1,10 +1,10 @@
-name: create buildpack:ubuntu1604.clang.ossfuzz
+name: create buildpack:emscripten
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/create-buildpack/docker-ubuntu1604.clang.ossfuzz.yml'
-      - 'scripts/docker/buildpack/Dockerfile.ubuntu1604.clang.ossfuzz'
+      - '.github/workflows/docker-buildpack-emscripten.yml'
+      - 'scripts/docker/buildpack/Dockerfile.emscripten'
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
       IMAGE_NAME: buildpack
-      IMAGE_VARIANT: ubuntu1604.clang.ossfuzz
+      IMAGE_VARIANT: emscripten
 
     runs-on: ubuntu-latest
 

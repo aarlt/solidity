@@ -1,10 +1,10 @@
-name: create buildpack:emscripten
+name: create buildpack:ubuntu1804
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/create-buildpack/emscripten.yml'
-      - 'scripts/docker/buildpack/Dockerfile.emscripten'
+      - '.github/workflows/docker-buildpack-ubuntu1804.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1804'
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
       IMAGE_NAME: buildpack
-      IMAGE_VARIANT: emscripten
+      IMAGE_VARIANT: ubuntu1804
 
     runs-on: ubuntu-latest
 
@@ -25,7 +25,7 @@ jobs:
 
       - name: Build image
         run: |
-          docker build scripts/docker/buildpack-deps --file scripts/docker/buildpack-deps/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
+          docker build scripts/docker/buildpack-deps --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
 
       - name: Test image
         run: |
