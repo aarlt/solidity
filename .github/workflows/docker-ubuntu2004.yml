@@ -35,6 +35,6 @@ jobs:
           docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME:$VERSION
           docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME:$VERSION
 
-      -name: Logout
+      - name: Logout
         run: |
           docker logout
