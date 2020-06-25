@@ -22,6 +22,19 @@ jobs:
         run: |
           docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
 
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+          VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
+          (docker pull -a $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT | awk '{ print $1 }' | grep "${VERSION}:") > /dev/null
+          R=$?
+          docker logout
+          if [ $R -eq 0 ]
+          then
+            echo ""
+            echo "Error: Version ${VERSION} already exist for $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT. Aborting."
+            echo ""
+            false
+          fi
+
       - name: Test image
         run: |
           docker run -v ${PWD}:/tmp -e CI=1 $IMAGE_NAME /tmp/scripts/build.sh
