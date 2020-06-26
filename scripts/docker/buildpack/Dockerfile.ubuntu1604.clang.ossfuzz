@@ -32,7 +32,7 @@ RUN apt-get update; \
 		software-properties-common \
 		ninja-build git wget \
 		libbz2-dev zlib1g-dev git curl; \
-    apt-get install -qy python-pip python-sphinx;
+    apt-get install -qy python-pip python-sphinx libpthread-stubs0-dev;
 
 # Install cmake 3.14 (minimum requirement is cmake 3.10)
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.14.5/cmake-3.14.5-Linux-x86_64.sh; \
