@@ -27,6 +27,7 @@ LABEL version="0.0.1"
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update; \
+	apt-get upgrade -y; \
 	apt-get -qqy install --no-install-recommends \
 		build-essential \
 		software-properties-common \
@@ -100,3 +101,4 @@ FROM base
 COPY --from=libraries /usr/lib /usr/lib
 COPY --from=libraries /usr/bin /usr/bin
 COPY --from=libraries /usr/include /usr/include
+

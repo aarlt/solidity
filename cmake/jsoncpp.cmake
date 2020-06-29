@@ -26,7 +26,8 @@ else()
     # JSON_USE_INT64_DOUBLE_CONVERSION preprocessor macro. Doing so,
     # not only gets rid of the implicit conversion error that clang-10 produces
     # but also forces safer behavior in general.
-    set(JSONCPP_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DJSON_USE_INT64_DOUBLE_CONVERSION")
+    find_package(Threads REQUIRED)
+    set(JSONCPP_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DJSON_USE_INT64_DOUBLE_CONVERSION ${CMAKE_THREAD_LIBS_INIT}")
 endif()
 
 set(byproducts "")
