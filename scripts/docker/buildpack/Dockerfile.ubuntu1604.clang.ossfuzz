@@ -100,3 +100,4 @@ FROM base
 COPY --from=libraries /usr/lib /usr/lib
 COPY --from=libraries /usr/bin /usr/bin
 COPY --from=libraries /usr/include /usr/include
+
