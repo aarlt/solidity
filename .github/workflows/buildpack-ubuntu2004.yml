@@ -40,5 +40,5 @@ jobs:
       - name: Upload image
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ ARCHIVE }}
-          path: ${{ ARCHIVE }}
+          name: ${{ env.ARCHIVE }}
+          path: ${{ env.ARCHIVE }}
