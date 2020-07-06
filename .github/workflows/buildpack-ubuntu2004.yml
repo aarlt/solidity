@@ -26,15 +26,18 @@ jobs:
         run: |
           docker run -v ${PWD}:/tmp -e CI=1 $IMAGE_NAME /tmp/scripts/build.sh
 
-      - name: Push image
+      - name: Save image
         run: |
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
-
           VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
-          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
-          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
+          docker save -o $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME
+          HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
+          mv $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME-$IMAGE_VARIANT-$VERSION-$HASH.tar
+          echo "::set-env name=VERSION::$VERSION"
+          echo "::set-env name=HASH::$HASH"
+          echo "::set-env name=ARCHIVE::$IMAGE_NAME-$IMAGE_VARIANT-$VERSION-$HASH.tar"
 
-          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
-          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
-
-          docker logout
+      - name: Upload image
+        uses: actions/upload-artifact@v2
+        with:
+          name: $ARCHIVE
+          path: $ARCHIVE
