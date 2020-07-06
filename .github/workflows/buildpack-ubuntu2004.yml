@@ -41,5 +41,12 @@ jobs:
       - name: Upload image
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.ARCHIVE }} ${{ env.ARCHIVE }}.version
-          path: ${{ env.ARCHIVE }} ${{ env.ARCHIVE }}.version
+          name: ${{ env.ARCHIVE }}
+          path: ${{ env.ARCHIVE }}
+
+      - name: Upload image version
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARCHIVE }}.version
+          path: ${{ env.ARCHIVE }}.version
+
