@@ -30,7 +30,7 @@ jobs:
       - name: Save image
         run: |
           VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
-          docker save -o $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME
+          docker save -o image.tar $IMAGE_NAME
           HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
           mv $IMAGE_NAME-$IMAGE_VARIANT.tar $HOME/$IMAGE_NAME-$IMAGE_VARIANT-$VERSION-$HASH.tar
           echo "::set-env name=VERSION::$VERSION"
@@ -40,5 +40,5 @@ jobs:
       - name: Upload image
         uses: actions/upload-artifact@v2
         with:
-          name: $ARCHIVE
-          path: $ARCHIVE
+          name: ${{ ARCHIVE }}
+          path: ${{ ARCHIVE }}
