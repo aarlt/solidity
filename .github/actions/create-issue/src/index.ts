@@ -7,37 +7,14 @@ async function run() {
   const octokit = new github.GitHub(token);
   const context = github.context;
 
-  // const newIssue = await octokit.issues.create({
-  //   ...context.repo,
-  //   labels: [`buildpack-review`],
-  //   title: `${core.getInput("package-name")} ${core.getInput("package-version")} ready for review`,
-  //   body: `# :rocket: ${core.getInput("package-name")}  ${core.getInput("package-version")} ready for review`
-  // });
-
-  // await octokit.issues.createComment({
-  //   ...context.repo,
-  //   issue_number: newIssue.data.number,
-  //   body: `Action: ${core.getInput("action-id")}`
-  // });
-
   await octokit.issues.createComment({
     ...context.repo,
     issue_number: context.payload.pull_request!.number,
-    body: `Artifact: ${core.getInput("artifact")}`
+    body: `Action: ${core.getInput("action-id")}\n`+
+          `Artifact: ${core.getInput("artifact")}\n`+
+          `Commit: ${context.sha}`
   });
 
-  // await octokit.issues.createComment({
-  //   ...context.repo,
-  //   issue_number: newIssue.data.number,
-  //   body: `Artifact: ${core.getInput("artifact")}`
-  // });
-  //
-  // await octokit.issues.createComment({
-  //   ...context.repo,
-  //   issue_number: newIssue.data.number,
-  //   body: `Commit: ${context.sha}`
-  // });
-  //
   // core.setOutput("issue-id", newIssue.data.number.toString());
 }
 
