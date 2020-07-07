@@ -24,7 +24,9 @@ jobs:
 
       - name: Check version
         run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
           VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
+          docker logout
           echo "::set-env name=VERSION::$VERSION"
           VERSION_EXIST=$(docker pull -q $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:${VERSION} || echo false && true)
           if [ "${VERSION_EXIST}" != "false" ]
