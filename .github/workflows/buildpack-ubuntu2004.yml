@@ -18,23 +18,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Check version
-        run: |
-          VERSION=$(grep "LABEL version" scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT | awk -F'"' '$0=$2')
-          echo "::set-env name=VERSION::$VERSION"
-
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
-          VERSION_EXIST=$(docker pull -q $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:${VERSION} || echo false && true)
-          docker logout docker.pkg.github.com 
-
-          if [ "${VERSION_EXIST}" != "false" ]
-          then
-            echo ""
-            echo "ERROR: version '${VERSION}' already exist for '$IMAGE_NAME-$IMAGE_VARIANT'. Aborting."
-            echo ""
-
-            false
-          fi
+#      - name: Check version
+#        run: |
+#          VERSION=$(grep "LABEL version" scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT | awk -F'"' '$0=$2')
+#          echo "::set-env name=VERSION::$VERSION"
+#
+#          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+#          VERSION_EXIST=$(docker pull -q $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:${VERSION} || echo false && true)
+#          docker logout docker.pkg.github.com
+#
+#          if [ "${VERSION_EXIST}" != "false" ]
+#          then
+#            echo ""
+#            echo "ERROR: version '${VERSION}' already exist for '$IMAGE_NAME-$IMAGE_VARIANT'. Aborting."
+#            echo ""
+#
+#            false
+#          fi
 
       - name: Build image
         run: |
@@ -44,32 +44,34 @@ jobs:
 #        run: |
 #          docker run -v ${PWD}:/tmp -e CI=1 $IMAGE_NAME /tmp/scripts/build.sh
 #
-#      - name: Save image
-#        run: |
-#          docker save -o $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME
-#          HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
-#          mv $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME-$IMAGE_VARIANT-$HASH
-#          echo "::set-env name=HASH::$HASH"
-#          echo "::set-env name=ARCHIVE::$IMAGE_NAME-$IMAGE_VARIANT-$HASH"
-#
-#      - name: Upload image
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: ${{ env.ARCHIVE }}
-#          path: ${{ env.ARCHIVE }}
-#
-#      - name: Prepare create release issue action
-#        uses: actions/setup-node@v1
-#        with:
-#          node-version: "12.x"
-#
-#      - name: Building Action
-#        run: npm i && npm run build
-#        working-directory: ./.github/actions/create-issue
-#
-#      - name: Create Release Issue
-#        uses: ./.github/actions/create-issue
-#        with:
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          action-id: ${{ github.run_id }}
-#          package-version: ${{ env.package_version }}
+      - name: Save image
+        run: |
+          docker save -o $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME
+          HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
+          mv $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME-$IMAGE_VARIANT-$HASH
+          echo "::set-env name=HASH::$HASH"
+          echo "::set-env name=ARCHIVE::$IMAGE_NAME-$IMAGE_VARIANT-$HASH"
+
+      - name: Upload image
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARCHIVE }}
+          path: ${{ env.ARCHIVE }}
+
+      - name: Prepare create release issue action
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - name: Building Action
+        run: npm i && npm run build
+        working-directory: ./.github/actions/create-issue
+
+      - name: Create Review Issue
+        uses: ./.github/actions/create-issue
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          action-id: ${{ github.run_id }}
+          artifact: ${{ env.ARCHIVE }}
+          package-name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VARIANT }}
+          package-version: ${{ env.VERSION }}
