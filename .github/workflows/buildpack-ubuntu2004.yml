@@ -65,10 +65,10 @@ jobs:
 
       - name: Building Action
         run: npm i && npm run build
-        working-directory: ./.github/actions/create-issue
+        working-directory: ./.github/actions/buildpack-pr-comment
 
       - name: Create Review Issue
-        uses: ./.github/actions/create-issue
+        uses: ./.github/actions/buildpack-pr-comment
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           action-id: ${{ github.run_id }}

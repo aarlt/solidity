@@ -14,8 +14,6 @@ async function run() {
           `Artifact: ${core.getInput("artifact")}\n`+
           `Commit: ${context.sha}`
   });
-
-  // core.setOutput("issue-id", newIssue.data.number.toString());
 }
 
 run();
