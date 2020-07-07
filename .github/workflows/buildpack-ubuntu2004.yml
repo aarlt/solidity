@@ -58,16 +58,16 @@ jobs:
           name: ${{ env.ARCHIVE }}
           path: ${{ env.ARCHIVE }}
 
-      - name: Prepare create release issue action
+      - name: Prepare action
         uses: actions/setup-node@v1
         with:
           node-version: "12.x"
 
-      - name: Building Action
+      - name: Build action
         run: npm i && npm run build
         working-directory: ./.github/actions/buildpack-pr-comment
 
-      - name: Create Review Issue
+      - name: Create buildpack comment on PR
         uses: ./.github/actions/buildpack-pr-comment
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
