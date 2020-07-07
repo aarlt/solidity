@@ -18,25 +18,27 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build image
-        run: |
-          docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
-
-      - name: Docker login
-        run: echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
-
       - name: Check version
         run: |
-          VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
+          VERSION=$(grep "LABEL version" scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT | awk -F'"' '$0=$2')
           echo "::set-env name=VERSION::$VERSION"
+
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
           VERSION_EXIST=$(docker pull -q $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:${VERSION} || echo false && true)
+          docker logout docker.pkg.github.com 
+
           if [ "${VERSION_EXIST}" != "false" ]
           then
             echo ""
-            echo "ERROR: Version ${VERSION} already exist for '$IMAGE_NAME-$IMAGE_VARIANT'. Aborting."
+            echo "ERROR: version '${VERSION}' already exist for '$IMAGE_NAME-$IMAGE_VARIANT'. Aborting."
             echo ""
+
             false
           fi
+
+      - name: Build image
+        run: |
+          docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
 
 #      - name: Test image
 #        run: |
