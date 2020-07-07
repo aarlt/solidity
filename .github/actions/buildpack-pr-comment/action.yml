@@ -9,6 +9,14 @@ inputs:
     description: "GitHub Action ID"
     required: true
     default: ""
+  package-name:
+    description: "Name of the package being released"
+    required: true
+    default: "Something like buildpack-ubuntu2004"
+  package-version:
+    description: "Version of the package being released"
+    required: true
+    default: "Something like 1.0.0"
   artifact:
     description: "Name of the artifact"
     required: true
