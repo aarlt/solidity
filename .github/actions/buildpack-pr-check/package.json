@@ -1,5 +1,5 @@
 {
-  "name": "buildpack-pr-comment",
+  "name": "buildpack-pr-check",
   "version": "1.0.0",
   "description": "An action that checks whether a pr was buildpack related",
   "private": true,

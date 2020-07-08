@@ -20,27 +20,29 @@ async function run() {
           comment.body.indexOf("Commit: ") >= 0
   );
 
-  pack = actionComment.body.substr(comment.body.indexOf("Package: ") + 9)
-  pack = pack.subst(pack.indexOf("\n"));
-  version = actionComment.body.substr(comment.body.indexOf("Version: ") + 9)
-  version = version.subst(version.indexOf("\n"));
-  action = actionComment.body.substr(comment.body.indexOf("Action: ") + 8)
-  action = action.subst(action.indexOf("\n"));
-  artifact = actionComment.body.substr(comment.body.indexOf("Artifact: ") + 10)
-  artifact = artifact.subst(artifact.indexOf("\n"));
-  commit = actionComment.body.substr(comment.body.indexOf("Commit: ") + 8)
+  if (actionComment) {
+    let pack = actionComment!.body.substr(actionComment!.body.indexOf("Package: ") + 9)
+    pack = pack.substr(0, pack.indexOf("\n"));
+    let version = actionComment!.body.substr(actionComment!.body.indexOf("Version: ") + 9)
+    version = version.substr(0, version.indexOf("\n"));
+    let action = actionComment!.body.substr(actionComment!.body.indexOf("Action: ") + 8)
+    action = action.substr(0, action.indexOf("\n"));
+    let artifact = actionComment!.body.substr(actionComment!.body.indexOf("Artifact: ") + 10)
+    artifact = artifact.substr(0, artifact.indexOf("\n"));
+    let commit = actionComment!.body.substr(actionComment!.body.indexOf("Commit: ") + 8)
 
-  core.setOutput("package", pack.trim());
-  core.setOutput("version", version.trim());
-  core.setOutput("action", action.trim());
-  core.setOutput("artifact", artifact.trim());
-  core.setOutput("commit", commit.trim());
+    core.setOutput("package", pack.trim());
+    core.setOutput("version", version.trim());
+    core.setOutput("action", action.trim());
+    core.setOutput("artifact", artifact.trim());
+    core.setOutput("commit", commit.trim());
 
-  console.log("package", pack.trim());
-  console.log("version", version.trim());
-  console.log("action", action.trim());
-  console.log("artifact", artifact.trim());
-  console.log("commit", commit.trim());
+    console.log("package", pack.trim());
+    console.log("version", version.trim());
+    console.log("action", action.trim());
+    console.log("artifact", artifact.trim());
+    console.log("commit", commit.trim());
+  }
 }
 
 run();
