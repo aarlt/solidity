@@ -40,6 +40,7 @@ jobs:
         id: buildpack-pr-check
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          label: "buildpack-release"
 
       - name: Download image artifact
         uses: actions/download-artifact@v2

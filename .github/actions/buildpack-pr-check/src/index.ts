@@ -12,6 +12,11 @@ async function run() {
     issue_number: context.payload.pull_request!.number
   });
 
+  const pull_request = await octokit.pulls.get({
+    ...context.repo,
+    pull_number: context.payload.pull_request!.number
+  });
+
   const actionComment = comments.data.find(
       comment => comment.body.indexOf("Package: ") >= 0 &&
           comment.body.indexOf("Version: ") >= 0 &&
@@ -31,7 +36,12 @@ async function run() {
     artifact = artifact.substr(0, artifact.indexOf("\n"));
     let commit = actionComment!.body.substr(actionComment!.body.indexOf("Commit: ") + 8)
 
-    core.setOutput("publish", true);
+    core.setOutput(
+        "publish",
+        pull_request.data.labels
+            .some(label => label.name === core.getInput("label"))
+            .toString()
+    );
     core.setOutput("package", pack.trim());
     core.setOutput("version", version.trim());
     core.setOutput("action", action.trim());
