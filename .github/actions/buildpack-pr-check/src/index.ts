@@ -31,6 +31,7 @@ async function run() {
     artifact = artifact.substr(0, artifact.indexOf("\n"));
     let commit = actionComment!.body.substr(actionComment!.body.indexOf("Commit: ") + 8)
 
+    core.setOutput("publish", true);
     core.setOutput("package", pack.trim());
     core.setOutput("version", version.trim());
     core.setOutput("action", action.trim());

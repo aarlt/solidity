@@ -3,6 +3,17 @@ name: buildpack:create
 on:
   pull_request:
     types: [labeled]
+    paths:
+      - '.github/workflows/buildpack-emscripten.yml'
+      - 'scripts/docker/buildpack/Dockerfile.emscripten'
+      - '.github/workflows/buildpack-ubuntu1604.clang.ossfuzz.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1604.clang.ossfuzz'
+      - '.github/workflows/buildpack-ubuntu1804.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1804'
+      - '.github/workflows/buildpack-ubuntu2004.clang.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu2004.clang'
+      - '.github/workflows/buildpack-ubuntu2004.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu2004'
 
 jobs:
   build:
@@ -26,21 +37,39 @@ jobs:
         run: npm i && npm run build
         working-directory: ./.github/actions/buildpack-pr-check
 
-      - name: Create buildpack comment on PR
+      - name: Check for buildpack PR
         uses: ./.github/actions/buildpack-pr-check
+        id: buildpack-pr-check
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Push image
-#        run: |
-#          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
-#
-#          EMSDK_VERSION=$(grep "emscripten/emsdk" scripts/docker/buildpack/Dockerfile.emscripten | cut -f 2 -d ' ' | cut -f 2 -d ':')
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        if: steps.buildpack-pr-check.outputs.publish == 'true'
+        with:
+          name: ${{ steps.buildpack-pr-check.outputs.artifact }}
+          path: ${{ steps.buildpack-pr-check.outputs.artifact }}
+
+      - name: Load image
+        if: steps.buildpack-pr-check.outputs.publish == 'true'
+        run: |
+          docker load -i ${{ steps.buildpack-pr-check.outputs.artifact }} $IMAGE_NAME
+          docker images
+#          HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
+#          mv $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME-$IMAGE_VARIANT-$HASH
+#          echo "::set-env name=HASH::$HASH"
+#          echo "::set-env name=ARCHIVE::$IMAGE_NAME-$IMAGE_VARIANT-$HASH"
+
+      - name: Push image
+        if: steps.buildpack-pr-check.outputs.publish == 'true'
+        run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+
 #          VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
-#          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:$VERSION
-#          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:$VERSION
+#          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
+#          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
 #
-#          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:latest
-#          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:latest
-#
-#          docker logout
+#          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
+#          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
+
+          docker logout
