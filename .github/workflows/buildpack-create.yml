@@ -43,11 +43,17 @@ jobs:
           label: "buildpack-release"
 
       - name: Download image artifact
-        uses: actions/download-artifact@v2
         if: steps.buildpack-pr-check.outputs.publish == 'true'
-        with:
-          name: ${{ steps.buildpack-pr-check.outputs.artifact }}
-          path: ${{ steps.buildpack-pr-check.outputs.artifact }}
+        run: |
+          echo ${{ steps.get-action-id.outputs.id }}
+          mkdir ${{ env.OUTPUT_PATH }}
+          cd ${{ env.OUTPUT_PATH }}
+          curl https://api.github.com/repos/aarlt/solidity/actions/runs/${{ steps.buildpack-pr-check.outputs.action }}/artifacts --output artifacts.json
+          downloadUrl=$(cat artifacts.json | jq -c '.artifacts[] | select(.name == "packages") | .archive_download_url' | tr -d '"')
+          echo $downloadUrl
+          curl $downloadUrl --output packages.zip --user octocat:${{ secrets.GITHUB_TOKEN }} --verbose --location
+          unzip packages.zip
+          ls
 
       - name: Load image
         if: steps.buildpack-pr-check.outputs.publish == 'true'
