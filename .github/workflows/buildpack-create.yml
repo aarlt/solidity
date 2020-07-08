@@ -20,8 +20,6 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
-      IMAGE_NAME: buildpack
-      IMAGE_VARIANT: emscripten
 
     runs-on: ubuntu-latest
 
