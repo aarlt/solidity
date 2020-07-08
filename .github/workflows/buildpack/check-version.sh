@@ -11,12 +11,12 @@ VERSION=$(grep "LABEL version" "scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_
 echo "::set-env name=VERSION::${VERSION}"
 
 echo "${GITHUB_TOKEN}" | docker login docker.pkg.github.com -u "${GITHUB_ACTOR}" --password-stdin
-VERSION_EXIST=$(docker pull -q "${GITHUB_DOCKER_REPOSITORY}/${}IMAGE_NAME}-${IMAGE_VARIANT}:${VERSION}" || echo false && true)
+VERSION_EXIST=$(docker pull -q "${GITHUB_DOCKER_REPOSITORY}/${IMAGE_NAME}-${IMAGE_VARIANT}:${VERSION}" || echo false && true)
 docker logout docker.pkg.github.com
 
 if [ "${VERSION_EXIST}" != "false" ]; then
   echo ""
-  echo "ERROR: version '${VERSION}' already exist for '$IMAGE_NAME-$IMAGE_VARIANT'. Aborting."
+  echo "ERROR: version '${VERSION}' already exist for '${IMAGE_NAME}-${IMAGE_VARIANT}'. Aborting."
   echo ""
 
   false
