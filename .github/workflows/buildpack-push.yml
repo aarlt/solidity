@@ -1,4 +1,4 @@
-name: buildpack:create
+name: buildpack:push
 
 on:
   pull_request:
@@ -59,7 +59,7 @@ jobs:
       - name: Load image
         if: steps.buildpack-pr-check.outputs.publish == 'true'
         run: |
-          docker load -i ${{ steps.buildpack-pr-check.outputs.artifact }} $IMAGE_NAME
+          docker load -i ${{ env.OUTPUT_PATH }}/${{ steps.buildpack-pr-check.outputs.artifact }}
           docker images
 #          HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
 #          mv $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME-$IMAGE_VARIANT-$HASH
