@@ -1,7 +1,8 @@
 #!/bin/bash
+set -e
 
-cd /tmp
-mkdir fuzzer-build && cd fuzzer-build
+"cd /tmp"
+mkdir fuzzer-build && "cd fuzzer-build"
 
 ## Compile protobuf C++ bindings
 protoc --proto_path=../test/tools/ossfuzz yulProto.proto --cpp_out=../test/tools/ossfuzz

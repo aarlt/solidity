@@ -1,7 +1,7 @@
 {
-  "name": "buildpack-pr-comment",
+  "name": "pr-comment",
   "version": "1.0.0",
-  "description": "An action for creating a comment on current PR to save artifact information",
+  "description": "An action for creating a comment on current PR",
   "private": true,
   "main": "index.js",
   "scripts": {

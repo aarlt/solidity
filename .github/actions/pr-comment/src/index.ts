@@ -10,11 +10,7 @@ async function run() {
   await octokit.issues.createComment({
     ...context.repo,
     issue_number: context.payload.pull_request!.number,
-    body: `Package: ${core.getInput("package-name")}\n` +
-        `Version: ${core.getInput("package-version")}\n` +
-        `Action: ${core.getInput("action-id")}\n` +
-        `Artifact: ${core.getInput("artifact")}\n` +
-        `Commit: ${context.sha}`
+    body: `${core.getInput("comment")}`
   });
 }
 
