@@ -1,4 +1,4 @@
-name: buildpack:emscripten
+name: buildpack:create
 
 on:
   issues:
