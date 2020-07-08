@@ -8,7 +8,7 @@ fi
 
 SCRIPT=/tmp/scripts/build.sh
 if [ -f ".github/workflows/buildpack/test/${IMAGE_VARIANT}.sh" ]; then
-  SCRIPT=/tmp/.github/workflows/buildpack/test/${IMAGE_VARIANT}.sh
+  SCRIPT="/tmp/.github/workflows/buildpack/test/${IMAGE_VARIANT}.sh"
 fi
 
 if [ "${IMAGE_VARIANT}" == "emscripten" ]; then
