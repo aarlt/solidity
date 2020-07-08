@@ -61,22 +61,22 @@ jobs:
         run: |
           docker load -i ${{ env.OUTPUT_PATH }}/${{ steps.buildpack-pr-check.outputs.artifact }}
           docker images
-#          HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
-#          mv $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME-$IMAGE_VARIANT-$HASH
-#          echo "::set-env name=HASH::$HASH"
-#          echo "::set-env name=ARCHIVE::$IMAGE_NAME-$IMAGE_VARIANT-$HASH"
+          HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
+          echo "::set-env name=HASH::$HASH"
+          echo "HASH=$HASH"
 
       - name: Push image
         if: steps.buildpack-pr-check.outputs.publish == 'true'
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
 
+          VERSION=$(docker inspect --format={{.Config.Labels.version}} buildpack:latest)
+          docker tag  buildpack:latest $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:${{ steps.buildpack-pr-check.outputs.version }}
+          docker push $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:${{ steps.buildpack-pr-check.outputs.version }}
+
+          docker tag  buildpack:latest $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:latest
+          docker push $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:latest
+
           docker logout
 
-#          VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
-#          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
-#          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:$VERSION
-#
-#          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
-#          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:latest
 
