@@ -1,7 +1,7 @@
 name: buildpack:create
 
 on:
-  issues:
+  pull_request:
     types: [labeled]
 
 jobs:
