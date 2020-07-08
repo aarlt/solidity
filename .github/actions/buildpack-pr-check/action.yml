@@ -5,7 +5,9 @@ inputs:
     description: "GitHub access token"
     required: true
     default: ""
+  label:
+    description: "Label to check for"
+    required: true
 runs:
   using: "node12"
   main: "dist/index.js"
-
