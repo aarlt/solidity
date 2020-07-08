@@ -7,8 +7,8 @@ if [ -z "${IMAGE_NAME}" ] || [ -z "${IMAGE_VARIANT}" ]; then
 fi
 
 SCRIPT=/tmp/scripts/build.sh
-if [ -f ".github/workflows/buildpack/test/${IMAGE_NAME}.sh" ]; then
-  SCRIPT=/tmp/.github/workflows/buildpack/test/${IMAGE_NAME}.sh
+if [ -f ".github/workflows/buildpack/test/${IMAGE_VARIANT}.sh" ]; then
+  SCRIPT=/tmp/.github/workflows/buildpack/test/${IMAGE_VARIANT}.sh
 fi
 
 if [ "${IMAGE_VARIANT}" == "emscripten" ]; then
@@ -18,5 +18,5 @@ if [ "${IMAGE_VARIANT}" == "emscripten" ]; then
 else
   # run script within docker
   echo ">>> docker run -v \"${PWD}:/tmp\" -e CI=1 -e CC=${CC} -e CXX=${CXX} \"${IMAGE_NAME}\" \"${SCRIPT}\""
-  docker run -v "${PWD}:/tmp" -e CI=1 -e CC=${CC} -e CXX=${CXX} "${IMAGE_NAME}" "${SCRIPT}"
+  docker run -v "${PWD}:/tmp" -e CI=1 -e CC="${CC}" -e CXX="${CXX}" "${IMAGE_NAME}" "${SCRIPT}"
 fi
