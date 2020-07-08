@@ -14,11 +14,11 @@ if [ "${IMAGE_VARIANT}" == "emscripten" ]; then
   DOCKER_IMAGE_ID="${DOCKER_IMAGE_ID}-${EMSDK_VERSION}"
 fi
 VERSION=$(docker inspect --format='{{.Config.Labels.version}}' "${IMAGE_NAME}")
-REPO_DIGEST=$(docker inspect --format='{{.RepoDigests}}' "${IMAGE_NAME}")
 
 docker tag "${IMAGE_NAME}" "${DOCKER_IMAGE_ID}:${VERSION}"
 docker push "${DOCKER_IMAGE_ID}:${VERSION}"
 
+REPO_DIGEST=$(docker inspect --format='{{.RepoDigests}}' "${DOCKER_IMAGE_ID}:${VERSION}")
 echo "::set-env name=DOCKER_IMAGE::${DOCKER_IMAGE_ID}:${VERSION}"
 echo "::set-env name=DOCKER_REPO_DIGEST::${REPO_DIGEST}"
 
