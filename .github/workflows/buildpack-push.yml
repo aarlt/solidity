@@ -61,7 +61,7 @@ jobs:
         run: |
           docker load -i ${{ env.OUTPUT_PATH }}/${{ steps.buildpack-pr-check.outputs.artifact }}
           docker images
-          HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
+          HASH=$(sha256sum ${{ env.OUTPUT_PATH }}/${{ steps.buildpack-pr-check.outputs.artifact }} | awk '{print $1}')
           echo "::set-env name=HASH::$HASH"
           echo "HASH=$HASH"
 
