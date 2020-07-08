@@ -39,7 +39,7 @@ jobs:
             false
           fi
 
-    - name: Build image
+      - name: Build image
         run: |
           docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
 
