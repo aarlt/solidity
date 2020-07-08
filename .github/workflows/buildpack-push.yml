@@ -77,6 +77,6 @@ jobs:
           docker tag  buildpack:latest $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:latest
           docker push $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:latest
 
-          docker logout
+          docker logout docker.pkg.github.com
 
 

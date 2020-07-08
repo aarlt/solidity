@@ -75,4 +75,3 @@ jobs:
           artifact: ${{ env.ARCHIVE }}
           package-name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VARIANT }}
           package-version: ${{ env.VERSION }}
-
