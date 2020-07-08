@@ -20,16 +20,15 @@ async function run() {
           comment.body.indexOf("Commit: ") >= 0
   );
 
-  pack = actionComment.body.substr(comment.body.indexOf("Package: ") + 10)
+  pack = actionComment.body.substr(comment.body.indexOf("Package: ") + 9)
   pack = pack.subst(pack.indexOf("\n"));
-  version = actionComment.body.substr(comment.body.indexOf("Version: ") + 10)
+  version = actionComment.body.substr(comment.body.indexOf("Version: ") + 9)
   version = version.subst(version.indexOf("\n"));
-  action = actionComment.body.substr(comment.body.indexOf("Action: ") + 10)
+  action = actionComment.body.substr(comment.body.indexOf("Action: ") + 8)
   action = action.subst(action.indexOf("\n"));
   artifact = actionComment.body.substr(comment.body.indexOf("Artifact: ") + 10)
   artifact = artifact.subst(artifact.indexOf("\n"));
-  commit = actionComment.body.substr(comment.body.indexOf("Commit: ") + 10)
-  commit = commit.subst(commit.indexOf("\n"));
+  commit = actionComment.body.substr(comment.body.indexOf("Commit: ") + 8)
 
   core.setOutput("package", pack.trim());
   core.setOutput("version", version.trim());
