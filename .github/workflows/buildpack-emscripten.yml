@@ -19,24 +19,29 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Check version
+        run: .github/workflows/buildpack/check-version.sh
+
       - name: Build image
-        run: |
-          docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
+        run: docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
 
       - name: Test image
-        run: |
-          scripts/build_emscripten.sh emscripten_build $IMAGE_NAME
+        run: .github/workflows/buildpack/test-image.sh
 
       - name: Push image
-        run: |
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+        run: .github/workflows/buildpack/push-image.sh
 
-          EMSDK_VERSION=$(grep "emscripten/emsdk" scripts/docker/buildpack/Dockerfile.emscripten | cut -f 2 -d ' ' | cut -f 2 -d ':')
-          VERSION=$(docker inspect --format={{.Config.Labels.version}} $IMAGE_NAME)
-          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:$VERSION
-          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:$VERSION
+      - name: Prepare action
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
 
-          docker tag $IMAGE_NAME $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:latest
-          docker push $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT-$EMSDK_VERSION:latest
+      - name: Build action
+        run: npm i && npm run build
+        working-directory: ./.github/actions/pr-comment
 
-          docker logout
+      - name: Create PR comment
+        uses: ./.github/actions/pr-comment
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment: "Successfully pushed `${{ env.DOCKER_IMAGE }}` @ `${{ env.DOCKER_REPO_DIGEST }}`."
