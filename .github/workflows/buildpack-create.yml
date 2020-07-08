@@ -18,6 +18,7 @@ on:
 jobs:
   build:
     env:
+      OUTPUT_PATH: ${{ github.workspace }}/.output
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
 
