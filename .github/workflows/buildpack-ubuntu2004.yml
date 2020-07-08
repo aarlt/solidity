@@ -37,7 +37,7 @@ jobs:
 
       - name: Build action
         run: npm i && npm run build
-        working-directory: ./.github/actions/buildpack-pr-comment
+        working-directory: ./.github/actions/pr-comment
 
       - name: Create PR comment
         uses: ./.github/actions/pr-comment
