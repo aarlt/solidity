@@ -14,6 +14,7 @@ check_parameters() {
 check_version() {
   echo "-- check_version"
 
+  git fetch
   git branch
   DOCKERFILE="scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_VARIANT}"
   PREV_VERSION=$(git diff develop HEAD -- "${DOCKERFILE}" | grep -e "-LABEL version=\".*\"" | awk -F"\"" '{ print $2 }')
