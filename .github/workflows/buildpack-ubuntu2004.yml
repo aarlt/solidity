@@ -18,24 +18,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Check version
-        run: .github/workflows/buildpack/check-version.sh
+      - name: Upgrade ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VARIANT }}
+        run: |
+          echo "${GITHUB_TOKEN}" | docker login docker.pkg.github.com -u "${GITHUB_ACTOR}" --password-stdin
+          .github/workflows/buildpack/upgrade.sh
+          docker logout docker.pkg.github.com
 
-      - name: Build image
-        run: docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
-
-      - name: Test image
-        run: .github/workflows/buildpack/test-image.sh
-
-      - name: Push image
-        run: .github/workflows/buildpack/push-image.sh
-
-      - name: Prepare action
+      - name: Prepare PR comment action
         uses: actions/setup-node@v1
         with:
           node-version: "12.x"
 
-      - name: Build action
+      - name: Build PR comment action
         run: npm i && npm run build
         working-directory: ./.github/actions/pr-comment
 
@@ -43,4 +37,4 @@ jobs:
         uses: ./.github/actions/pr-comment
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          comment: "Successfully pushed `${{ env.DOCKER_IMAGE }}` @ `${{ env.DOCKER_REPO_DIGEST }}`."
+          comment: "`${{ env.DOCKER_IMAGE }} ${{ env.DOCKER_REPO_DIGEST }}`."
