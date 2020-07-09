@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
-if [ -z "${ROOTDIR}" ]
-then
-  ROOTDIR="$(dirname "$0")/.."
-fi
+ROOTDIR="$(dirname "$0")/.."
 BUILDDIR="${ROOTDIR}/build"
+
+if test ! -z "$1"; then
+	BUILDDIR="$1"
+fi
 
 if [[ $# -eq 0 ]]; then
     BUILD_TYPE=Release

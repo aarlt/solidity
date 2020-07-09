@@ -53,7 +53,7 @@ build_docker() {
 test_docker() {
   echo "-- test_docker"
 
-  docker run -v "${PWD}:/root/project" -w /root/project -e CI=1 -e CC="${CC}" -e CXX="${CXX}" -e ROOT_DIR=/root/project "${IMAGE_NAME}" "/root/project/.github/workflows/${IMAGE_NAME}/test-${IMAGE_VARIANT}.sh"
+  docker run -v "${PWD}:/root/project" -e CI=1 -e CC="${CC}" -e CXX="${CXX}" -e ROOT_DIR=/root/project "${IMAGE_NAME}" "/root/project/.github/workflows/${IMAGE_NAME}/test-${IMAGE_VARIANT}.sh" /root/project/build
 }
 
 push_docker() {

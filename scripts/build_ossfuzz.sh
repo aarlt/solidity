@@ -4,6 +4,10 @@ set -e
 ROOTDIR="$(dirname "$0")/.."
 BUILDDIR="${ROOTDIR}/build"
 
+if test ! -z "$1"; then
+	BUILDDIR="$1"
+fi
+
 mkdir -p "${BUILDDIR}"
 cd "${BUILDDIR}"
 
