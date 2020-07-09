@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-if [ -z ${ROOTDIR} ]
+if [ -z "${ROOTDIR}" ]
 then
   ROOTDIR="$(dirname "$0")/.."
 fi
