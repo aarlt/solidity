@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-ROOTDIR="$(dirname "$0")/.."
+if [ -z ${ROOTDIR} ]
+then
+  ROOTDIR="$(dirname "$0")/.."
+fi
 BUILDDIR="${ROOTDIR}/build"
 
 if [[ $# -eq 0 ]]; then
