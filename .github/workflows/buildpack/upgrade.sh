@@ -17,8 +17,8 @@ check_version() {
   git fetch
   git branch
   DOCKERFILE="scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_VARIANT}"
-  PREV_VERSION=$(git diff develop HEAD -- "${DOCKERFILE}" | grep -e "-LABEL version=\".*\"" | awk -F"\"" '{ print $2 }')
-  NEXT_VERSION=$(git diff develop HEAD -- "${DOCKERFILE}" | grep -e "+LABEL version=\".*\"" | awk -F"\"" '{ print $2 }')
+  PREV_VERSION=$(git diff origin/develop HEAD -- "${DOCKERFILE}" | grep -e "-LABEL version=\".*\"" | awk -F"\"" '{ print $2 }')
+  NEXT_VERSION=$(git diff origin/develop HEAD -- "${DOCKERFILE}" | grep -e "+LABEL version=\".*\"" | awk -F"\"" '{ print $2 }')
 
   if [ -z "${NEXT_VERSION}" ]; then
     echo ""
