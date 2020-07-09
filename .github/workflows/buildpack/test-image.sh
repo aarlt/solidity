@@ -12,11 +12,9 @@ if [ -f ".github/workflows/buildpack/test/${IMAGE_VARIANT}.sh" ]; then
 fi
 
 if [ "${IMAGE_VARIANT}" == "emscripten" ]; then
-  # build_emscripten.sh will setup docker
-  echo ">>> scripts/build_emscripten.sh emscripten_build \"${IMAGE_NAME}\""
+  # build_emscripten.sh will setup docker and executes build within
   scripts/build_emscripten.sh emscripten_build "${IMAGE_NAME}"
 else
   # run script within docker
-  echo ">>> docker run -v \"${PWD}:/tmp\" -e CI=1 -e CC=${CC} -e CXX=${CXX} \"${IMAGE_NAME}\" \"${SCRIPT}\""
   docker run -v "${PWD}:/tmp" -e CI=1 -e CC="${CC}" -e CXX="${CXX}" "${IMAGE_NAME}" "${SCRIPT}"
 fi
