@@ -22,7 +22,7 @@
 # (c) 2016-2019 solidity contributors.
 #------------------------------------------------------------------------------
 FROM buildpack-deps:focal AS base
-LABEL version="1"
+LABEL version="0"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -63,3 +63,4 @@ RUN true
 COPY --from=libraries /usr/bin /usr/bin
 RUN true
 COPY --from=libraries /usr/include /usr/include
+

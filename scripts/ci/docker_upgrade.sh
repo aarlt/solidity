@@ -29,9 +29,9 @@ check_version() {
   fi
 
   if [ -z "${PREV_VERSION}" ]; then
-    PREV_VERSION=0
+    PREV_VERSION=-1
     echo ""
-    echo "WARNING: no previous version found. Will set \$PREV_VERSION = 0."
+    echo "WARNING: no previous version found. Will set \$PREV_VERSION = -1."
     echo ""
   fi
 

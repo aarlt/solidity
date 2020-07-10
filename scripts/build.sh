@@ -2,11 +2,6 @@
 set -e
 
 ROOTDIR="$(dirname "$0")/.."
-if [[ "$( cd "$(dirname "$0")" ; pwd -P )" == *".github"* ]]
-then
-    ROOTDIR="/root/project"
-fi
-
 BUILDDIR="${ROOTDIR}/build"
 
 if [[ $# -eq 0 ]]; then
