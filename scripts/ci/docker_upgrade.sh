@@ -4,8 +4,8 @@ set -e
 check_parameters() {
   echo "-- check_parameters"
 
-  if [ -z "${IMAGE_NAME}" ] || [ -z "${IMAGE_VARIANT}" ] || [ -z "${GITHUB_TOKEN}" ] || [ -z "${GITHUB_ACTOR}" ] || [ -z "${GITHUB_DOCKER_REPOSITORY}" ]; then
-    echo "\${IMAGE_NAME}, \${IMAGE_VARIANT}, \${GITHUB_TOKEN}, \${GITHUB_ACTOR} and \${GITHUB_DOCKER_REPOSITORY} need to be defined."
+  if [ -z "${IMAGE_NAME}" ] || [ -z "${IMAGE_VARIANT}" ] || [ -z "${DOCKER_REPOSITORY}" ]; then
+    echo "\${IMAGE_NAME}, \${IMAGE_VARIANT} and \${DOCKER_REPOSITORY} need to be defined."
 
     false
   fi
@@ -29,9 +29,9 @@ check_version() {
   fi
 
   if [ -z "${PREV_VERSION}" ]; then
-    PREV_VERSION=$((NEXT_VERSION - 1))
+    PREV_VERSION=0
     echo ""
-    echo "WARNING: no previous version found. Will set \$PREV_VERSION = $PREV_VERSION."
+    echo "WARNING: no previous version found. Will set \$PREV_VERSION = 0."
     echo ""
   fi
 
@@ -51,16 +51,16 @@ build_docker() {
 }
 
 test_docker() {
-  echo "-- test_docker"
+  echo "-- test_docker @ '${PWD}'"
 
-  docker run -v "${PWD}:/root/project" -e CI=1 -e CC="${CC}" -e CXX="${CXX}" -e ROOT_DIR=/root/project "${IMAGE_NAME}" "/root/project/.github/workflows/${IMAGE_NAME}/test-${IMAGE_VARIANT}.sh"
+  docker run -v "${PWD}:/root/project" "${IMAGE_NAME}" "/root/project/scripts/ci/docker_test_${IMAGE_VARIANT}.sh"
 }
 
 push_docker() {
   echo "-- push_docker"
 
   VERSION=$(docker inspect --format='{{.Config.Labels.version}}' "${IMAGE_NAME}")
-  DOCKER_IMAGE_ID="${GITHUB_DOCKER_REPOSITORY}/${IMAGE_NAME}-${IMAGE_VARIANT}"
+  DOCKER_IMAGE_ID="${DOCKER_REPOSITORY}/${IMAGE_NAME}-${IMAGE_VARIANT}"
 
   docker tag "${IMAGE_NAME}" "${DOCKER_IMAGE_ID}:${VERSION}"
   docker push "${DOCKER_IMAGE_ID}:${VERSION}"

@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-ROOTDIR="$(dirname "$0")/.."
-if [[ "$( cd "$(dirname "$0")" ; pwd -P )" == *".github"* ]]
-then
-    ROOTDIR="/root/project"
-fi
-
+ROOTDIR="$(dirname "$0")/../.."
 BUILDDIR="${ROOTDIR}/build"
 
 mkdir -p "${BUILDDIR}"
