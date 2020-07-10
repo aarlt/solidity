@@ -18,11 +18,31 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Upgrade ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VARIANT }}
+      - name: docker login
+        run: echo "${GITHUB_TOKEN}" | docker login docker.pkg.github.com -u "${GITHUB_ACTOR}" --password-stdin
+
+      - name: check_version ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VARIANT }}
         run: |
-          echo "${GITHUB_TOKEN}" | docker login docker.pkg.github.com -u "${GITHUB_ACTOR}" --password-stdin
-          .github/workflows/buildpack/upgrade.sh
-          docker logout docker.pkg.github.com
+          source .github/workflows/buildpack/upgrade.sh
+          check_version
+
+      - name: build_docker ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VARIANT }}
+        run: |
+          source .github/workflows/buildpack/upgrade.sh
+          build_docker
+
+      - name: test_docker ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VARIANT }}
+        run: |
+          source .github/workflows/buildpack/upgrade.sh
+          test_docker
+
+      - name: push_docker ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VARIANT }}
+        run: |
+          source .github/workflows/buildpack/upgrade.sh
+          push_docker
+
+      - name: docker logout
+        run: docker logout docker.pkg.github.com
 
       - name: Prepare PR comment action
         uses: actions/setup-node@v1

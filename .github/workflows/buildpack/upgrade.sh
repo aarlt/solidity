@@ -75,7 +75,3 @@ push_docker() {
 }
 
 check_parameters
-check_version
-build_docker
-test_docker
-push_docker
