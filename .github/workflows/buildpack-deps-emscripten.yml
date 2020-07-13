@@ -1,18 +1,18 @@
-name: buildpack:ubuntu1804
+name: buildpack-deps:emscripten
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/buildpack-ubuntu1804.yml'
-      - 'scripts/docker/buildpack/Dockerfile.ubuntu1804'
+      - '.github/workflows/buildpack-deps-emscripten.yml'
+      - 'scripts/docker/buildpack-deps/Dockerfile.emscripten'
 
 jobs:
   build:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
-      IMAGE_NAME: buildpack
-      IMAGE_VARIANT: ubuntu1804
+      IMAGE_NAME: buildpack-deps
+      IMAGE_VARIANT: emscripten
 
     runs-on: ubuntu-latest
 
