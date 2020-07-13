@@ -53,7 +53,7 @@ build_docker() {
 test_docker() {
   echo "-- test_docker @ '${PWD}'"
 
-  docker run -v "${PWD}:/root/project" "${IMAGE_NAME}" "/root/project/scripts/ci/docker_test_${IMAGE_VARIANT}.sh"
+  docker run -v "${PWD}:/root/project" "${IMAGE_NAME}" "/root/project/scripts/ci/${IMAGE_NAME}_test_${IMAGE_VARIANT}.sh"
 }
 
 push_docker() {
