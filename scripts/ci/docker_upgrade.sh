@@ -18,7 +18,7 @@ check_dockerfile_was_changed() {
   local DOCKERFILE="scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_VARIANT}"
 
   # exit, if the dockerfile was not changed.
-  if [ "$(git diff --name-only origin/develop HEAD -- "${DOCKERFILE}")" ]; then
+  if [ "$(git diff --name-only origin/docker-workflow HEAD -- "${DOCKERFILE}")" ]; then
     echo "${DOCKERFILE} was not changed. Nothing to do."
     exit 0
   fi
