@@ -20,7 +20,8 @@ check_version() {
 
   DOCKERFILE="scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_VARIANT}"
 
-  if git show --name-only HEAD | grep -e "^${DOCKERFILE}\$"
+  # continue running the whole workflow only if corresponding Dockerfile was changed.
+  if ! git diff --name-only origin/develop HEAD  -- | grep -e "^${DOCKERFILE}\$"
   then
     echo "${DOCKERFILE} was not changed. Nothing to do."
     exit 0
@@ -39,8 +40,6 @@ check_version() {
   if [[ $((PREV_VERSION + 1)) != $((NEXT_VERSION)) ]]; then
     error "Version label in Dockerfile was not incremented. You may need to change 'LABEL version' in '${DOCKERFILE}'."
   fi
-
-
 }
 
 build_docker() {
