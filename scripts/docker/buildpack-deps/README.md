@@ -7,7 +7,7 @@ The `buildpack-deps` docker images are used to compile and test solidity within 
 The creation of the images are triggered by different workflows. For each resulting
 `buildpack-deps` docker image a workflow is defined in `.github/workflows/buildpack-deps`.
 The workflows get triggered, if the workflow file itself, or the Dockerfiles `scripts/docker/buildpack-deps/Dockerfile.*`
-where changed within a PR.
+were changed within a PR.
 
 ### Versioning
 
@@ -17,7 +17,7 @@ located in `develop`.
 
 ### Build, Test & Push
 
-If the version check was successful, the docker image will be build using the Dockerfile located in
+If the version check was successful, the docker image will be built using the Dockerfile located in
 `scripts/docker/buildpack-deps/Dockerfile.*`.
 
 The resulting docker image will be tested by executing

@@ -19,4 +19,6 @@ cd build
 
 # shellcheck disable=SC2086
 cmake .. -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE:-Release}" $CMAKE_OPTIONS -G "Unix Makefiles"
-make -j4
+
+[[ "${MAKE_JOBS}" != "" ]] || MAKE_JOBS=4
+make -j "${MAKE_JOBS}"

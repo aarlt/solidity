@@ -1,59 +1,51 @@
 #!/usr/bin/env bash
 set -e
 
-check_parameters() {
-  echo "-- check_parameters"
-
-  if [ -z "${IMAGE_NAME}" ] || [ -z "${IMAGE_VARIANT}" ] || [ -z "${DOCKER_REPOSITORY}" ]; then
-    echo "\${IMAGE_NAME}, \${IMAGE_VARIANT} and \${DOCKER_REPOSITORY} need to be defined."
-
-    false
-  fi
+function error() {
+  echo >&2 "ERROR: ${1} Aborting." && false
 }
+
+function warning() {
+  echo >&2 "WARNING: ${1}"
+}
+
+[[ $# == 3 ]] || error "Expected exactly 3 parameters: ${0} <IMAGE_NAME> <IMAGE_VARIANT> <DOCKER_REPOSITORY>"
+
+IMAGE_NAME=${1}
+IMAGE_VARIANT=${2}
+DOCKER_REPOSITORY=${3}
 
 check_version() {
   echo "-- check_version"
 
-  git fetch
+  git fetch origin
   git branch
   DOCKERFILE="scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_VARIANT}"
-  PREV_VERSION=$(git diff origin/develop HEAD -- "${DOCKERFILE}" | grep -e "-LABEL version=\".*\"" | awk -F"\"" '{ print $2 }')
-  NEXT_VERSION=$(git diff origin/develop HEAD -- "${DOCKERFILE}" | grep -e "+LABEL version=\".*\"" | awk -F"\"" '{ print $2 }')
+  PREV_VERSION=$(git diff origin/develop HEAD -- "${DOCKERFILE}" | grep -e '^\s*-LABEL\s\+version=".*"\s*$' | awk -F'"' '{ print $2 }')
+  NEXT_VERSION=$(git diff origin/develop HEAD -- "${DOCKERFILE}" | grep -e '^\s*+LABEL\s\+version=".*"\s*$' | awk -F'"' '{ print $2 }')
 
-  if [ -z "${NEXT_VERSION}" ]; then
-    echo ""
-    echo "ERROR: No version label defined in Dockerfile. You may need to add 'LABEL version' in '${DOCKERFILE}'. Aborting."
-    echo ""
+  [[ $NEXT_VERSION != "" ]] || error "No version label defined in Dockerfile. You may need to add 'LABEL version' in '${DOCKERFILE}'."
 
-    false
-  fi
-
-  if [ -z "${PREV_VERSION}" ]; then
+  [[ $PREV_VERSION != "" ]] || {
+    warning "no previous version found. Will set \$PREV_VERSION = 0."
     PREV_VERSION=0
-    echo ""
-    echo "WARNING: no previous version found. Will set \$PREV_VERSION = 0."
-    echo ""
-  fi
+  }
 
   if [[ $((PREV_VERSION + 1)) != $((NEXT_VERSION)) ]]; then
-    echo ""
-    echo "ERROR: Version label in Dockerfile was not incremented. You may need to change 'LABEL version' in '${DOCKERFILE}'. Aborting."
-    echo ""
-
-    false
+    error "Version label in Dockerfile was not incremented. You may need to change 'LABEL version' in '${DOCKERFILE}'."
   fi
 }
 
 build_docker() {
   echo "-- build_docker"
 
-  docker build "scripts/docker/${IMAGE_NAME}" --file "scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_VARIANT}" --tag "${IMAGE_NAME}"
+  docker build "scripts/docker/${IMAGE_NAME}" --file "scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_VARIANT}" --tag "${IMAGE_NAME}" || docker build "scripts/docker/${IMAGE_NAME}" --file "scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_VARIANT}" --tag "${IMAGE_NAME}"
 }
 
 test_docker() {
   echo "-- test_docker @ '${PWD}'"
 
-  docker run -v "${PWD}:/root/project" "${IMAGE_NAME}" "/root/project/scripts/ci/${IMAGE_NAME}_test_${IMAGE_VARIANT}.sh"
+  docker run --rm --volume "${PWD}:/root/project" "${IMAGE_NAME}" "/root/project/scripts/ci/${IMAGE_NAME}_test_${IMAGE_VARIANT}.sh"
 }
 
 push_docker() {
@@ -74,7 +66,6 @@ push_docker() {
   echo "::set-env name=DOCKER_REPO_DIGEST::${REPO_DIGEST}"
 }
 
-check_parameters
 check_version
 build_docker
 test_docker
