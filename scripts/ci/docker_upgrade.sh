@@ -18,9 +18,14 @@ DOCKER_REPOSITORY=${3}
 check_version() {
   echo "-- check_version"
 
-  git fetch origin
-  git branch
   DOCKERFILE="scripts/docker/${IMAGE_NAME}/Dockerfile.${IMAGE_VARIANT}"
+
+  if git show --name-only HEAD | grep -e "^${DOCKERFILE}\$"
+  then
+    echo "${DOCKERFILE} was not changed. Nothing to do."
+    exit 0
+  fi
+
   PREV_VERSION=$(git diff origin/develop HEAD -- "${DOCKERFILE}" | grep -e '^\s*-LABEL\s\+version=".*"\s*$' | awk -F'"' '{ print $2 }')
   NEXT_VERSION=$(git diff origin/develop HEAD -- "${DOCKERFILE}" | grep -e '^\s*+LABEL\s\+version=".*"\s*$' | awk -F'"' '{ print $2 }')
 
@@ -34,6 +39,8 @@ check_version() {
   if [[ $((PREV_VERSION + 1)) != $((NEXT_VERSION)) ]]; then
     error "Version label in Dockerfile was not incremented. You may need to change 'LABEL version' in '${DOCKERFILE}'."
   fi
+
+
 }
 
 build_docker() {
