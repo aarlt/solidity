@@ -182,7 +182,10 @@ u256 EVMInstructionInterpreter::eval(
 	case Instruction::ADDRESS:
 		return m_state.address;
 	case Instruction::BALANCE:
-		return m_state.balance;
+		if (arg[0] == m_state.address)
+			return m_state.selfbalance;
+		else
+			return m_state.balance;
 	case Instruction::SELFBALANCE:
 		return m_state.selfbalance;
 	case Instruction::ORIGIN:
@@ -406,17 +409,17 @@ u256 EVMInstructionInterpreter::eval(
 	case Instruction::SWAP14:
 	case Instruction::SWAP15:
 	case Instruction::SWAP16:
-	// --------------- EVM 2.0 ---------------
-	case Instruction::JUMPTO:
-	case Instruction::JUMPIF:
-	case Instruction::JUMPV:
-	case Instruction::JUMPSUB:
-	case Instruction::JUMPSUBV:
-	case Instruction::BEGINSUB:
-	case Instruction::BEGINDATA:
-	case Instruction::RETURNSUB:
-	case Instruction::PUTLOCAL:
-	case Instruction::GETLOCAL:
+	// --------------- EIP-615 ---------------
+	case Instruction::EIP615_JUMPTO:
+	case Instruction::EIP615_JUMPIF:
+	case Instruction::EIP615_JUMPV:
+	case Instruction::EIP615_JUMPSUB:
+	case Instruction::EIP615_JUMPSUBV:
+	case Instruction::EIP615_BEGINSUB:
+	case Instruction::EIP615_BEGINDATA:
+	case Instruction::EIP615_RETURNSUB:
+	case Instruction::EIP615_PUTLOCAL:
+	case Instruction::EIP615_GETLOCAL:
 	{
 		yulAssert(false, "");
 		return 0;

@@ -146,7 +146,7 @@ void CompilerContext::callYulFunction(
 	m_externallyUsedYulFunctions.insert(_name);
 	auto const retTag = pushNewTag();
 	CompilerUtils(*this).moveIntoStack(_inArgs);
-	appendJumpTo(namedTag(_name));
+	appendJumpTo(namedTag(_name), evmasm::AssemblyItem::JumpType::IntoFunction);
 	adjustStackOffset(static_cast<int>(_outArgs) - 1 - static_cast<int>(_inArgs));
 	*this << retTag.tag();
 }
@@ -404,7 +404,7 @@ void CompilerContext::appendInlineAssembly(
 			stackDiff -= 1;
 		if (stackDiff < 1 || stackDiff > 16)
 			BOOST_THROW_EXCEPTION(
-				CompilerError() <<
+				StackTooDeepError() <<
 				errinfo_sourceLocation(_identifier.location) <<
 				util::errinfo_comment("Stack too deep (" + to_string(stackDiff) + "), try removing local variables.")
 			);

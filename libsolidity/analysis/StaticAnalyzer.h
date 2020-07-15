@@ -73,9 +73,6 @@ private:
 	bool visit(BinaryOperation const& _operation) override;
 	bool visit(FunctionCall const& _functionCall) override;
 
-	/// @returns the size of this type in storage, including all sub-types.
-	static bigint structureSizeEstimate(Type const& _type, std::set<StructDefinition const*>& _structsSeen);
-
 	langutil::ErrorReporter& m_errorReporter;
 
 	/// Flag that indicates whether the current contract definition is a library.

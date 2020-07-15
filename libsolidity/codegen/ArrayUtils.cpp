@@ -226,8 +226,9 @@ void ArrayUtils::copyArrayToStorage(ArrayType const& _targetType, ArrayType cons
 				else
 					solUnimplemented("Copying of type " + _sourceType.toString(false) + " to storage not yet supported.");
 				// stack: target_ref target_data_end source_data_pos target_data_pos source_data_end [target_byte_offset] [source_byte_offset] <source_value>...
-				solAssert(
+				assertThrow(
 					2 + byteOffsetSize + sourceBaseType->sizeOnStack() <= 16,
+					StackTooDeepError,
 					"Stack too deep, try removing local variables."
 				);
 				// fetch target storage reference
@@ -934,11 +935,6 @@ void ArrayUtils::clearStorageLoop(TypePointer _type) const
 			}
 			// stack: end_pos pos
 
-			// jump to and return from the loop to allow for duplicate code removal
-			evmasm::AssemblyItem returnTag = _context.pushNewTag();
-			_context << Instruction::SWAP2 << Instruction::SWAP1;
-
-			// stack: <return tag> end_pos pos
 			evmasm::AssemblyItem loopStart = _context.appendJumpToNew();
 			_context << loopStart;
 			// check for loop condition
@@ -958,11 +954,8 @@ void ArrayUtils::clearStorageLoop(TypePointer _type) const
 			_context.appendJumpTo(loopStart);
 			// cleanup
 			_context << zeroLoopEnd;
-			_context << Instruction::POP << Instruction::SWAP1;
-			// "return"
-			_context << Instruction::JUMP;
+			_context << Instruction::POP;
 
-			_context << returnTag;
 			solAssert(_context.stackHeight() == stackHeightStart - 1, "");
 		}
 	);

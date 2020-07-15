@@ -60,6 +60,7 @@ bool ContractLevelChecker::check(ContractDefinition const& _contract)
 	checkLibraryRequirements(_contract);
 	checkBaseABICompatibility(_contract);
 	checkPayableFallbackWithoutReceive(_contract);
+	checkStorageSize(_contract);
 
 	return Error::containsOnlyWarnings(m_errorReporter.errors());
 }
@@ -151,13 +152,13 @@ void ContractLevelChecker::findDuplicateDefinitions(map<string, vector<T>> const
 				if constexpr (is_same_v<T, FunctionDefinition const*>)
 				{
 					error = 1686_error;
-					message = "Function with same name and arguments defined twice.";
+					message = "Function with same name and parameter types defined twice.";
 				}
 				else
 				{
 					static_assert(is_same_v<T, EventDefinition const*>, "Expected \"FunctionDefinition const*\" or \"EventDefinition const*\"");
 					error = 5883_error;
-					message = "Event with same name and arguments defined twice.";
+					message = "Event with same name and parameter types defined twice.";
 				}
 
 				ssl.limitSize(message);
@@ -457,4 +458,21 @@ void ContractLevelChecker::checkPayableFallbackWithoutReceive(ContractDefinition
 				"This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.",
 				SecondarySourceLocation{}.append("The payable fallback function is defined here.", fallback->location())
 			);
+}
+
+void ContractLevelChecker::checkStorageSize(ContractDefinition const& _contract)
+{
+	bigint size = 0;
+	vector<VariableDeclaration const*> variables;
+	for (ContractDefinition const* contract: boost::adaptors::reverse(_contract.annotation().linearizedBaseContracts))
+		for (VariableDeclaration const* variable: contract->stateVariables())
+			if (!(variable->isConstant() || variable->immutable()))
+			{
+				size += variable->annotation().type->storageSizeUpperBound();
+				if (size >= bigint(1) << 256)
+				{
+					m_errorReporter.typeError(7676_error, _contract.location(), "Contract too large for storage.");
+					break;
+				}
+			}
 }

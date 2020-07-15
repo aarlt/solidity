@@ -155,18 +155,6 @@ bool StaticAnalyzer::visit(VariableDeclaration const& _variable)
 			// This is not a no-op, the entry might pre-exist.
 			m_localVarUseCount[make_pair(_variable.id(), &_variable)] += 0;
 	}
-	else if (_variable.isStateVariable())
-	{
-		set<StructDefinition const*> structsSeen;
-		if (structureSizeEstimate(*_variable.type(), structsSeen) >= bigint(1) << 64)
-			m_errorReporter.warning(
-				3408_error,
-				_variable.location(),
-				"Variable covers a large part of storage and thus makes collisions likely. "
-				"Either use mappings or dynamic arrays and allow their size to be increased only "
-				"in small quantities per transaction."
-			);
-	}
 	return true;
 }
 
@@ -337,35 +325,4 @@ bool StaticAnalyzer::visit(FunctionCall const& _functionCall)
 			);
 	}
 	return true;
-}
-
-bigint StaticAnalyzer::structureSizeEstimate(Type const& _type, set<StructDefinition const*>& _structsSeen)
-{
-	switch (_type.category())
-	{
-	case Type::Category::Array:
-	{
-		auto const& t = dynamic_cast<ArrayType const&>(_type);
-		return structureSizeEstimate(*t.baseType(), _structsSeen) * (t.isDynamicallySized() ? 1 : t.length());
-	}
-	case Type::Category::Struct:
-	{
-		auto const& t = dynamic_cast<StructType const&>(_type);
-		bigint size = 1;
-		if (!_structsSeen.count(&t.structDefinition()))
-		{
-			_structsSeen.insert(&t.structDefinition());
-			for (auto const& m: t.members(nullptr))
-				size += structureSizeEstimate(*m.type, _structsSeen);
-		}
-		return size;
-	}
-	case Type::Category::Mapping:
-	{
-		return structureSizeEstimate(*dynamic_cast<MappingType const&>(_type).valueType(), _structsSeen);
-	}
-	default:
-		break;
-	}
-	return bigint(1);
 }

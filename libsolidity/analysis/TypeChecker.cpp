@@ -36,6 +36,7 @@
 
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 #include <memory>
 #include <vector>
@@ -90,6 +91,8 @@ bool TypeChecker::visit(ContractDefinition const& _contract)
 
 	for (auto const& n: _contract.subNodes())
 		n->accept(*this);
+
+	m_currentContract = nullptr;
 
 	return false;
 }
@@ -334,7 +337,7 @@ bool TypeChecker::visit(FunctionDefinition const& _function)
 		if (_function.libraryFunction())
 			m_errorReporter.typeError(7708_error, _function.location(), "Library functions cannot be payable.");
 		if (_function.isOrdinary() && !_function.isPartOfExternalInterface())
-			m_errorReporter.typeError(5587_error, _function.location(), "Internal functions cannot be payable.");
+			m_errorReporter.typeError(5587_error, _function.location(), "\"internal\" and \"private\" functions cannot be payable.");
 	}
 	auto checkArgumentAndReturnParameter = [&](VariableDeclaration const& var) {
 		if (type(var)->category() == Type::Category::Mapping)
@@ -523,6 +526,10 @@ bool TypeChecker::visit(VariableDeclaration const& _variable)
 			m_errorReporter.typeError(6744_error, _variable.location(), "Internal or recursive type is not allowed for public state variables.");
 	}
 
+	bool isStructMemberDeclaration = dynamic_cast<StructDefinition const*>(_variable.scope()) != nullptr;
+	if (isStructMemberDeclaration)
+		return false;
+
 	if (auto referenceType = dynamic_cast<ReferenceType const*>(varType))
 	{
 		auto result = referenceType->validForLocation(referenceType->location());
@@ -532,7 +539,35 @@ bool TypeChecker::visit(VariableDeclaration const& _variable)
 		{
 			solAssert(!result.message().empty(), "Expected detailed error message");
 			m_errorReporter.typeError(1534_error, _variable.location(), result.message());
+			return false;
 		}
+	}
+
+	if (varType->dataStoredIn(DataLocation::Storage))
+	{
+		auto collisionMessage = [&](string const& variableOrType, bool isVariable) -> string {
+			return
+				(isVariable ? "Variable " : "Type ") +
+				util::escapeAndQuoteString(variableOrType) +
+				" covers a large part of storage and thus makes collisions likely."
+				" Either use mappings or dynamic arrays and allow their size to be increased only"
+				" in small quantities per transaction.";
+		};
+
+		if (varType->storageSizeUpperBound() >= bigint(1) << 64)
+		{
+			if (_variable.isStateVariable())
+				m_errorReporter.warning(3408_error, _variable.location(), collisionMessage(_variable.name(), true));
+			else
+				m_errorReporter.warning(
+					2332_error,
+					_variable.typeName() ? _variable.typeName()->location() : _variable.location(),
+					collisionMessage(varType->canonicalName(), false)
+				);
+		}
+		vector<Type const*> oversizedSubtypes = frontend::oversizedSubtypes(*varType);
+		for (Type const* subtype: oversizedSubtypes)
+			m_errorReporter.warning(7325_error, _variable.typeName()->location(), collisionMessage(subtype->canonicalName(), false));
 	}
 
 	return false;
@@ -1336,7 +1371,7 @@ bool TypeChecker::visit(Conditional const& _conditional)
 					_conditional.location(),
 					"True expression's type " +
 					trueType->toString() +
-					" doesn't match false expression's type " +
+					" does not match false expression's type " +
 					falseType->toString() +
 					"."
 					);
@@ -2353,6 +2388,8 @@ bool TypeChecker::visit(FunctionCall const& _functionCall)
 bool TypeChecker::visit(FunctionCallOptions const& _functionCallOptions)
 {
 	solAssert(_functionCallOptions.options().size() == _functionCallOptions.names().size(), "Lengths of name & value arrays differ!");
+
+	_functionCallOptions.expression().annotation().arguments = _functionCallOptions.annotation().arguments;
 
 	_functionCallOptions.expression().accept(*this);
 

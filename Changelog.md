@@ -1,18 +1,49 @@
-### 0.6.11 (unreleased)
+### 0.6.12 (unreleased)
 
 Language Features:
+ * Wasm backend: Add ``i32.ctz``, ``i64.ctz``, ``i32.popcnt``, and ``i64.popcnt``.
+
+Compiler Features:
+ * Code Generator: Evaluate ``keccak256`` of string literals at compile-time.
+ * Peephole Optimizer: Remove unnecessary masking of tags.
+ * Yul EVM Code Transform: Free stack slots directly after visiting the right-hand-side of variable declarations instead of at the end of the statement only.
+
+Bugfixes:
+ * Type Checker: Fix overload resolution in combination with ``{value: ...}``.
+ * Type Checker: Fix internal compiler error related to oversized types.
+
+Compiler Features:
+ * Build System: Update internal dependency of jsoncpp to 1.9.3.
+ * Optimizer: Add rule to remove shifts inside the byte opcode.
+ * Peephole Optimizer: Add rule to remove swap after dup.
+
+
+### 0.6.11 (2020-07-07)
+
+Language Features:
+ * General: Add unit denomination ``gwei``
+ * Yul: Support ``linkersymbol`` builtin in standalone assembly mode to refer to library addresses.
+ * Yul: Support using string literals exceeding 32 bytes as literal arguments for builtins.
 
 
 Compiler Features:
- * NatSpec: Add fields "kind" and "version" to the JSON output.
+ * NatSpec: Add fields ``kind`` and ``version`` to the JSON output.
+ * NatSpec: Inherit tags from unique base functions if derived function does not provide any.
  * Commandline Interface: Prevent some incompatible commandline options from being used together.
+ * NatSpec: Support NatSpec comments on events.
+ * Yul Optimizer: Store knowledge about storage / memory after ``a := sload(x)`` / ``a := mload(x)``.
+ * SMTChecker: Support external calls to unknown code.
+ * Source Maps: Also tag jumps into and out of Yul functions as jumps into and out of functions.
 
 
 Bugfixes:
  * NatSpec: Do not consider ``////`` and ``/***`` as NatSpec comments.
- * Type Checker: Fix internal error related to ``using for`` applied to non-libraries.
+ * Type Checker: Disallow constructor parameters with ``calldata`` data location.
  * Type Checker: Do not disallow assigning to calldata variables.
+ * Type Checker: Fix internal error related to ``using for`` applied to non-libraries.
  * Wasm backend: Fix code generation for for-loops with pre statements.
+ * Wasm backend: Properly support both ``i32.drop`` and ``i64.drop``, and remove ``drop``.
+ * Yul: Disallow the same variable to occur multiple times on the left-hand side of an assignment.
  * Yul: Fix source location of variable multi-assignment.
 
 
