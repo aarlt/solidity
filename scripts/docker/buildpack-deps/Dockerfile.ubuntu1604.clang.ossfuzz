@@ -24,6 +24,7 @@
 FROM gcr.io/oss-fuzz-base/base-clang as base
 LABEL version="1"
 
+
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update; \
