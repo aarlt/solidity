@@ -29,7 +29,7 @@
 #   make version=1.39.15 build
 #
 FROM emscripten/emsdk:1.39.15 AS base
-LABEL version="1"
+LABEL version="5"
 
 
 ADD emscripten.jam /usr/src
