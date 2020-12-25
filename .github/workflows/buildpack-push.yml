@@ -1,0 +1,82 @@
+name: buildpack:push
+
+on:
+  pull_request:
+    types: [labeled]
+    paths:
+      - '.github/workflows/buildpack-emscripten.yml'
+      - 'scripts/docker/buildpack/Dockerfile.emscripten'
+      - '.github/workflows/buildpack-ubuntu1604.clang.ossfuzz.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1604.clang.ossfuzz'
+      - '.github/workflows/buildpack-ubuntu1804.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1804'
+      - '.github/workflows/buildpack-ubuntu2004.clang.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu2004.clang'
+      - '.github/workflows/buildpack-ubuntu2004.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu2004'
+
+jobs:
+  build:
+    env:
+      OUTPUT_PATH: ${{ github.workspace }}/.output
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Prepare action
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - name: Build action
+        run: npm i && npm run build
+        working-directory: ./.github/actions/buildpack-pr-check
+
+      - name: Check for buildpack PR
+        uses: ./.github/actions/buildpack-pr-check
+        id: buildpack-pr-check
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          label: "buildpack-release"
+
+      - name: Download image artifact
+        if: steps.buildpack-pr-check.outputs.publish == 'true'
+        run: |
+          echo ${{ steps.get-action-id.outputs.id }}
+          mkdir ${{ env.OUTPUT_PATH }}
+          cd ${{ env.OUTPUT_PATH }}
+          curl https://api.github.com/repos/aarlt/solidity/actions/runs/${{ steps.buildpack-pr-check.outputs.action }}/artifacts --output artifacts.json
+          downloadUrl=$(cat artifacts.json | jq -c '.artifacts[] | select(.name == "${{ steps.buildpack-pr-check.outputs.artifact }}") | .archive_download_url' | tr -d '"')
+          echo $downloadUrl
+          curl $downloadUrl --output packages.zip --user octocat:${{ secrets.GITHUB_TOKEN }} --verbose --location
+          unzip packages.zip
+          ls
+
+      - name: Load image
+        if: steps.buildpack-pr-check.outputs.publish == 'true'
+        run: |
+          docker load -i ${{ env.OUTPUT_PATH }}/${{ steps.buildpack-pr-check.outputs.artifact }}
+          docker images
+          HASH=$(sha256sum ${{ env.OUTPUT_PATH }}/${{ steps.buildpack-pr-check.outputs.artifact }} | awk '{print $1}')
+          echo "::set-env name=HASH::$HASH"
+          echo "HASH=$HASH"
+
+      - name: Push image
+        if: steps.buildpack-pr-check.outputs.publish == 'true'
+        run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+
+          VERSION=$(docker inspect --format={{.Config.Labels.version}} buildpack:latest)
+          docker tag  buildpack:latest $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:${{ steps.buildpack-pr-check.outputs.version }}
+          docker push $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:${{ steps.buildpack-pr-check.outputs.version }}
+
+          docker tag  buildpack:latest $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:latest
+          docker push $GITHUB_DOCKER_REPOSITORY/${{ steps.buildpack-pr-check.outputs.package }}:latest
+
+          docker logout docker.pkg.github.com
+
+

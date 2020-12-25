@@ -1,0 +1,80 @@
+name: buildpack:ubuntu1604.clang.ossfuzz
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/buildpack-ubuntu1604.clang.ossfuzz.yml'
+      - 'scripts/docker/buildpack/Dockerfile.ubuntu1604.clang.ossfuzz'
+
+jobs:
+  build:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_DOCKER_REPOSITORY: docker.pkg.github.com/${{ github.repository }}
+      IMAGE_NAME: buildpack
+      IMAGE_VARIANT: ubuntu1604.clang.ossfuzz
+      CC: clang
+      CXX: clang++
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check version
+        run: |
+          VERSION=$(grep "LABEL version" scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT | awk -F'"' '$0=$2')
+          echo "::set-env name=VERSION::$VERSION"
+
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+          VERSION_EXIST=$(docker pull -q $GITHUB_DOCKER_REPOSITORY/$IMAGE_NAME-$IMAGE_VARIANT:${VERSION} || echo false && true)
+          docker logout docker.pkg.github.com
+
+          if [ "${VERSION_EXIST}" != "false" ]
+          then
+            echo ""
+            echo "ERROR: version '${VERSION}' already exist for '$IMAGE_NAME-$IMAGE_VARIANT'. Aborting."
+            echo ""
+
+            false
+          fi
+
+      - name: Build image
+        run: |
+          docker build scripts/docker/${IMAGE_NAME} --file scripts/docker/${IMAGE_NAME}/Dockerfile.$IMAGE_VARIANT --tag $IMAGE_NAME
+
+      - name: Test image
+        run: |
+          docker run -v ${PWD}:/tmp -e CI=1 -e CC=$CC -e CXX=$CXX $IMAGE_NAME /tmp/scripts/docker/${IMAGE_NAME}/test/test-$IMAGE_VARIANT.sh
+
+      - name: Save image
+        run: |
+          docker save -o $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME
+          HASH=$(sha256sum $IMAGE_NAME-$IMAGE_VARIANT.tar | awk '{print $1}')
+          mv $IMAGE_NAME-$IMAGE_VARIANT.tar $IMAGE_NAME-$IMAGE_VARIANT-$HASH
+          echo "::set-env name=HASH::$HASH"
+          echo "::set-env name=ARCHIVE::$IMAGE_NAME-$IMAGE_VARIANT-$HASH"
+
+      - name: Upload image
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARCHIVE }}
+          path: ${{ env.ARCHIVE }}
+
+      - name: Prepare action
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - name: Build action
+        run: npm i && npm run build
+        working-directory: ./.github/actions/buildpack-pr-comment
+
+      - name: Create buildpack comment on PR
+        uses: ./.github/actions/buildpack-pr-comment
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          action-id: ${{ github.run_id }}
+          artifact: ${{ env.ARCHIVE }}
+          package-name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VARIANT }}
+          package-version: ${{ env.VERSION }}
